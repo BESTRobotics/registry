@@ -1,9 +1,15 @@
 package models
 
-import "time"
+import (
+	"time"
+
+	"github.com/jinzhu/gorm"
+)
 
 // Meta models certain information that all other types are required to have.
 type Meta struct {
+	gorm.Model
+
 	// Its very useful to know when an object was created.
 	Created time.Time
 
