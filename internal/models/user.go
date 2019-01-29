@@ -2,15 +2,12 @@ package models
 
 import (
 	"time"
-
-	"github.com/jinzhu/gorm"
+	//"github.com/jinzhu/gorm"
 )
 
 // User models the fields that are directly part of a human user of
 // the system.
 type User struct {
-	gorm.Model
-
 	// Version metadata that needs to be assigned to the user to
 	// allow more advanced data management.
 	Meta Meta
@@ -19,11 +16,11 @@ type User struct {
 	// uniquely identify them throughout the system.  This field
 	// is required to be set at all times and is the primary key
 	// for the user.
-	UID uint
+	UID int `gorm:"AUTO_INCREMENT;primary_key"`
 
 	// The user can have a username, these must be unique within
 	// the system, but can be changed at any time.
-	Username string
+	Username string `gorm:"not null;unique"`
 
 	// The user is required to have a valid address to receive
 	// mail.

@@ -5,27 +5,45 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
 )
 
-func init() {
-	http.HandleFunc("/status", okHandler)
+// New returns a new http.Server or dies trying.
+func New(mg MechGreg) (*Server, error) {
+	s := Server{
+		mg: mg,
+	}
+	s.g = gin.New()
+
+	s.g.GET("/status", s.statusPage)
+
+	v1 := s.g.Group("v1/")
+	{
+		v1.GET("/users", s.getUsers)
+		v1.POST("/users", s.newUser)
+		v1.GET("/users/:uid", s.getUser)
+		v1.PUT("/users/:uid", s.modUser)
+		v1.DELETE("/users/:uid", s.delUser)
+	}
+
+	return &s, nil
 }
 
 // Serve is the entrypoint to the http package that serves the API.
-func Serve() {
+func (s *Server) Serve() {
 	if viper.GetBool("dev.extweb") {
 		log.Println("Using external webroot", viper.GetString("dev.webroot"))
-		http.Handle("/", http.FileServer(http.Dir(viper.GetString("dev.webroot"))))
+		s.g.StaticFS("/app", http.Dir(viper.GetString("dev.webroot")))
 	}
 
 	bindstr := fmt.Sprintf("%s:%d",
-		viper.GetString("core.bind"),
-		viper.GetInt("core.port"))
+		viper.GetString("http.bind"),
+		viper.GetInt("http.port"))
 
-	log.Fatal(http.ListenAndServe(bindstr, nil))
+	s.g.Run(bindstr)
 }
 
-func okHandler(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("System OK"))
+func (s *Server) statusPage(c *gin.Context) {
+	c.String(http.StatusOK, "System OK")
 }
