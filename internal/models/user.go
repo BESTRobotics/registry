@@ -2,7 +2,6 @@ package models
 
 import (
 	"time"
-	//"github.com/jinzhu/gorm"
 )
 
 // User models the fields that are directly part of a human user of
