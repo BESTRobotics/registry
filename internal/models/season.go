@@ -8,5 +8,9 @@ type Season struct {
 
 	// Season names are the human readable name.  This should have
 	// a friendly name like "BEST Robotics Competition 2019"
-	Name string
+	Name string `gorm:"unique;not null"`
+
+	// Archived determines if this season is archived or not.
+	// Archived seasons lock all resources within them.
+	Archived bool
 }

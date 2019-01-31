@@ -19,5 +19,6 @@ func Open() (*gorm.DB, error) {
 	log.Println("Performing schema auto-migration")
 	db.AutoMigrate(&models.User{})
 	db.AutoMigrate(&models.Meta{})
+	db.AutoMigrate(&models.Season{})
 	return db, nil
 }

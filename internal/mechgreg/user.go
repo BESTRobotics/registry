@@ -13,7 +13,7 @@ func (mg *MechanicalGreg) NewUser(u models.User) (int, error) {
 	su := models.User{Username: u.Username}
 	if err := mg.rb.DB.Where(&su).First(&tu).Error; err == nil {
 		// This worked, so the user already existed
-		return 0, ErrUserExists
+		return 0, ErrResourceExists
 	}
 
 	if err := mg.rb.DB.Create(&u).Error; err != nil {
@@ -29,7 +29,7 @@ func (mg *MechanicalGreg) GetUser(uid int) (models.User, error) {
 
 	if err := mg.rb.DB.First(&user, uid).Error; err != nil {
 		log.Println(err)
-		return models.User{}, ErrNoSuchUser
+		return models.User{}, ErrNoSuchResource
 	}
 	return user, nil
 }
@@ -39,7 +39,7 @@ func (mg *MechanicalGreg) ModUser(u models.User) error {
 	log.Println(u)
 	var tu models.User
 	if err := mg.rb.DB.First(&tu, u.UID).Error; err != nil {
-		return ErrNoSuchUser
+		return ErrNoSuchResource
 	}
 
 	if err := mg.rb.DB.Model(&u).Updates(u).Error; err != nil {

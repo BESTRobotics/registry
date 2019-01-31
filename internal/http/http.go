@@ -25,6 +25,12 @@ func New(mg MechGreg) (*Server, error) {
 		v1.GET("/users/:uid", s.getUser)
 		v1.PUT("/users/:uid", s.modUser)
 		v1.DELETE("/users/:uid", s.delUser)
+
+		v1.GET("/seasons", s.getSeasons)
+		v1.POST("/seasons", s.newSeason)
+		v1.GET("/seasons/:id", s.getSeason)
+		v1.PUT("/seasons/update/:id", s.modSeason)
+		v1.PUT("/seasons/archive/:id", s.archiveSeason)
 	}
 
 	return &s, nil

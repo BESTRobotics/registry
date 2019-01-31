@@ -12,17 +12,15 @@ import (
 	"github.com/BESTRobotics/registry/internal/models"
 )
 
-func (s *Server) newUser(c *gin.Context) {
-	// Deserialize the user
-	var user models.User
-	if err := c.ShouldBindJSON(&user); err != nil {
+func (s *Server) newSeason(c *gin.Context) {
+	var season models.Season
+	if err := c.ShouldBindJSON(&season); err != nil {
 		c.AbortWithError(http.StatusBadRequest, err)
 		log.Println(err)
 		return
 	}
 
-	// Attempt to create the user
-	uid, err := s.mg.NewUser(user)
+	id, err := s.mg.NewSeason(season)
 	switch err {
 	case nil:
 		break
@@ -34,20 +32,19 @@ func (s *Server) newUser(c *gin.Context) {
 		log.Println(err)
 		return
 	}
-	c.Set("Location", fmt.Sprintf("/v1/users/%d", uid))
+	c.Set("Location", fmt.Sprintf("/v1/seasons/%d", id))
 	c.Status(http.StatusCreated)
 }
 
-func (s *Server) getUser(c *gin.Context) {
-	// Fetch the User from the request
-	uidStr := c.Param("uid")
-	uid, err := strconv.ParseInt(uidStr, 10, 32)
+func (s *Server) getSeason(c *gin.Context) {
+	idStr := c.Param("id")
+	id, err := strconv.ParseInt(idStr, 10, 32)
 	if err != nil {
 		c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
 
-	user, err := s.mg.GetUser(int(uid))
+	season, err := s.mg.GetSeason(int(id))
 	switch err {
 	case nil:
 		break
@@ -60,33 +57,17 @@ func (s *Server) getUser(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, user)
+	c.JSON(http.StatusOK, season)
 }
 
-func (s *Server) getUsers(c *gin.Context) {
-	minUID := int64(0)
-	count := int64(25)
-	minUIDStr := c.Query("min")
-	countStr := c.Query("count")
-	var err error
-
-	if minUIDStr != "" {
-		minUID, err = strconv.ParseInt(minUIDStr, 10, 32)
-		if err != nil {
-			c.AbortWithError(http.StatusBadRequest, err)
-			return
-		}
+func (s *Server) getSeasons(c *gin.Context) {
+	allStr := c.Query("all")
+	all := false
+	if allStr != "" {
+		all = true
 	}
 
-	if countStr != "" {
-		count, err = strconv.ParseInt(countStr, 10, 32)
-		if err != nil {
-			c.AbortWithError(http.StatusBadRequest, err)
-			return
-		}
-	}
-
-	set, err := s.mg.GetUserPage(int(minUID), int(count))
+	set, err := s.mg.GetSeasons(all)
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		log.Println(err)
@@ -96,26 +77,24 @@ func (s *Server) getUsers(c *gin.Context) {
 	c.JSON(http.StatusOK, set)
 }
 
-func (s *Server) modUser(c *gin.Context) {
-	// Deserialize the user
-	var user models.User
-	if err := c.ShouldBindJSON(&user); err != nil {
+func (s *Server) modSeason(c *gin.Context) {
+	idStr := c.Param("id")
+	id, err := strconv.ParseInt(idStr, 10, 32)
+	if err != nil {
+		c.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+
+	var season models.Season
+	if err := c.ShouldBindJSON(&season); err != nil {
 		c.AbortWithError(http.StatusBadRequest, err)
 		log.Println(err)
 		return
 	}
 
-	// Fetch the User from the request
-	uidStr := c.Param("uid")
-	uid, err := strconv.ParseInt(uidStr, 10, 32)
-	if err != nil {
-		c.AbortWithError(http.StatusBadRequest, err)
-		return
-	}
-	user.UID = int(uid)
-	user.Username = ""
+	season.ID = int(id)
 
-	switch s.mg.ModUser(user) {
+	switch s.mg.ModSeason(season) {
 	case nil:
 		break
 	case mechgreg.ErrNoSuchResource:
@@ -129,16 +108,15 @@ func (s *Server) modUser(c *gin.Context) {
 	c.Status(http.StatusNoContent)
 }
 
-func (s *Server) delUser(c *gin.Context) {
-	// Fetch the User from the request
-	uidStr := c.Param("uid")
-	uid, err := strconv.ParseInt(uidStr, 10, 32)
+func (s *Server) archiveSeason(c *gin.Context) {
+	idStr := c.Param("id")
+	id, err := strconv.ParseInt(idStr, 10, 32)
 	if err != nil {
 		c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
 
-	switch s.mg.DelUser(int(uid)) {
+	switch s.mg.ArchiveSeason(int(id)) {
 	case nil:
 		break
 	case mechgreg.ErrNoSuchResource:

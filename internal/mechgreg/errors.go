@@ -3,14 +3,13 @@ package mechgreg
 import "errors"
 
 var (
-	// ErrUserExists is to be returned in the case of an existing
-	// user.  Specificially in the case that the primary key
-	// collides.
-	ErrUserExists = errors.New("The specified user already exists")
+	// ErrResourceExists is to be returned in the case of an existing
+	// resource.
+	ErrResourceExists = errors.New("The specified resource already exists")
 
-	// ErrNoSuchUser is to be returned in the case of a request
-	// for a user that doesn't exist.
-	ErrNoSuchUser = errors.New("No user exists with the specified ID")
+	// ErrNoSuchResource is to be returned in the case of a
+	// request for a resource that doesn't exist.
+	ErrNoSuchResource = errors.New("No resource exists with the specified selector")
 
 	// ErrInternal is returned when something unforeseen goes
 	// wrong.  The original error must be dumped to the log before
