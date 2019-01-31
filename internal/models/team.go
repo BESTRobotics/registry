@@ -17,6 +17,6 @@ type Team struct {
 	Mentor []User
 
 	// As stated above, the team must be associated with a school,
-	// so that is stored here as a string.
-	SchoolName string
+	// so that is stored here.
+	School School
 }
