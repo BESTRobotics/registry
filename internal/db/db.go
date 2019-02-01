@@ -20,5 +20,6 @@ func Open() (*gorm.DB, error) {
 	db.AutoMigrate(&models.User{})
 	db.AutoMigrate(&models.Meta{})
 	db.AutoMigrate(&models.Season{})
+	db.AutoMigrate(&models.Hub{})
 	return db, nil
 }

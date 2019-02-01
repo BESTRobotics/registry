@@ -39,4 +39,9 @@ type Hub struct {
 	// something exciting about a hub that's been around longer
 	// than most of its competitors have been alive.
 	Founded time.Time
+
+	// From time to time a hub can't continue.  Since deleting
+	// would imply that a hub never will exist again, we instead
+	// mark them with the date they became inactive.
+	InactiveSince time.Time
 }

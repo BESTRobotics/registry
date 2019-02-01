@@ -29,4 +29,11 @@ type MechGreg interface {
 	GetSeasons(bool) ([]models.Season, error)
 	ModSeason(models.Season) error
 	ArchiveSeason(int) error
+
+	NewHub(models.Hub) (int, error)
+	GetHub(int) (models.Hub, error)
+	GetHubs(bool) ([]models.Hub, error)
+	ModHub(models.Hub) error
+	DeactivateHub(int) error
+	ActivateHub(int) error
 }
