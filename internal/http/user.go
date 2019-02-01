@@ -64,14 +64,14 @@ func (s *Server) getUser(c *gin.Context) {
 }
 
 func (s *Server) getUsers(c *gin.Context) {
-	minUID := int64(0)
+	page := int64(0)
 	count := int64(25)
-	minUIDStr := c.Query("min")
+	pageStr := c.Query("page")
 	countStr := c.Query("count")
 	var err error
 
-	if minUIDStr != "" {
-		minUID, err = strconv.ParseInt(minUIDStr, 10, 32)
+	if pageStr != "" {
+		page, err = strconv.ParseInt(pageStr, 10, 32)
 		if err != nil {
 			c.AbortWithError(http.StatusBadRequest, err)
 			return
@@ -86,7 +86,7 @@ func (s *Server) getUsers(c *gin.Context) {
 		}
 	}
 
-	set, err := s.mg.GetUserPage(int(minUID), int(count))
+	set, err := s.mg.GetUserPage(int(page), int(count))
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		log.Println(err)
@@ -112,33 +112,10 @@ func (s *Server) modUser(c *gin.Context) {
 		c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
-	user.UID = int(uid)
+	user.ID = int(uid)
 	user.Username = ""
 
 	switch s.mg.ModUser(user) {
-	case nil:
-		break
-	case mechgreg.ErrNoSuchResource:
-		c.AbortWithError(http.StatusNotFound, err)
-		return
-	default:
-		c.AbortWithError(http.StatusInternalServerError, err)
-		log.Println(err)
-		return
-	}
-	c.Status(http.StatusNoContent)
-}
-
-func (s *Server) delUser(c *gin.Context) {
-	// Fetch the User from the request
-	uidStr := c.Param("uid")
-	uid, err := strconv.ParseInt(uidStr, 10, 32)
-	if err != nil {
-		c.AbortWithError(http.StatusBadRequest, err)
-		return
-	}
-
-	switch s.mg.DelUser(int(uid)) {
 	case nil:
 		break
 	case mechgreg.ErrNoSuchResource:

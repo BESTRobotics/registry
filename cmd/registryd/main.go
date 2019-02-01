@@ -6,7 +6,6 @@ import (
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 
-	"github.com/BESTRobotics/registry/internal/db"
 	"github.com/BESTRobotics/registry/internal/http"
 	"github.com/BESTRobotics/registry/internal/mechgreg"
 
@@ -18,23 +17,15 @@ func init() {
 	pflag.Int("http.port", 8080, "Port to bind to")
 	pflag.String("dev.webroot", "web", "Webroot during development")
 	pflag.Bool("dev.extweb", true, "Use local webroot")
+	pflag.String("storage.path", ".", "Path to the data area")
 	viper.BindPFlags(pflag.CommandLine)
 }
 
 func main() {
 	log.Println("regitryd initializing")
 	log.Println("Preparing to serve")
-	db, err := db.Open()
-	if err != nil {
-		log.Panic(err)
-	}
-	defer db.Close()
 
-	rb := mechgreg.ResourceBundle{
-		DB: db,
-	}
-
-	mg, err := mechgreg.New(&rb)
+	mg, err := mechgreg.New()
 	if err != nil {
 		log.Panic(err)
 	}

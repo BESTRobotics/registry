@@ -2,6 +2,19 @@
 
 
 [[projects]]
+  name = "github.com/asdine/storm"
+  packages = [
+    ".",
+    "codec",
+    "codec/json",
+    "index",
+    "internal",
+    "q"
+  ]
+  revision = "5a6fe65e3993f63951c8e3f64c812536c9e23595"
+  version = "v2.1.2"
+
+[[projects]]
   name = "github.com/fsnotify/fsnotify"
   packages = ["."]
   revision = "c2828203cd70a50dcccfb2761f8b1f8ceef9a8e9"
@@ -150,6 +163,12 @@
   version = "v1.1.2"
 
 [[projects]]
+  name = "go.etcd.io/bbolt"
+  packages = ["."]
+  revision = "63597a96ec0ad9e6d43c3fc81e809909e0237461"
+  version = "v1.3.2"
+
+[[projects]]
   branch = "master"
   name = "golang.org/x/sys"
   packages = ["unix"]
@@ -183,6 +202,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "f54abff678c79c1998b5a6f37403f3d7392c4a89f14a96e08d237b08c94fcd2f"
+  inputs-digest = "05316154a5996c9f790612eed4b2c51970c1fa9dacd7d9f0eada98cc12276b50"
   solver-name = "gps-cdcl"
   solver-version = 1

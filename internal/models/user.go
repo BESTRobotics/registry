@@ -7,23 +7,19 @@ import (
 // User models the fields that are directly part of a human user of
 // the system.
 type User struct {
-	// Version metadata that needs to be assigned to the user to
-	// allow more advanced data management.
-	Meta Meta
-
-	// The UID is a numeric ID for the user that is used to
+	// The ID is a numeric ID for the user that is used to
 	// uniquely identify them throughout the system.  This field
 	// is required to be set at all times and is the primary key
 	// for the user.
-	UID int `gorm:"AUTO_INCREMENT;primary_key"`
+	ID int `storm:"increment"`
 
 	// The user can have a username, these must be unique within
 	// the system, but can be changed at any time.
-	Username string `gorm:"not null;unique"`
+	Username string `storm:"unique,index"`
 
 	// The user is required to have a valid address to receive
 	// mail.
-	EMail string
+	EMail string `storm:"unique,index"`
 
 	// Type is the type of user that this represents.  This can be
 	// things like "STUDENT" or "TEACHER" or "VOLUNTEER" etc.

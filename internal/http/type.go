@@ -21,7 +21,6 @@ type MechGreg interface {
 	NewUser(models.User) (int, error)
 	GetUser(int) (models.User, error)
 	ModUser(models.User) error
-	DelUser(int) error
 	GetUserPage(int, int) ([]models.User, error)
 
 	NewSeason(models.Season) (int, error)

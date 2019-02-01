@@ -20,7 +20,7 @@ func (s *Server) newHub(c *gin.Context) {
 		return
 	}
 
-	director, err := s.mg.GetUser(hub.Director.UID)
+	director, err := s.mg.GetUser(hub.Director.ID)
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		log.Println(err)
