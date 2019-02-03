@@ -50,6 +50,7 @@ func (mg *MechanicalGreg) GetHub(id int) (models.Hub, error) {
 		admin, err := mg.GetUser(hub.Admins[i].ID)
 		if err != nil {
 			log.Println("Error loading admin", err)
+			continue
 		}
 		admins = append(admins, admin)
 	}
