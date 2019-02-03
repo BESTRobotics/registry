@@ -41,6 +41,11 @@ func New(mg MechGreg) (*Server, error) {
 		v1.PUT("/hubs/:id/director", s.setHubDirector)
 		v1.PUT("/hubs/:id/admin", s.addHubAdmin)
 		v1.DELETE("/hubs/:id/admin", s.delHubAdmin)
+
+		v1.GET("/schools", s.getSchools)
+		v1.POST("/schools", s.newSchool)
+		v1.GET("/schools/:id", s.getSchool)
+		v1.PUT("/schools/:id/update", s.modSchool)
 	}
 
 	return &s, nil

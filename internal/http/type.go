@@ -39,4 +39,9 @@ type MechGreg interface {
 	GetHubDirector(int) (models.User, error)
 	AddHubAdmin(int, models.User) error
 	DelHubAdmin(int, models.User) error
+
+	NewSchool(models.School) (int, error)
+	GetSchool(int) (models.School, error)
+	GetSchools() ([]models.School, error)
+	ModSchool(models.School) error
 }
