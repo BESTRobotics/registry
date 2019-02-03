@@ -39,13 +39,28 @@ func New(mg MechGreg) (*Server, error) {
 		v1.PUT("/hubs/:id/activate", s.activateHub)
 		v1.GET("/hubs/:id/director", s.getHubDirector)
 		v1.PUT("/hubs/:id/director", s.setHubDirector)
-		v1.PUT("/hubs/:id/admin", s.addHubAdmin)
-		v1.DELETE("/hubs/:id/admin", s.delHubAdmin)
+		v1.PUT("/hubs/:id/admins", s.addHubAdmin)
+		v1.DELETE("/hubs/:id/admins", s.delHubAdmin)
 
 		v1.GET("/schools", s.getSchools)
 		v1.POST("/schools", s.newSchool)
 		v1.GET("/schools/:id", s.getSchool)
 		v1.PUT("/schools/:id/update", s.modSchool)
+
+		v1.GET("/teams", s.getTeams)
+		v1.POST("/teams", s.newTeam)
+		v1.GET("/teams/:id", s.getTeam)
+		v1.PUT("/teams/:id", s.modTeam)
+		v1.PUT("/teams/:id/school", s.setTeamSchool)
+		v1.GET("/teams/:id/school", s.getTeamSchool)
+		v1.GET("/teams/:id/coach", s.getTeamCoach)
+		v1.PUT("/teams/:id/coach", s.setTeamCoach)
+		v1.PUT("/teams/:id/mentors", s.addTeamMentor)
+		v1.DELETE("/teams/:id/mentors", s.delTeamMentor)
+		v1.PUT("/teams/:id/home", s.setTeamHome)
+		v1.GET("/teams/:id/home", s.getTeamHome)
+		v1.PUT("/teams/:id/deactivate", s.deactivateTeam)
+		v1.PUT("/teams/:id/activate", s.activateTeam)
 	}
 
 	return &s, nil

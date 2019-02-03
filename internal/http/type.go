@@ -44,4 +44,19 @@ type MechGreg interface {
 	GetSchool(int) (models.School, error)
 	GetSchools() ([]models.School, error)
 	ModSchool(models.School) error
+
+	NewTeam(models.Team) (int, error)
+	GetTeam(int) (models.Team, error)
+	GetTeams(bool) ([]models.Team, error)
+	ModTeam(models.Team) error
+	SetTeamSchool(int, models.School) error
+	GetTeamSchool(int) (models.School, error)
+	SetTeamCoach(int, models.User) error
+	GetTeamCoach(int) (models.User, error)
+	AddTeamMentor(int, models.User) error
+	DelTeamMentor(int, models.User) error
+	SetTeamHome(int, models.Hub) error
+	GetTeamHome(int) (models.Hub, error)
+	DeactivateTeam(int) error
+	ActivateTeam(int) error
 }
