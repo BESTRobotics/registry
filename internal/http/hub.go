@@ -20,16 +20,6 @@ func (s *Server) newHub(c *gin.Context) {
 		return
 	}
 
-	director, err := s.mg.GetUser(hub.Director.ID)
-	if err != nil {
-		c.AbortWithError(http.StatusInternalServerError, err)
-		log.Println(err)
-		return
-	}
-	hub.Director = director
-
-	log.Println(hub)
-
 	id, err := s.mg.NewHub(hub)
 	switch err {
 	case nil:
@@ -149,6 +139,117 @@ func (s *Server) activateHub(c *gin.Context) {
 	}
 
 	switch s.mg.ActivateHub(int(id)) {
+	case nil:
+		break
+	case mechgreg.ErrNoSuchResource:
+		c.AbortWithError(http.StatusNotFound, err)
+		return
+	default:
+		c.AbortWithError(http.StatusInternalServerError, err)
+		log.Println(err)
+		return
+	}
+	c.Status(http.StatusNoContent)
+}
+
+func (s *Server) setHubDirector(c *gin.Context) {
+	idStr := c.Param("id")
+	id, err := strconv.ParseInt(idStr, 10, 32)
+	if err != nil {
+		c.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+
+	var user models.User
+	if err := c.ShouldBindJSON(&user); err != nil {
+		c.AbortWithError(http.StatusBadRequest, err)
+		log.Println(err)
+		return
+	}
+
+	switch s.mg.SetHubDirector(int(id), user) {
+	case nil:
+		break
+	case mechgreg.ErrNoSuchResource:
+		c.AbortWithError(http.StatusNotFound, err)
+		return
+	default:
+		c.AbortWithError(http.StatusInternalServerError, err)
+		log.Println(err)
+		return
+	}
+	c.Status(http.StatusNoContent)
+}
+
+func (s *Server) getHubDirector(c *gin.Context) {
+	idStr := c.Param("id")
+	id, err := strconv.ParseInt(idStr, 10, 32)
+	if err != nil {
+		c.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+
+	hub, err := s.mg.GetHubDirector(int(id))
+	switch err {
+	case nil:
+		break
+	case mechgreg.ErrNoSuchResource:
+		c.AbortWithError(http.StatusNotFound, err)
+		return
+	default:
+		c.AbortWithError(http.StatusInternalServerError, err)
+		log.Println(err)
+		return
+	}
+
+	c.JSON(http.StatusOK, hub)
+}
+
+func (s *Server) addHubAdmin(c *gin.Context) {
+	idStr := c.Param("id")
+	id, err := strconv.ParseInt(idStr, 10, 32)
+	if err != nil {
+		c.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+
+	var user models.User
+	if err := c.ShouldBindJSON(&user); err != nil {
+		c.AbortWithError(http.StatusBadRequest, err)
+		log.Println(err)
+		return
+	}
+
+	switch s.mg.AddHubAdmin(int(id), user) {
+	case nil:
+		break
+	case mechgreg.ErrNoSuchResource:
+		c.AbortWithError(http.StatusNotFound, err)
+		return
+	default:
+		c.AbortWithError(http.StatusInternalServerError, err)
+		log.Println(err)
+		return
+	}
+	c.Status(http.StatusNoContent)
+}
+
+func (s *Server) delHubAdmin(c *gin.Context) {
+	idStr := c.Param("id")
+	id, err := strconv.ParseInt(idStr, 10, 32)
+	if err != nil {
+		c.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+
+	var user models.User
+	if err := c.ShouldBindJSON(&user); err != nil {
+		c.AbortWithError(http.StatusBadRequest, err)
+		log.Println(err)
+		return
+	}
+
+	switch s.mg.DelHubAdmin(int(id), user) {
 	case nil:
 		break
 	case mechgreg.ErrNoSuchResource:

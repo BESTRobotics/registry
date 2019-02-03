@@ -28,15 +28,19 @@ func New(mg MechGreg) (*Server, error) {
 		v1.GET("/seasons", s.getSeasons)
 		v1.POST("/seasons", s.newSeason)
 		v1.GET("/seasons/:id", s.getSeason)
-		v1.PUT("/seasons/update/:id", s.modSeason)
-		v1.PUT("/seasons/archive/:id", s.archiveSeason)
+		v1.PUT("/seasons/:id/update", s.modSeason)
+		v1.PUT("/seasons/:id/archive", s.archiveSeason)
 
 		v1.GET("/hubs", s.getHubs)
 		v1.POST("/hubs", s.newHub)
 		v1.GET("/hubs/:id", s.getHub)
-		v1.PUT("/hubs/update/:id", s.modHub)
-		v1.PUT("/hubs/deactivate/:id", s.deactivateHub)
-		v1.PUT("/hubs/activate/:id", s.activateHub)
+		v1.PUT("/hubs/:id/update", s.modHub)
+		v1.PUT("/hubs/:id/deactivate", s.deactivateHub)
+		v1.PUT("/hubs/:id/activate", s.activateHub)
+		v1.GET("/hubs/:id/director", s.getHubDirector)
+		v1.PUT("/hubs/:id/director", s.setHubDirector)
+		v1.PUT("/hubs/:id/admin", s.addHubAdmin)
+		v1.DELETE("/hubs/:id/admin", s.delHubAdmin)
 	}
 
 	return &s, nil

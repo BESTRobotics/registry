@@ -7,11 +7,11 @@ import (
 // The Hub is an organization that may run events on behalf of BEST.
 type Hub struct {
 	// ID is the primary key for the Hub.
-	ID int `gorm:"AUTO_INCREMENT;primary_key"`
+	ID int `storm:"increment"`
 
 	// A hub must have a name that is unique.  While this name can
 	// be changed, its not particularly recommended.
-	Name string `gorm:"not null;unique"`
+	Name string `storm:"unique,index"`
 
 	// The hub director is the primary point of contact for the
 	// hub and is responsible for its smooth running.  Changing

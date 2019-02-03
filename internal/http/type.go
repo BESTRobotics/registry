@@ -35,4 +35,8 @@ type MechGreg interface {
 	ModHub(models.Hub) error
 	DeactivateHub(int) error
 	ActivateHub(int) error
+	SetHubDirector(int, models.User) error
+	GetHubDirector(int) (models.User, error)
+	AddHubAdmin(int, models.User) error
+	DelHubAdmin(int, models.User) error
 }
