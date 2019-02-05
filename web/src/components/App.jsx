@@ -1,27 +1,21 @@
 import React, { Component } from "react";
-import { Placeholder } from "semantic-ui-react";
+import { Container } from "semantic-ui-react";
+import Hubs from "./Hubs";
+import Topbar from "./Topbar";
+import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 
 class App extends Component {
   render() {
     return (
-      <Placeholder>
-        <Placeholder.Header image>
-          <Placeholder.Line />
-          <Placeholder.Line />
-        </Placeholder.Header>
-        <Placeholder.Paragraph>
-          <Placeholder.Line />
-          <Placeholder.Line />
-          <Placeholder.Line />
-          <Placeholder.Line />
-        </Placeholder.Paragraph>
-        <Placeholder.Paragraph>
-          <Placeholder.Line />
-          <Placeholder.Line />
-          <Placeholder.Line />
-          <Placeholder.Line />
-        </Placeholder.Paragraph>
-      </Placeholder>
+      <Router>
+        <section>
+          <Topbar />
+          <Switch>
+            <Route exact path="/" redirect="/Hubs" />
+            <Route path="/Hubs" component={Hubs} />
+          </Switch>
+        </section>
+      </Router>
     );
   }
 }
