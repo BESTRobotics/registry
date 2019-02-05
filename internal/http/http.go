@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
 )
@@ -15,6 +16,11 @@ func New(mg MechGreg) (*Server, error) {
 		mg: mg,
 	}
 	s.g = gin.New()
+
+	if viper.GetBool("dev.cors") {
+		log.Println("CORS is operating in dev mode")
+		s.g.Use(cors.Default())
+	}
 
 	s.g.GET("/status", s.statusPage)
 

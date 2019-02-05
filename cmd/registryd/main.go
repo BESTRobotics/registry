@@ -17,11 +17,14 @@ func init() {
 	pflag.Int("http.port", 8080, "Port to bind to")
 	pflag.String("dev.webroot", "web", "Webroot during development")
 	pflag.Bool("dev.extweb", true, "Use local webroot")
+	pflag.Bool("dev.cors", false, "Add CORS header for *")
 	pflag.String("storage.path", ".", "Path to the data area")
-	viper.BindPFlags(pflag.CommandLine)
 }
 
 func main() {
+	pflag.Parse()
+	viper.BindPFlags(pflag.CommandLine)
+	log.Println(viper.GetBool("dev.cors"))
 	log.Println("regitryd initializing")
 	log.Println("Preparing to serve")
 
