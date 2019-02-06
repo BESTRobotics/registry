@@ -76,3 +76,41 @@ func (mg *MechanicalGreg) GetEvents() ([]models.Event, error) {
 
 	return out, nil
 }
+
+// RegisterTeam takes a team and puts them in an event.  It does so
+// implicitly and without confirmation.
+func (mg *MechanicalGreg) RegisterTeam(eventID, rosterID int) (int, error) {
+	if _, err := mg.GetEvent(eventID); err != nil {
+		return err
+	}
+
+	if _, err := mg.GetRoster(rosterID); err != nil {
+		return err
+	}
+
+	attendee := models.EventAttendee{
+		Type: "TEAM",
+		Event: models.Event{
+			ID: eventID,
+		},
+		Team: models.TeamRoster{
+			ID: rosterID,
+		},
+	}
+
+	switch mg.s.Save(&attendee) {
+	case nil:
+		return attendee.ID, nil
+	case storm.ErrAlreadyExists:
+		return 0, ErrResourceExists
+	default:
+		return 0, ErrInternal
+	}
+}
+
+// DeregisterTeam removes a team from an event.  This would be able to
+// be shared with the user if we knew the attendee ID in advance, but
+// we don't so this is a bit clunkier.
+func (mg *MechanicalGreg) DeregisterTeam(eventID, teamID int) error {
+	return nil
+}
