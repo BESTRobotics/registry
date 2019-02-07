@@ -1,9 +1,5 @@
 package models
 
-import (
-	"time"
-)
-
 // The Hub is an organization that may run events on behalf of BEST.
 type Hub struct {
 	// ID is the primary key for the Hub.
@@ -38,10 +34,10 @@ type Hub struct {
 	// it is.  Though noone's keeping score, there's nonetheless
 	// something exciting about a hub that's been around longer
 	// than most of its competitors have been alive.
-	Founded time.Time
+	Founded DateTime
 
 	// From time to time a hub can't continue.  Since deleting
 	// would imply that a hub never will exist again, we instead
 	// mark them with the date they became inactive.
-	InactiveSince time.Time
+	InactiveSince DateTime
 }

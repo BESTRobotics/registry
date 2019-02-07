@@ -1,9 +1,5 @@
 package models
 
-import (
-	"time"
-)
-
 // User models the fields that are directly part of a human user of
 // the system.
 type User struct {
@@ -35,5 +31,5 @@ type User struct {
 
 	// Birthdate contains the user's birthdate, this is used to
 	// calculate whether or not the user can sign things.
-	Birthdate time.Time
+	Birthdate DateTime
 }

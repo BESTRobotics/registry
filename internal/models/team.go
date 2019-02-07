@@ -1,7 +1,5 @@
 package models
 
-import "time"
-
 // A Team is an entity that is sponsored by a school and participates
 // in one or more BEST programs.  A team has people that are on it,
 // but this is stored seperately since it changes from year to year.
@@ -40,8 +38,8 @@ type Team struct {
 	// Teams can also be inactive, which means they won't appear
 	// in lookups or otherwise be available.  This is different
 	// from being without a season to participate in.
-	InactiveSince time.Time
+	InactiveSince DateTime
 
 	// Its handy to know how long teams have been around.
-	Founded time.Time
+	Founded DateTime
 }

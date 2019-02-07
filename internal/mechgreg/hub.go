@@ -69,7 +69,7 @@ func (mg *MechanicalGreg) GetHubs(includeInactive bool) ([]models.Hub, error) {
 	if includeInactive {
 		err = mg.s.All(&tmp)
 	} else {
-		err = mg.s.Find("InactiveSince", time.Time{}, &tmp)
+		err = mg.s.Find("InactiveSince", models.DateTime{}, &tmp)
 	}
 	if err != nil {
 		return nil, err
@@ -95,7 +95,7 @@ func (mg *MechanicalGreg) ModHub(h models.Hub) error {
 	// These fields require special handline to safely update.
 	h.Director = models.User{}
 	h.Admins = nil
-	h.InactiveSince = time.Time{}
+	h.InactiveSince = models.DateTime{}
 
 	// Run the update
 	return mg.modHub(h)
@@ -119,14 +119,14 @@ func (mg *MechanicalGreg) modHub(h models.Hub) error {
 // complicate the DB structure and would imply that once gone a hub
 // won't ever come back.
 func (mg *MechanicalGreg) DeactivateHub(id int) error {
-	return mg.modHub(models.Hub{ID: id, InactiveSince: time.Now()})
+	return mg.modHub(models.Hub{ID: id, InactiveSince: models.DateTime(time.Now())})
 }
 
 // ActivateHub brings a hub back from an inactive state.
 func (mg *MechanicalGreg) ActivateHub(id int) error {
 	// Needs to use UpdateField in order to explicitely zero the
 	// value.
-	switch (mg.s.UpdateField(&models.Hub{ID: id}, "InactiveSince", time.Time{})) {
+	switch (mg.s.UpdateField(&models.Hub{ID: id}, "InactiveSince", models.DateTime{})) {
 	case nil:
 		return nil
 	case storm.ErrNotFound:

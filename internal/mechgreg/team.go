@@ -76,10 +76,8 @@ func (mg *MechanicalGreg) GetTeams(includeInactive bool) ([]models.Team, error) 
 	if includeInactive {
 		err = mg.s.All(&tmp)
 	} else {
-		err = mg.s.Find("InactiveSince", time.Time{}, &tmp)
+		err = mg.s.Find("InactiveSince", models.DateTime{}, &tmp)
 	}
-
-	log.Println(tmp)
 
 	switch err {
 	case nil:
@@ -205,7 +203,7 @@ func (mg *MechanicalGreg) DelTeamMentor(id int, u models.User) error {
 // happens the team is still in the system, but doesn't show up in
 // most queries anymore.
 func (mg *MechanicalGreg) DeactivateTeam(id int) error {
-	return mg.modTeam(models.Team{ID: id, InactiveSince: time.Now()})
+	return mg.modTeam(models.Team{ID: id, InactiveSince: models.DateTime(time.Now())})
 }
 
 // ActivateTeam brings a team back from an inactive state.
