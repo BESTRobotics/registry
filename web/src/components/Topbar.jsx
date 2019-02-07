@@ -12,11 +12,17 @@ const Topbar = () => {
       <Menu.Item as={NavLink} to="/hubs">
         Hubs
       </Menu.Item>
+      <Menu.Item as={NavLink} to="/schools">
+        Schools
+      </Menu.Item>
       <Menu.Item as={NavLink} to="/teams">
         Teams
       </Menu.Item>
       <Menu.Item as={NavLink} to="/seasons">
         Seasons
+      </Menu.Item>
+      <Menu.Item as={NavLink} to="/users">
+        Users
       </Menu.Item>
     </Menu>
   );
