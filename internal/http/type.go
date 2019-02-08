@@ -59,4 +59,9 @@ type MechGreg interface {
 	GetTeamHome(int) (models.Hub, error)
 	DeactivateTeam(int) error
 	ActivateTeam(int) error
+
+	NewEvent(models.Event) (int, error)
+	ModEvent(models.Event) error
+	GetEvent(int) (models.Event, error)
+	GetEvents() ([]models.Event, error)
 }
