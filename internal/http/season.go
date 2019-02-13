@@ -8,7 +8,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/BESTRobotics/registry/internal/mechgreg"
 	"github.com/BESTRobotics/registry/internal/models"
 )
 
@@ -21,17 +20,11 @@ func (s *Server) newSeason(c *gin.Context) {
 	}
 
 	id, err := s.mg.NewSeason(season)
-	switch err {
-	case nil:
-		break
-	case mechgreg.ErrResourceExists:
-		c.AbortWithError(http.StatusConflict, err)
-		return
-	default:
-		c.AbortWithError(http.StatusInternalServerError, err)
-		log.Println(err)
+	if err != nil {
+		s.handleError(c, err)
 		return
 	}
+
 	c.Set("Location", fmt.Sprintf("/v1/seasons/%d", id))
 	c.Status(http.StatusCreated)
 }
@@ -45,15 +38,8 @@ func (s *Server) getSeason(c *gin.Context) {
 	}
 
 	season, err := s.mg.GetSeason(int(id))
-	switch err {
-	case nil:
-		break
-	case mechgreg.ErrNoSuchResource:
-		c.AbortWithError(http.StatusNotFound, err)
-		return
-	default:
-		c.AbortWithError(http.StatusInternalServerError, err)
-		log.Println(err)
+	if err != nil {
+		s.handleError(c, err)
 		return
 	}
 
@@ -69,8 +55,7 @@ func (s *Server) getSeasons(c *gin.Context) {
 
 	set, err := s.mg.GetSeasons(all)
 	if err != nil {
-		c.AbortWithError(http.StatusInternalServerError, err)
-		log.Println(err)
+		s.handleError(c, err)
 		return
 	}
 
@@ -94,17 +79,12 @@ func (s *Server) modSeason(c *gin.Context) {
 
 	season.ID = int(id)
 
-	switch s.mg.ModSeason(season) {
-	case nil:
-		break
-	case mechgreg.ErrNoSuchResource:
-		c.AbortWithError(http.StatusNotFound, err)
-		return
-	default:
-		c.AbortWithError(http.StatusInternalServerError, err)
-		log.Println(err)
+	err = s.mg.ModSeason(season)
+	if err != nil {
+		s.handleError(c, err)
 		return
 	}
+
 	c.Status(http.StatusNoContent)
 }
 
@@ -116,16 +96,11 @@ func (s *Server) archiveSeason(c *gin.Context) {
 		return
 	}
 
-	switch s.mg.ArchiveSeason(int(id)) {
-	case nil:
-		break
-	case mechgreg.ErrNoSuchResource:
-		c.AbortWithError(http.StatusNotFound, err)
-		return
-	default:
-		c.AbortWithError(http.StatusInternalServerError, err)
-		log.Println(err)
+	err = s.mg.ArchiveSeason(int(id))
+	if err != nil {
+		s.handleError(c, err)
 		return
 	}
+
 	c.Status(http.StatusNoContent)
 }

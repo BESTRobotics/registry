@@ -192,7 +192,7 @@ func (mg *MechanicalGreg) DelTeamMentor(id int, u models.User) error {
 	}
 
 	mentors := patchUserSlice(team.Mentors, true, u)
-	err := mg.s.UpdateField(&models.Team{ID: id}, "Mentors", mentors)
+	err = mg.s.UpdateField(&models.Team{ID: id}, "Mentors", mentors)
 	switch err {
 	case nil:
 		return nil

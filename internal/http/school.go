@@ -8,7 +8,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/BESTRobotics/registry/internal/mechgreg"
 	"github.com/BESTRobotics/registry/internal/models"
 )
 
@@ -21,17 +20,11 @@ func (s *Server) newSchool(c *gin.Context) {
 	}
 
 	id, err := s.mg.NewSchool(school)
-	switch err {
-	case nil:
-		break
-	case mechgreg.ErrResourceExists:
-		c.AbortWithError(http.StatusConflict, err)
-		return
-	default:
-		c.AbortWithError(http.StatusInternalServerError, err)
-		log.Println(err)
+	if err != nil {
+		s.handleError(c, err)
 		return
 	}
+
 	c.Set("Location", fmt.Sprintf("/v1/schools/%d", id))
 	c.Status(http.StatusCreated)
 }
@@ -45,15 +38,8 @@ func (s *Server) getSchool(c *gin.Context) {
 	}
 
 	school, err := s.mg.GetSchool(int(id))
-	switch err {
-	case nil:
-		break
-	case mechgreg.ErrNoSuchResource:
-		c.AbortWithError(http.StatusNotFound, err)
-		return
-	default:
-		c.AbortWithError(http.StatusInternalServerError, err)
-		log.Println(err)
+	if err != nil {
+		s.handleError(c, err)
 		return
 	}
 
@@ -86,16 +72,11 @@ func (s *Server) modSchool(c *gin.Context) {
 
 	school.ID = int(id)
 
-	switch s.mg.ModSchool(school) {
-	case nil:
-		break
-	case mechgreg.ErrNoSuchResource:
-		c.AbortWithError(http.StatusNotFound, err)
-		return
-	default:
-		c.AbortWithError(http.StatusInternalServerError, err)
-		log.Println(err)
+	err = s.mg.ModSchool(school)
+	if err != nil {
+		s.handleError(c, err)
 		return
 	}
+
 	c.Status(http.StatusNoContent)
 }

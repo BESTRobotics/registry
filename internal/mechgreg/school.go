@@ -47,7 +47,8 @@ func (mg *MechanicalGreg) GetSchools() ([]models.School, error) {
 
 // ModSchool can be used to update a school that already exists.
 func (mg *MechanicalGreg) ModSchool(s models.School) error {
-	switch mg.s.Update(&s) {
+	err := mg.s.Update(&s)
+	switch err {
 	case nil:
 		return nil
 	case storm.ErrNotFound:

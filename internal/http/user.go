@@ -8,7 +8,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/BESTRobotics/registry/internal/mechgreg"
 	"github.com/BESTRobotics/registry/internal/models"
 )
 
@@ -23,17 +22,11 @@ func (s *Server) newUser(c *gin.Context) {
 
 	// Attempt to create the user
 	uid, err := s.mg.NewUser(user)
-	switch err {
-	case nil:
-		break
-	case mechgreg.ErrResourceExists:
-		c.AbortWithError(http.StatusConflict, err)
-		return
-	default:
-		c.AbortWithError(http.StatusInternalServerError, err)
-		log.Println(err)
+	if err != nil {
+		s.handleError(c, err)
 		return
 	}
+
 	c.Set("Location", fmt.Sprintf("/v1/users/%d", uid))
 	c.Status(http.StatusCreated)
 }
@@ -48,15 +41,8 @@ func (s *Server) getUser(c *gin.Context) {
 	}
 
 	user, err := s.mg.GetUser(int(uid))
-	switch err {
-	case nil:
-		break
-	case mechgreg.ErrNoSuchResource:
-		c.AbortWithError(http.StatusNotFound, err)
-		return
-	default:
-		c.AbortWithError(http.StatusInternalServerError, err)
-		log.Println(err)
+	if err != nil {
+		s.handleError(c, err)
 		return
 	}
 
@@ -115,16 +101,11 @@ func (s *Server) modUser(c *gin.Context) {
 	user.ID = int(uid)
 	user.Username = ""
 
-	switch s.mg.ModUser(user) {
-	case nil:
-		break
-	case mechgreg.ErrNoSuchResource:
-		c.AbortWithError(http.StatusNotFound, err)
-		return
-	default:
-		c.AbortWithError(http.StatusInternalServerError, err)
-		log.Println(err)
+	err = s.mg.ModUser(user)
+	if err != nil {
+		s.handleError(c, err)
 		return
 	}
+
 	c.Status(http.StatusNoContent)
 }

@@ -8,6 +8,8 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
+
+	"github.com/BESTRobotics/registry/internal/mechgreg"
 )
 
 // New returns a new http.Server or dies trying.
@@ -93,4 +95,25 @@ func (s *Server) Serve() {
 
 func (s *Server) statusPage(c *gin.Context) {
 	c.String(http.StatusOK, "System OK")
+}
+
+func (s *Server) handleError(c *gin.Context, err error) {
+	switch err.(type) {
+	case *mechgreg.ConstraintError:
+		cerr, ok := err.(*mechgreg.ConstraintError)
+		if !ok {
+			break
+		}
+		c.AbortWithStatusJSON(cerr.Code(), err)
+		return
+	case *mechgreg.InternalError:
+		ierr, ok := err.(*mechgreg.InternalError)
+		if !ok {
+			break
+		}
+		c.AbortWithStatusJSON(ierr.Code(), err)
+		return
+	}
+	c.AbortWithError(http.StatusInternalServerError, err)
+	return
 }

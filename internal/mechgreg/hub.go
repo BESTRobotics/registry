@@ -184,7 +184,7 @@ func (mg *MechanicalGreg) DelHubAdmin(hubID int, admin models.User) error {
 
 	// Needs to use UpdateField in order to explicitely zero the
 	// value
-	err := mg.s.UpdateField(&models.Hub{ID: hubID}, "Admins", admins)
+	err = mg.s.UpdateField(&models.Hub{ID: hubID}, "Admins", admins)
 	switch err {
 	case nil:
 		return nil

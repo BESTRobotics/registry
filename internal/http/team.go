@@ -8,7 +8,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/BESTRobotics/registry/internal/mechgreg"
 	"github.com/BESTRobotics/registry/internal/models"
 )
 
@@ -21,17 +20,11 @@ func (s *Server) newTeam(c *gin.Context) {
 	}
 
 	id, err := s.mg.NewTeam(team)
-	switch err {
-	case nil:
-		break
-	case mechgreg.ErrResourceExists:
-		c.AbortWithError(http.StatusConflict, err)
-		return
-	default:
-		c.AbortWithError(http.StatusInternalServerError, err)
-		log.Println(err)
+	if err != nil {
+		s.handleError(c, err)
 		return
 	}
+
 	c.Set("Location", fmt.Sprintf("/v1/teams/%d", id))
 	c.Status(http.StatusCreated)
 }
@@ -45,15 +38,8 @@ func (s *Server) getTeam(c *gin.Context) {
 	}
 
 	team, err := s.mg.GetTeam(int(id))
-	switch err {
-	case nil:
-		break
-	case mechgreg.ErrNoSuchResource:
-		c.AbortWithError(http.StatusNotFound, err)
-		return
-	default:
-		c.AbortWithError(http.StatusInternalServerError, err)
-		log.Println(err)
+	if err != nil {
+		s.handleError(c, err)
 		return
 	}
 
@@ -69,8 +55,7 @@ func (s *Server) getTeams(c *gin.Context) {
 
 	set, err := s.mg.GetTeams(all)
 	if err != nil {
-		c.AbortWithError(http.StatusInternalServerError, err)
-		log.Println(err)
+		s.handleError(c, err)
 		return
 	}
 
@@ -94,15 +79,9 @@ func (s *Server) modTeam(c *gin.Context) {
 
 	team.ID = int(id)
 
-	switch s.mg.ModTeam(team) {
-	case nil:
-		break
-	case mechgreg.ErrNoSuchResource:
-		c.AbortWithError(http.StatusNotFound, err)
-		return
-	default:
-		c.AbortWithError(http.StatusInternalServerError, err)
-		log.Println(err)
+	err = s.mg.ModTeam(team)
+	if err != nil {
+		s.handleError(c, err)
 		return
 	}
 
@@ -124,15 +103,9 @@ func (s *Server) setTeamSchool(c *gin.Context) {
 		return
 	}
 
-	switch s.mg.SetTeamSchool(int(id), school) {
-	case nil:
-		break
-	case mechgreg.ErrNoSuchResource:
-		c.AbortWithError(http.StatusNotFound, err)
-		return
-	default:
-		c.AbortWithError(http.StatusInternalServerError, err)
-		log.Println(err)
+	err = s.mg.SetTeamSchool(int(id), school)
+	if err != nil {
+		s.handleError(c, err)
 		return
 	}
 
@@ -148,15 +121,8 @@ func (s *Server) getTeamSchool(c *gin.Context) {
 	}
 
 	school, err := s.mg.GetTeamSchool(int(id))
-	switch err {
-	case nil:
-		break
-	case mechgreg.ErrNoSuchResource:
-		c.AbortWithError(http.StatusNotFound, err)
-		return
-	default:
-		c.AbortWithError(http.StatusInternalServerError, err)
-		log.Println(err)
+	if err != nil {
+		s.handleError(c, err)
 		return
 	}
 
@@ -178,15 +144,9 @@ func (s *Server) setTeamCoach(c *gin.Context) {
 		return
 	}
 
-	switch s.mg.SetTeamCoach(int(id), user) {
-	case nil:
-		break
-	case mechgreg.ErrNoSuchResource:
-		c.AbortWithError(http.StatusNotFound, err)
-		return
-	default:
-		c.AbortWithError(http.StatusInternalServerError, err)
-		log.Println(err)
+	err = s.mg.SetTeamCoach(int(id), user)
+	if err != nil {
+		s.handleError(c, err)
 		return
 	}
 
@@ -202,15 +162,8 @@ func (s *Server) getTeamCoach(c *gin.Context) {
 	}
 
 	user, err := s.mg.GetTeamCoach(int(id))
-	switch err {
-	case nil:
-		break
-	case mechgreg.ErrNoSuchResource:
-		c.AbortWithError(http.StatusNotFound, err)
-		return
-	default:
-		c.AbortWithError(http.StatusInternalServerError, err)
-		log.Println(err)
+	if err != nil {
+		s.handleError(c, err)
 		return
 	}
 
@@ -232,17 +185,12 @@ func (s *Server) addTeamMentor(c *gin.Context) {
 		return
 	}
 
-	switch s.mg.AddTeamMentor(int(id), user) {
-	case nil:
-		break
-	case mechgreg.ErrNoSuchResource:
-		c.AbortWithError(http.StatusNotFound, err)
-		return
-	default:
-		c.AbortWithError(http.StatusInternalServerError, err)
-		log.Println(err)
+	err = s.mg.AddTeamMentor(int(id), user)
+	if err != nil {
+		s.handleError(c, err)
 		return
 	}
+
 	c.Status(http.StatusNoContent)
 }
 
@@ -261,17 +209,12 @@ func (s *Server) delTeamMentor(c *gin.Context) {
 		return
 	}
 
-	switch s.mg.DelTeamMentor(int(id), user) {
-	case nil:
-		break
-	case mechgreg.ErrNoSuchResource:
-		c.AbortWithError(http.StatusNotFound, err)
-		return
-	default:
-		c.AbortWithError(http.StatusInternalServerError, err)
-		log.Println(err)
+	err = s.mg.DelTeamMentor(int(id), user)
+	if err != nil {
+		s.handleError(c, err)
 		return
 	}
+
 	c.Status(http.StatusNoContent)
 }
 
@@ -291,17 +234,12 @@ func (s *Server) setTeamHome(c *gin.Context) {
 		return
 	}
 
-	switch s.mg.SetTeamHome(int(id), hub) {
-	case nil:
-		break
-	case mechgreg.ErrNoSuchResource:
-		c.AbortWithError(http.StatusNotFound, err)
-		return
-	default:
-		c.AbortWithError(http.StatusInternalServerError, err)
-		log.Println(err)
+	err = s.mg.SetTeamHome(int(id), hub)
+	if err != nil {
+		s.handleError(c, err)
 		return
 	}
+
 	c.Status(http.StatusNoContent)
 }
 
@@ -314,15 +252,8 @@ func (s *Server) getTeamHome(c *gin.Context) {
 	}
 
 	hub, err := s.mg.GetTeamHome(int(id))
-	switch err {
-	case nil:
-		break
-	case mechgreg.ErrNoSuchResource:
-		c.AbortWithError(http.StatusNotFound, err)
-		return
-	default:
-		c.AbortWithError(http.StatusInternalServerError, err)
-		log.Println(err)
+	if err != nil {
+		s.handleError(c, err)
 		return
 	}
 
@@ -337,17 +268,12 @@ func (s *Server) deactivateTeam(c *gin.Context) {
 		return
 	}
 
-	switch s.mg.DeactivateTeam(int(id)) {
-	case nil:
-		break
-	case mechgreg.ErrNoSuchResource:
-		c.AbortWithError(http.StatusNotFound, err)
-		return
-	default:
-		c.AbortWithError(http.StatusInternalServerError, err)
-		log.Println(err)
+	err = s.mg.DeactivateTeam(int(id))
+	if err != nil {
+		s.handleError(c, err)
 		return
 	}
+
 	c.Status(http.StatusNoContent)
 }
 
@@ -359,16 +285,11 @@ func (s *Server) activateTeam(c *gin.Context) {
 		return
 	}
 
-	switch s.mg.ActivateTeam(int(id)) {
-	case nil:
-		break
-	case mechgreg.ErrNoSuchResource:
-		c.AbortWithError(http.StatusNotFound, err)
-		return
-	default:
-		c.AbortWithError(http.StatusInternalServerError, err)
-		log.Println(err)
+	err = s.mg.ActivateTeam(int(id))
+	if err != nil {
+		s.handleError(c, err)
 		return
 	}
+
 	c.Status(http.StatusNoContent)
 }
