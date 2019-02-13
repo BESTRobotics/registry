@@ -1,6 +1,8 @@
 package mechgreg
 
 import (
+	"net/http"
+
 	"github.com/asdine/storm"
 
 	"github.com/BESTRobotics/registry/internal/models"
@@ -9,13 +11,14 @@ import (
 // NewUser creates a new user from the provided user model.  If the
 // user already exists an error will be returned instead.
 func (mg *MechanicalGreg) NewUser(u models.User) (int, error) {
-	switch mg.s.Save(&u) {
+	err := mg.s.Save(&u)
+	switch err {
 	case nil:
 		return u.ID, nil
 	case storm.ErrAlreadyExists:
-		return 0, ErrResourceExists
+		return 0, NewConstraintError("Username and email must be unique!", err, http.StatusConflict)
 	default:
-		return 0, ErrInternal
+		return 0, NewInternalError("An unspecified error has occured", err, http.StatusInternalServerError)
 	}
 }
 
@@ -23,13 +26,14 @@ func (mg *MechanicalGreg) NewUser(u models.User) (int, error) {
 func (mg *MechanicalGreg) GetUser(uid int) (models.User, error) {
 	var user models.User
 
-	switch mg.s.One("ID", uid, &user) {
+	err := mg.s.One("ID", uid, &user)
+	switch err {
 	case nil:
 		return user, nil
 	case storm.ErrNotFound:
-		return models.User{}, ErrNoSuchResource
+		return models.User{}, NewConstraintError("No such user exists with that ID", err, http.StatusNotFound)
 	default:
-		return models.User{}, ErrInternal
+		return models.User{}, NewInternalError("An unspecified error has occured", err, http.StatusInternalServerError)
 	}
 }
 
@@ -47,12 +51,13 @@ func (mg *MechanicalGreg) GetUserPage(page int, count int) ([]models.User, error
 
 // ModUser modifies an existing user to match the state provided.
 func (mg *MechanicalGreg) ModUser(u models.User) error {
-	switch mg.s.Update(&u) {
+	err := mg.s.Update(&u)
+	switch err {
 	case nil:
 		return nil
 	case storm.ErrNotFound:
-		return ErrNoSuchResource
+		return NewConstraintError("No such user exists with that ID", err, http.StatusNotFound)
 	default:
-		return ErrInternal
+		return NewInternalError("An unspecified error has occured", err, http.StatusInternalServerError)
 	}
 }

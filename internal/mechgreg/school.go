@@ -1,6 +1,8 @@
 package mechgreg
 
 import (
+	"net/http"
+
 	"github.com/asdine/storm"
 
 	"github.com/BESTRobotics/registry/internal/models"
@@ -10,13 +12,14 @@ import (
 // not deletable, since we'd like to keep a record of all schools that
 // have ever participated.
 func (mg *MechanicalGreg) NewSchool(s models.School) (int, error) {
-	switch mg.s.Save(&s) {
+	err := mg.s.Save(&s)
+	switch err {
 	case nil:
 		return s.ID, nil
 	case storm.ErrAlreadyExists:
-		return 0, ErrResourceExists
+		return 0, NewConstraintError("A school with that name already exists", err, http.StatusConflict)
 	default:
-		return 0, ErrInternal
+		return 0, NewInternalError("An unspecified internal error has occured", err, http.StatusInternalServerError)
 	}
 }
 
@@ -24,13 +27,14 @@ func (mg *MechanicalGreg) NewSchool(s models.School) (int, error) {
 func (mg *MechanicalGreg) GetSchool(id int) (models.School, error) {
 	var school models.School
 
-	switch mg.s.One("ID", id, &school) {
+	err := mg.s.One("ID", id, &school)
+	switch err {
 	case nil:
 		return school, nil
 	case storm.ErrNotFound:
-		return models.School{}, ErrNoSuchResource
+		return models.School{}, NewConstraintError("No school with that ID exists", err, http.StatusNotFound)
 	default:
-		return models.School{}, ErrInternal
+		return models.School{}, NewInternalError("An unspecified internal error has occured", err, http.StatusInternalServerError)
 	}
 }
 
@@ -47,8 +51,8 @@ func (mg *MechanicalGreg) ModSchool(s models.School) error {
 	case nil:
 		return nil
 	case storm.ErrNotFound:
-		return ErrNoSuchResource
+		return NewConstraintError("No school with that ID exists", err, http.StatusNotFound)
 	default:
-		return ErrInternal
+		return NewInternalError("An unspecified internal error has occured", err, http.StatusInternalServerError)
 	}
 }

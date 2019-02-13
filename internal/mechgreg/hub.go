@@ -2,6 +2,7 @@ package mechgreg
 
 import (
 	"log"
+	"net/http"
 	"time"
 
 	"github.com/asdine/storm"
@@ -15,13 +16,14 @@ func (mg *MechanicalGreg) NewHub(h models.Hub) (int, error) {
 	h.Director = models.User{}
 	h.Admins = nil
 
-	switch mg.s.Save(&h) {
+	err := mg.s.Save(&h)
+	switch err {
 	case nil:
 		return h.ID, nil
 	case storm.ErrAlreadyExists:
-		return 0, ErrResourceExists
+		return 0, NewConstraintError("A hub with these specifications already exists", err, http.StatusConflict)
 	default:
-		return 0, ErrInternal
+		return 0, NewInternalError("An unspecified error has occured", err, http.StatusInternalServerError)
 
 	}
 }
@@ -35,9 +37,9 @@ func (mg *MechanicalGreg) GetHub(id int) (models.Hub, error) {
 	case nil:
 		break
 	case storm.ErrNotFound:
-		return models.Hub{}, ErrNoSuchResource
+		return models.Hub{}, NewConstraintError("No hub exists for that ID", err, http.StatusNotFound)
 	default:
-		return models.Hub{}, ErrInternal
+		return models.Hub{}, NewInternalError("An unspecified failure has occured while loading the hub", err, http.StatusInternalServerError)
 	}
 
 	director, err := mg.GetUser(hub.Director.ID)
@@ -103,13 +105,14 @@ func (mg *MechanicalGreg) ModHub(h models.Hub) error {
 
 // modHub is just like ModHub but doesn't clear certain fields.
 func (mg *MechanicalGreg) modHub(h models.Hub) error {
-	switch mg.s.Update(&h) {
+	err := mg.s.Update(&h)
+	switch err {
 	case nil:
 		return nil
 	case storm.ErrNotFound:
-		return ErrNoSuchResource
+		return NewConstraintError("No hub exists for that ID", err, http.StatusNotFound)
 	default:
-		return ErrInternal
+		return NewInternalError("An unspecified error has occured", err, http.StatusInternalServerError)
 	}
 }
 
@@ -126,13 +129,14 @@ func (mg *MechanicalGreg) DeactivateHub(id int) error {
 func (mg *MechanicalGreg) ActivateHub(id int) error {
 	// Needs to use UpdateField in order to explicitely zero the
 	// value.
-	switch (mg.s.UpdateField(&models.Hub{ID: id}, "InactiveSince", models.DateTime{})) {
+	err := mg.s.UpdateField(&models.Hub{ID: id}, "InactiveSince", models.DateTime{})
+	switch err {
 	case nil:
 		return nil
 	case storm.ErrNotFound:
-		return ErrNoSuchResource
+		return NewConstraintError("No hub exists for that ID", err, http.StatusNotFound)
 	default:
-		return ErrInternal
+		return NewInternalError("An unspecified error has occured", err, http.StatusInternalServerError)
 	}
 }
 
@@ -179,13 +183,14 @@ func (mg *MechanicalGreg) DelHubAdmin(hubID int, admin models.User) error {
 	admins := patchUserSlice(hub.Admins, false, admin)
 
 	// Needs to use UpdateField in order to explicitely zero the
-	// value.
-	switch (mg.s.UpdateField(&models.Hub{ID: hubID}, "Admins", admins)) {
+	// value
+	err := mg.s.UpdateField(&models.Hub{ID: hubID}, "Admins", admins)
+	switch err {
 	case nil:
 		return nil
 	case storm.ErrNotFound:
-		return ErrNoSuchResource
+		return NewConstraintError("No hub exists for that ID", err, http.StatusNotFound)
 	default:
-		return ErrInternal
+		return NewInternalError("An unspecified error has occured", err, http.StatusInternalServerError)
 	}
 }

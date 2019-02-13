@@ -2,6 +2,7 @@ package mechgreg
 
 import (
 	"log"
+	"net/http"
 	"time"
 
 	"github.com/asdine/storm"
@@ -17,13 +18,14 @@ func (mg *MechanicalGreg) NewTeam(t models.Team) (int, error) {
 	t.School = models.School{}
 	t.Mentors = nil
 
-	switch mg.s.Save(&t) {
+	err := mg.s.Save(&t)
+	switch err {
 	case nil:
 		return t.ID, nil
 	case storm.ErrAlreadyExists:
-		return 0, ErrResourceExists
+		return 0, NewConstraintError("A team already exists with that ID", err, http.StatusConflict)
 	default:
-		return 0, ErrInternal
+		return 0, NewInternalError("An unspecified internal error has occured", err, http.StatusInternalServerError)
 	}
 }
 
@@ -31,13 +33,14 @@ func (mg *MechanicalGreg) NewTeam(t models.Team) (int, error) {
 func (mg *MechanicalGreg) GetTeam(id int) (models.Team, error) {
 	var team models.Team
 
-	switch mg.s.One("ID", id, &team) {
+	err := mg.s.One("ID", id, &team)
+	switch err {
 	case nil:
 		break
 	case storm.ErrNotFound:
-		return models.Team{}, ErrNoSuchResource
+		return models.Team{}, NewConstraintError("No team exists with that ID", err, http.StatusNotFound)
 	default:
-		return models.Team{}, ErrInternal
+		return models.Team{}, NewInternalError("An unspecified internal error has occured", err, http.StatusInternalServerError)
 	}
 
 	school, err := mg.GetSchool(team.School.ID)
@@ -87,7 +90,7 @@ func (mg *MechanicalGreg) GetTeams(includeInactive bool) ([]models.Team, error) 
 		// there are no teams satisfying the query.
 		return []models.Team{}, nil
 	default:
-		return nil, ErrInternal
+		return nil, NewInternalError("An unspecified internal error has occured", err, http.StatusInternalServerError)
 	}
 
 	// This looks rather innefficient, but remember that the
@@ -117,13 +120,14 @@ func (mg *MechanicalGreg) ModTeam(team models.Team) error {
 // modTeam is like ModTeam, but doesn't null certain fields, making it
 // suitable for internal use.
 func (mg *MechanicalGreg) modTeam(t models.Team) error {
-	switch mg.s.Update(&t) {
+	err := mg.s.Update(&t)
+	switch err {
 	case nil:
 		return nil
 	case storm.ErrNotFound:
-		return ErrNoSuchResource
+		return NewConstraintError("No team exists with that ID", err, http.StatusNotFound)
 	default:
-		return ErrInternal
+		return NewInternalError("An unspecified internal error has occured", err, http.StatusInternalServerError)
 	}
 }
 
@@ -188,14 +192,14 @@ func (mg *MechanicalGreg) DelTeamMentor(id int, u models.User) error {
 	}
 
 	mentors := patchUserSlice(team.Mentors, true, u)
-
-	switch (mg.s.UpdateField(&models.Team{ID: id}, "Mentors", mentors)) {
+	err := mg.s.UpdateField(&models.Team{ID: id}, "Mentors", mentors)
+	switch err {
 	case nil:
 		return nil
 	case storm.ErrNotFound:
-		return ErrNoSuchResource
+		return NewConstraintError("No team exists with that ID", err, http.StatusNotFound)
 	default:
-		return ErrInternal
+		return NewInternalError("An unspecified internal error has occured", err, http.StatusInternalServerError)
 	}
 }
 
@@ -210,13 +214,14 @@ func (mg *MechanicalGreg) DeactivateTeam(id int) error {
 func (mg *MechanicalGreg) ActivateTeam(id int) error {
 	// Needs to use UpdateField in order to explicitely zero the
 	// value.
-	switch (mg.s.UpdateField(&models.Team{ID: id}, "InactiveSince", time.Time{})) {
+	err := mg.s.UpdateField(&models.Team{ID: id}, "InactiveSince", time.Time{})
+	switch err {
 	case nil:
 		return nil
 	case storm.ErrNotFound:
-		return ErrNoSuchResource
+		return NewConstraintError("No team exists with that ID", err, http.StatusNotFound)
 	default:
-		return ErrInternal
+		return NewInternalError("An unspecified internal error has occured", err, http.StatusInternalServerError)
 	}
 }
 

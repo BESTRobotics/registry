@@ -1,6 +1,8 @@
 package mechgreg
 
 import (
+	"net/http"
+
 	"github.com/asdine/storm"
 
 	"github.com/BESTRobotics/registry/internal/models"
@@ -8,13 +10,14 @@ import (
 
 // NewSeason creates a new season within the seasons table.
 func (mg *MechanicalGreg) NewSeason(s models.Season) (int, error) {
-	switch mg.s.Save(&s) {
+	err := mg.s.Save(&s)
+	switch err {
 	case nil:
 		return s.ID, nil
 	case storm.ErrAlreadyExists:
-		return 0, ErrResourceExists
+		return 0, NewConstraintError("A season with that name already exists", err, http.StatusConflict)
 	default:
-		return 0, ErrInternal
+		return 0, NewInternalError("An unspecified failure has occured", err, http.StatusInternalServerError)
 	}
 }
 
@@ -23,13 +26,14 @@ func (mg *MechanicalGreg) NewSeason(s models.Season) (int, error) {
 func (mg *MechanicalGreg) GetSeason(id int) (models.Season, error) {
 	var season models.Season
 
-	switch mg.s.One("ID", id, &season) {
+	err := mg.s.One("ID", id, &season)
+	switch err {
 	case nil:
 		return season, nil
 	case storm.ErrNotFound:
-		return models.Season{}, ErrNoSuchResource
+		return models.Season{}, NewConstraintError("No season exists with that ID", err, http.StatusNotFound)
 	default:
-		return models.Season{}, ErrInternal
+		return models.Season{}, NewInternalError("An unspecified failure has occured", err, http.StatusInternalServerError)
 	}
 }
 
@@ -53,13 +57,14 @@ func (mg *MechanicalGreg) GetSeasons(all bool) ([]models.Season, error) {
 // ModSeason updates an existing season.  An error is returned if the
 // season requested does not exist.
 func (mg *MechanicalGreg) ModSeason(s models.Season) error {
-	switch mg.s.Update(&s) {
+	err := mg.s.Update(&s)
+	switch err {
 	case nil:
 		return nil
 	case storm.ErrNotFound:
-		return ErrNoSuchResource
+		return NewConstraintError("No season exists with that ID", err, http.StatusNotFound)
 	default:
-		return ErrInternal
+		return NewInternalError("An unspecified failure has occured", err, http.StatusInternalServerError)
 	}
 }
 

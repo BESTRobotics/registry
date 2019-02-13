@@ -2,6 +2,7 @@ package mechgreg
 
 import (
 	"log"
+	"net/http"
 
 	"github.com/asdine/storm"
 
@@ -10,38 +11,41 @@ import (
 
 // NewEvent creates a new event and returns its ID.
 func (mg *MechanicalGreg) NewEvent(e models.Event) (int, error) {
-	switch mg.s.Save(&e) {
+	err := mg.s.Save(&e)
+	switch err {
 	case nil:
 		return e.ID, nil
 	case storm.ErrAlreadyExists:
-		return 0, ErrResourceExists
+		return 0, NewConstraintError("An event with these specifications already exists!", err, http.StatusConflict)
 	default:
-		return 0, ErrInternal
+		return 0, NewInternalError("An unspecified error has occured", err, http.StatusInternalServerError)
 	}
 }
 
 // ModEvent updates an existing event.
 func (mg *MechanicalGreg) ModEvent(e models.Event) error {
-	switch mg.s.Update(&e) {
+	err := mg.s.Update(&e)
+	switch err {
 	case nil:
 		return nil
 	case storm.ErrNotFound:
-		return ErrNoSuchResource
+		return NewConstraintError("No event exists with that ID", err, http.StatusNotFound)
 	default:
-		return ErrInternal
+		return NewInternalError("An unspecified error has occured", err, http.StatusInternalServerError)
 	}
 }
 
 // GetEvent returnsa single event
 func (mg *MechanicalGreg) GetEvent(id int) (models.Event, error) {
 	var event models.Event
-	switch mg.s.One("ID", id, &event) {
+	err := mg.s.One("ID", id, &event)
+	switch err {
 	case nil:
 		break
 	case storm.ErrNotFound:
-		return models.Event{}, ErrNoSuchResource
+		return models.Event{}, NewConstraintError("No event exists with that ID", err, http.StatusNotFound)
 	default:
-		return models.Event{}, ErrInternal
+		return models.Event{}, NewInternalError("An unspecified error has occured", err, http.StatusInternalServerError)
 	}
 
 	hub, err := mg.GetHub(event.Hub.ID)
