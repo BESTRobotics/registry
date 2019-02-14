@@ -45,7 +45,7 @@ func (mg *MechanicalGreg) GetTeam(id int) (models.Team, error) {
 
 	school, err := mg.GetSchool(team.School.ID)
 	if err != nil {
-		return models.Team{}, err
+		log.Printf("Team ID %d has no school: %v", id, err)
 	}
 	team.School = school
 
