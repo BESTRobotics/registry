@@ -1,7 +1,6 @@
 package http
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -24,9 +23,13 @@ func (s *Server) newHub(c *gin.Context) {
 		s.handleError(c, err)
 		return
 	}
+	hub, err = s.mg.GetHub(id)
+	if err != nil {
+		s.handleError(c, err)
+		return
+	}
 
-	c.Set("Location", fmt.Sprintf("/v1/hubs/%d", id))
-	c.Status(http.StatusCreated)
+	c.JSON(http.StatusCreated, hub)
 }
 
 func (s *Server) getHub(c *gin.Context) {
