@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { Card, Button, Header, Grid } from "semantic-ui-react";
+import { Card, Button, Header, Grid, Table } from "semantic-ui-react";
 import NewSchoolForm from "./NewSchoolForm";
+import FakeRows from "./FakeRows";
 
 const Schools = () => {
   const [schools, setSchools] = useState([]);
@@ -27,22 +28,28 @@ const Schools = () => {
         </Grid.Column>
       </Grid.Row>
       <Grid.Row>
-        <Card.Group>
-          {schools.map(school => (
-            <Card key={school.ID}>
-              <Card.Content>
-                <Card.Header>{school.Name}</Card.Header>
-                <Card.Meta>
-                  <a href={school.Website}>{school.Website}</a>
-                </Card.Meta>
-                <Card.Description>{school.Address}</Card.Description>
-              </Card.Content>
-              <Card.Content extra>
-                <Button primary>School Details</Button>
-              </Card.Content>
-            </Card>
-          ))}
-        </Card.Group>
+        <Table>
+          <Table.Header>
+            <Table.Row>
+              <Table.HeaderCell>Name</Table.HeaderCell>
+              <Table.HeaderCell>Website</Table.HeaderCell>
+              <Table.HeaderCell>Address</Table.HeaderCell>
+            </Table.Row>
+          </Table.Header>
+          {schools && schools.length ? (
+            <Table.Body>
+              {schools.map(school => (
+                <Table.Row key={school.ID}>
+                  <Table.Cell>{school.Name}</Table.Cell>
+                  <Table.Cell>{school.Website}</Table.Cell>
+                  <Table.Cell>{school.Address}</Table.Cell>
+                </Table.Row>
+              ))}
+            </Table.Body>
+          ) : (
+            <FakeRows cols={4} />
+          )}
+        </Table>
       </Grid.Row>
     </Grid>
   );

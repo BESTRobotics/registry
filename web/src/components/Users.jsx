@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { Card, Button, Header, Grid } from "semantic-ui-react";
+import { Card, Button, Header, Grid, Table } from "semantic-ui-react";
 import NewUserForm from "./NewUserForm";
+import FakeRows from "./FakeRows";
 
 const Users = () => {
   const [users, setUsers] = useState([]);
@@ -27,24 +28,32 @@ const Users = () => {
         </Grid.Column>
       </Grid.Row>
       <Grid.Row>
-        <Card.Group>
-          {users.map(user => (
-            <Card key={user.ID}>
-              <Card.Content>
-                <Card.Header>
-                  {user.FirstName} {Users.LastName}
-                </Card.Header>
-                <Card.Meta>
-                  <a href={`mailto:${user.EMail}`}>{user.EMail}</a>
-                </Card.Meta>
-                <Card.Description>{user.Type}</Card.Description>
-              </Card.Content>
-              <Card.Content extra>
-                <Button primary>User Details</Button>
-              </Card.Content>
-            </Card>
-          ))}
-        </Card.Group>
+        <Table>
+          <Table.Header>
+            <Table.Row>
+              <Table.HeaderCell>Name</Table.HeaderCell>
+              <Table.HeaderCell>Email</Table.HeaderCell>
+              <Table.HeaderCell>Birthdate</Table.HeaderCell>
+              <Table.HeaderCell>Type</Table.HeaderCell>
+            </Table.Row>
+          </Table.Header>
+          {users && users.length ? (
+            <Table.Body>
+              {users.map(user => (
+                <Table.Row key={user.ID}>
+                  <Table.Cell>
+                    {user.FirstName} {user.LastName}
+                  </Table.Cell>
+                  <Table.Cell>{user.EMail}</Table.Cell>
+                  <Table.Cell>{user.Birthdate.substring(0, 10)}</Table.Cell>
+                  <Table.Cell>{user.Type}</Table.Cell>
+                </Table.Row>
+              ))}
+            </Table.Body>
+          ) : (
+            <FakeRows cols={4} />
+          )}
+        </Table>
       </Grid.Row>
     </Grid>
   );

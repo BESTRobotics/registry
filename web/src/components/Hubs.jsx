@@ -1,17 +1,25 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { Card, Button, Header, Grid } from "semantic-ui-react";
+import { Header, Grid, Table } from "semantic-ui-react";
 import NewHubForm from "./NewHubForm";
+import FakeRows from "./FakeRows";
 
-const Hubs = () => {
+const Hubs = ({ setMessage }) => {
   const [hubs, setHubs] = useState([]);
   useEffect(() => {
     axios
       .get(`http://${process.env.REACT_APP_API_URL}/v1/hubs`)
       .then(response => {
         setHubs(response.data);
+        setMessage(null);
       })
-      .catch(e => console.log(e));
+      .catch(e => {
+        setMessage({
+          error: true,
+          header: "Problem getting hubs",
+          content: e.response.message || e.message
+        });
+      });
   }, []);
 
   const addHub = hub => {
@@ -27,23 +35,32 @@ const Hubs = () => {
         </Grid.Column>
       </Grid.Row>
       <Grid.Row>
-        <Card.Group>
-          {hubs.map(hub => (
-            <Card key={hub.ID}>
-              <Card.Content>
-                <Card.Header>{hub.Name}</Card.Header>
-                <Card.Meta>
-                  {hub.Location} &middot; {hub.Director.FirstName}{" "}
-                  {hub.Director.LastName}
-                </Card.Meta>
-                <Card.Description>{hub.Description}</Card.Description>
-              </Card.Content>
-              <Card.Content extra>
-                <Button primary>Hub Details</Button>
-              </Card.Content>
-            </Card>
-          ))}
-        </Card.Group>
+        <Table>
+          <Table.Header>
+            <Table.Row>
+              <Table.HeaderCell>Name</Table.HeaderCell>
+              <Table.HeaderCell>Location</Table.HeaderCell>
+              <Table.HeaderCell>Director</Table.HeaderCell>
+              <Table.HeaderCell>Description</Table.HeaderCell>
+            </Table.Row>
+          </Table.Header>
+          {hubs && hubs.length ? (
+            <Table.Body>
+              {hubs.map(hub => (
+                <Table.Row key={hub.ID}>
+                  <Table.Cell>{hub.Name}</Table.Cell>
+                  <Table.Cell>{hub.Location}</Table.Cell>
+                  <Table.Cell>
+                    {hub.Director.FirstName} {hub.Director.LastName}
+                  </Table.Cell>
+                  <Table.Cell>{hub.Description}</Table.Cell>
+                </Table.Row>
+              ))}
+            </Table.Body>
+          ) : (
+            <FakeRows cols={4} />
+          )}
+        </Table>
       </Grid.Row>
     </Grid>
   );

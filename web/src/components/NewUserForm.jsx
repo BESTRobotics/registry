@@ -2,9 +2,9 @@ import React, { useState } from "react";
 import axios from "axios";
 import { Button, Form } from "semantic-ui-react";
 
-const NewUserForm = addUser => {
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
+const NewUserForm = ({ addUser, name }) => {
+  const [firstName, setFirstName] = useState(name ? name.split(" ")[0] : "");
+  const [lastName, setLastName] = useState(name ? name.split(" ")[1] : "");
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [birthdate, setBirthdate] = useState("");
@@ -17,12 +17,12 @@ const NewUserForm = addUser => {
       Type: type,
       FirstName: firstName,
       LastName: lastName,
-      Birthdate: birthdate
+      Birthdate: new Date(birthdate).toISOString()
     };
     axios
       .post(`http://${process.env.REACT_APP_API_URL}/v1/users`, newUser)
       .then(response => {
-        console.log(response.data);
+        newUser.ID = response.data.ID;
         addUser(newUser);
       })
       .catch(e => console.log(e));
@@ -30,25 +30,27 @@ const NewUserForm = addUser => {
 
   return (
     <Form onSubmit={submitForm}>
-      <Form.Group inline>
+      <Form.Group fluid>
         <Form.Input
           label="First Name"
           value={firstName}
+          width={8}
           onChange={(_, { value }) => setFirstName(value)}
         />
         <Form.Input
           label="Last Name"
           value={lastName}
+          width={8}
           onChange={(_, { value }) => setLastName(value)}
         />
       </Form.Group>
       <Form.Input
-        label="username"
+        label="Username"
         value={username}
         onChange={(_, { value }) => setUsername(value)}
       />
       <Form.Input
-        label="email"
+        label="Email"
         type="email"
         value={email}
         onChange={(_, { value }) => setEmail(value)}
