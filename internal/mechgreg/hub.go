@@ -73,8 +73,15 @@ func (mg *MechanicalGreg) GetHubs(includeInactive bool) ([]models.Hub, error) {
 	} else {
 		err = mg.s.Find("InactiveSince", models.DateTime{}, &tmp)
 	}
-	if err != nil {
-		return nil, err
+	switch err {
+	case nil:
+		break
+	case storm.ErrNotFound:
+		// In this specific case, notfound actually means
+		// there are no teams satisfying the query.
+		return []models.Hub{}, nil
+	default:
+		return nil, NewInternalError("An unspecified internal error has occured", err, http.StatusInternalServerError)
 	}
 
 	// This looks rather innefficient, but remember that the
