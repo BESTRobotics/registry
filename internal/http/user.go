@@ -1,7 +1,6 @@
 package http
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -26,9 +25,13 @@ func (s *Server) newUser(c *gin.Context) {
 		s.handleError(c, err)
 		return
 	}
+	user, err = s.mg.GetUser(uid)
+	if err != nil {
+		s.handleError(c, err)
+		return
+	}
 
-	c.Set("Location", fmt.Sprintf("/v1/users/%d", uid))
-	c.Status(http.StatusCreated)
+	c.JSON(http.StatusCreated, user)
 }
 
 func (s *Server) getUser(c *gin.Context) {

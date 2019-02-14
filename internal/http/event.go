@@ -1,7 +1,6 @@
 package http
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -24,8 +23,12 @@ func (s *Server) newEvent(c *gin.Context) {
 		s.handleError(c, err)
 		return
 	}
-	c.Set("Location", fmt.Sprintf("/v1/events/%d", id))
-	c.Status(http.StatusCreated)
+	event, err = s.mg.GetEvent(id)
+	if err != nil {
+		s.handleError(c, err)
+		return
+	}
+	c.JSON(http.StatusCreated, event)
 }
 
 func (s *Server) getEvent(c *gin.Context) {

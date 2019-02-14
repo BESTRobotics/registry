@@ -1,7 +1,6 @@
 package http
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -24,9 +23,12 @@ func (s *Server) newSchool(c *gin.Context) {
 		s.handleError(c, err)
 		return
 	}
-
-	c.Set("Location", fmt.Sprintf("/v1/schools/%d", id))
-	c.Status(http.StatusCreated)
+	school, err = s.mg.GetSchool(id)
+	if err != nil {
+		s.handleError(c, err)
+		return
+	}
+	c.JSON(http.StatusCreated, school)
 }
 
 func (s *Server) getSchool(c *gin.Context) {

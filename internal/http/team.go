@@ -1,7 +1,6 @@
 package http
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -24,9 +23,12 @@ func (s *Server) newTeam(c *gin.Context) {
 		s.handleError(c, err)
 		return
 	}
-
-	c.Set("Location", fmt.Sprintf("/v1/teams/%d", id))
-	c.Status(http.StatusCreated)
+	team, err = s.mg.GetTeam(id)
+	if err != nil {
+		s.handleError(c, err)
+		return
+	}
+	c.JSON(http.StatusCreated, team)
 }
 
 func (s *Server) getTeam(c *gin.Context) {

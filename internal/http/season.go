@@ -1,7 +1,6 @@
 package http
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -24,9 +23,13 @@ func (s *Server) newSeason(c *gin.Context) {
 		s.handleError(c, err)
 		return
 	}
+	season, err = s.mg.GetSeason(id)
+	if err != nil {
+		s.handleError(c, err)
+		return
+	}
 
-	c.Set("Location", fmt.Sprintf("/v1/seasons/%d", id))
-	c.Status(http.StatusCreated)
+	c.JSON(http.StatusCreated, season)
 }
 
 func (s *Server) getSeason(c *gin.Context) {
