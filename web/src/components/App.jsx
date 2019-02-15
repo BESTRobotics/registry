@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import Hubs from "./Hubs";
 import Teams from "./Teams";
 import Schools from "./Schools";
@@ -10,21 +10,15 @@ import {
   Route,
   Redirect
 } from "react-router-dom";
-import { Message } from "semantic-ui-react";
 
 const App = () => {
-  const [message, setMessage] = useState(null);
   return (
     <Router>
       <section>
         <Topbar />
-        {message ? <Message {...message} /> : null}
         <Switch>
           <Redirect exact path="/" to="/hubs" />
-          <Route
-            path="/hubs"
-            render={p => <Hubs {...p} setMessage={setMessage} />}
-          />
+          <Route path="/hubs" component={Hubs} />} />
           <Route path="/schools" component={Schools} />
           <Route path="/teams" component={Teams} />
           <Route path="/users" component={Users} />
@@ -36,3 +30,10 @@ const App = () => {
 };
 
 export default App;
+
+// <Table.Cell>{item.Name}</Table.Cell>
+// <Table.Cell>{hub.Location}</Table.Cell>
+// <Table.Cell>
+//   {hub.Director.FirstName} {hub.Director.LastName}
+// </Table.Cell>
+// <Table.Cell>{hub.Description}</Table.Cell>

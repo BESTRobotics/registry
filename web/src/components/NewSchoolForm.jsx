@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import { Button, Form } from "semantic-ui-react";
 
-const NewSchoolForm = ({ addSchool }) => {
+const NewSchoolForm = ({ addToList }) => {
   const [name, setName] = useState("");
   const [address, setAddress] = useState("");
   const [website, setWebsite] = useState("");
@@ -16,8 +16,8 @@ const NewSchoolForm = ({ addSchool }) => {
     axios
       .post(`http://${process.env.REACT_APP_API_URL}/v1/schools`, newSchool)
       .then(response => {
-        console.log(response.data);
-        addSchool(newSchool);
+        newSchool.ID = response.data.ID;
+        addToList(newSchool);
       })
       .catch(e => console.log(e));
   };

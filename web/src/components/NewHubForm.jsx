@@ -3,7 +3,7 @@ import axios from "axios";
 import { Button, Form, Modal, Header } from "semantic-ui-react";
 import NewUserForm from "./NewUserForm";
 
-const NewHubForm = ({ addHub }) => {
+const NewHubForm = ({ addToList }) => {
   const [users, setUsers] = useState([]);
   const [name, setName] = useState("");
   const [location, setLocation] = useState("");
@@ -42,7 +42,7 @@ const NewHubForm = ({ addHub }) => {
         );
       })
       .then(() => {
-        addHub(newHub);
+        addToList(newHub);
       })
       .catch(e => console.log(e));
   };
@@ -92,7 +92,7 @@ const NewHubForm = ({ addHub }) => {
         <Modal.Content>
           <NewUserForm
             name={newUser}
-            addUser={user => {
+            addToList={user => {
               setUsers([...users, user]);
               setDirector(user.ID);
               setNewUser("");

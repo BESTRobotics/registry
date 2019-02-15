@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import { Button, Form } from "semantic-ui-react";
 
-const NewUserForm = ({ addUser, name }) => {
+const NewUserForm = ({ addToList, name }) => {
   const [firstName, setFirstName] = useState(name ? name.split(" ")[0] : "");
   const [lastName, setLastName] = useState(name ? name.split(" ")[1] : "");
   const [username, setUsername] = useState("");
@@ -17,20 +17,20 @@ const NewUserForm = ({ addUser, name }) => {
       Type: type,
       FirstName: firstName,
       LastName: lastName,
-      Birthdate: new Date(birthdate).toISOString()
+      Birthdate: birthdate ? new Date(birthdate).toISOString() : null
     };
     axios
       .post(`http://${process.env.REACT_APP_API_URL}/v1/users`, newUser)
       .then(response => {
         newUser.ID = response.data.ID;
-        addUser(newUser);
+        addToList(newUser);
       })
       .catch(e => console.log(e));
   };
 
   return (
     <Form onSubmit={submitForm}>
-      <Form.Group fluid>
+      <Form.Group>
         <Form.Input
           label="First Name"
           value={firstName}
