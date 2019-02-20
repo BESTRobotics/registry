@@ -108,6 +108,42 @@ func (mg *MechanicalGreg) GetTeams(includeInactive bool) ([]models.Team, error) 
 	return out, nil
 }
 
+// GetTeamsForUser returns all the hubs that a use has power over in
+// some way, shape, or form.
+func (mg *MechanicalGreg) GetTeamsForUser(userID int) ([]models.Team, error) {
+	involvements := make(map[int]models.Team)
+
+	// Query for all hubs that have ever been, then figure out if
+	// any of them have this person.
+	teams, err := mg.GetTeams(true)
+	if err != nil {
+		return nil, err
+	}
+
+	// Iterate through the teams and find any that have this user
+	// as a director or admin.  This isn't N^2 even though it
+	// looks like it!
+	for i := range teams {
+		if teams[i].Coach.ID == userID {
+			involvements[teams[i].ID] = teams[i]
+		}
+
+		for j := range teams[i].Mentors {
+			if teams[i].Mentors[j].ID == userID {
+				involvements[teams[i].ID] = teams[i]
+			}
+		}
+	}
+
+	// Downconvert to just a list
+	var out []models.Team
+	for _, team := range involvements {
+		out = append(out, team)
+	}
+	return out, nil
+}
+
+
 // ModTeam modifies a team.  It protects certain specialized fields
 // that require different mechanisms to set.
 func (mg *MechanicalGreg) ModTeam(team models.Team) error {

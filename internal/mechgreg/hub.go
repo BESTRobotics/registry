@@ -99,6 +99,41 @@ func (mg *MechanicalGreg) GetHubs(includeInactive bool) ([]models.Hub, error) {
 	return out, nil
 }
 
+// GetHubsForUser returns all the hubs that a use has power over in
+// some way, shape, or form.
+func (mg *MechanicalGreg) GetHubsForUser(userID int) ([]models.Hub, error) {
+	involvements := make(map[int]models.Hub)
+
+	// Query for all hubs that have ever been, then figure out if
+	// any of them have this person.
+	hubs, err := mg.GetHubs(true)
+	if err != nil {
+		return nil, err
+	}
+
+	// Iterate through the hubs and find any that have this user
+	// as a director or admin.  This isn't N^2 even though it
+	// looks like it!
+	for i := range hubs {
+		if hubs[i].Director.ID == userID {
+			involvements[hubs[i].ID] = hubs[i]
+		}
+
+		for j := range hubs[i].Admins {
+			if hubs[i].Admins[j].ID == userID {
+				involvements[hubs[i].ID] = hubs[i]
+			}
+		}
+	}
+
+	// Downconvert to just a list
+	var out []models.Hub
+	for _, hub := range involvements {
+		out = append(out, hub)
+	}
+	return out, nil
+}
+
 // ModHub modifies an existing hub to match the state provided.
 func (mg *MechanicalGreg) ModHub(h models.Hub) error {
 	// These fields require special handline to safely update.
