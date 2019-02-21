@@ -143,7 +143,6 @@ func (mg *MechanicalGreg) GetTeamsForUser(userID int) ([]models.Team, error) {
 	return out, nil
 }
 
-
 // ModTeam modifies a team.  It protects certain specialized fields
 // that require different mechanisms to set.
 func (mg *MechanicalGreg) ModTeam(team models.Team) error {

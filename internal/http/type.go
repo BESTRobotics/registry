@@ -4,13 +4,15 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/BESTRobotics/registry/internal/models"
+	"github.com/BESTRobotics/registry/internal/token"
 )
 
 // The Server represents the type that all methods are bound on within
 // the webserver.
 type Server struct {
-	mg MechGreg
-	g  *gin.Engine
+	mg  MechGreg
+	tkn *token.RSATokenService
+	g   *gin.Engine
 }
 
 // The MechGreg or "Mechanical Greg" interface defines all the actions
@@ -32,6 +34,7 @@ type MechGreg interface {
 	NewHub(models.Hub) (int, error)
 	GetHub(int) (models.Hub, error)
 	GetHubs(bool) ([]models.Hub, error)
+	GetHubsForUser(int) ([]models.Hub, error)
 	ModHub(models.Hub) error
 	DeactivateHub(int) error
 	ActivateHub(int) error
@@ -48,6 +51,7 @@ type MechGreg interface {
 	NewTeam(models.Team) (int, error)
 	GetTeam(int) (models.Team, error)
 	GetTeams(bool) ([]models.Team, error)
+	GetTeamsForUser(int) ([]models.Team, error)
 	ModTeam(models.Team) error
 	SetTeamSchool(int, models.School) error
 	GetTeamSchool(int) (models.School, error)

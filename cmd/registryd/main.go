@@ -32,7 +32,7 @@ func main() {
 	log.Println("regitryd initializing")
 	log.Println("Preparing to serve")
 
-	_, err := token.NewRSA()
+	tkn, err := token.NewRSA()
 	if err != nil {
 		log.Panic(err)
 	}
@@ -42,7 +42,7 @@ func main() {
 		log.Panic(err)
 	}
 
-	s, err := http.New(mg)
+	s, err := http.New(mg, tkn)
 	if err != nil {
 		log.Panic(err)
 	}

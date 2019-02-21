@@ -6,5 +6,7 @@ import (
 
 // Claims represents the claims that are made to the system.
 type Claims struct {
-	User models.User
+	User  models.User
+	Hubs  []int
+	Teams []int
 }

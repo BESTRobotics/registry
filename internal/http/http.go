@@ -10,12 +10,14 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/BESTRobotics/registry/internal/mechgreg"
+	"github.com/BESTRobotics/registry/internal/token"
 )
 
 // New returns a new http.Server or dies trying.
-func New(mg MechGreg) (*Server, error) {
+func New(mg MechGreg, tkn *token.RSATokenService) (*Server, error) {
 	s := Server{
-		mg: mg,
+		mg:  mg,
+		tkn: tkn,
 	}
 	s.g = gin.New()
 
@@ -32,6 +34,8 @@ func New(mg MechGreg) (*Server, error) {
 		v1.POST("/users", s.newUser)
 		v1.GET("/users/:uid", s.getUser)
 		v1.PUT("/users/:uid", s.modUser)
+
+		v1.GET("/token/:id", s.getToken)
 
 		v1.GET("/seasons", s.getSeasons)
 		v1.POST("/seasons", s.newSeason)
