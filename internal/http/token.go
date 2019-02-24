@@ -1,6 +1,7 @@
 package http
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -77,4 +78,53 @@ func (s *Server) getToken(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, token)
+}
+
+func (s *Server) validateToken(c *gin.Context) {
+	tknStr := c.GetHeader("authorization")
+
+	// If there was no token, don't try to extract it.  In the
+	// case that there is a need to use authenticating
+	// information, it will be obvious in later functions that
+	// there is no authinfo in the context.
+	if tknStr == "" {
+		return
+	}
+
+	claims, err := s.tkn.Validate(tknStr)
+	if err != nil {
+		status := struct {
+			Message string
+			Cause   string
+		}{
+			Message: "Bad token",
+			Cause:   fmt.Sprint(err),
+		}
+		c.AbortWithStatusJSON(http.StatusUnauthorized, status)
+	}
+
+	c.Set("authinfo", claims)
+}
+
+func (s *Server) inspectToken(c *gin.Context) {
+	claims := extractClaims(c)
+	c.JSON(http.StatusOK, claims)
+}
+
+// extractClaims fishes out the token and asserts the type back to
+// something sane.
+func extractClaims(c *gin.Context) token.Claims {
+	cl, exists := c.Get("authinfo")
+	if !exists {
+		// Bail out now with empty claims.  Its safe to bail
+		// with no error because empty claims can't be used
+		// for anything.  Auth checks implicitly fail.
+		return token.Claims{}
+	}
+	claims, ok := cl.(token.Claims)
+	if !ok {
+		log.Println("Something that wasn't authinfo was in the token:", cl)
+		return token.Claims{}
+	}
+	return claims
 }

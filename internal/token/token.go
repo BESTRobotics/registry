@@ -6,6 +6,10 @@ import (
 	"github.com/spf13/viper"
 )
 
+func init() {
+	viper.SetDefault("token.lifetime", time.Minute*30)
+}
+
 // The Config struct contains information that should be used when
 // generating a token.
 type Config struct {

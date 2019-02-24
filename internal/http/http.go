@@ -26,6 +26,8 @@ func New(mg MechGreg, tkn *token.RSATokenService) (*Server, error) {
 		s.g.Use(cors.Default())
 	}
 
+	s.g.Use(s.validateToken)
+
 	s.g.GET("/status", s.statusPage)
 
 	v1 := s.g.Group("v1/")
@@ -36,6 +38,7 @@ func New(mg MechGreg, tkn *token.RSATokenService) (*Server, error) {
 		v1.PUT("/users/:uid", s.modUser)
 
 		v1.GET("/token/:id", s.getToken)
+		v1.GET("/token-inspect", s.inspectToken)
 
 		v1.GET("/seasons", s.getSeasons)
 		v1.POST("/seasons", s.newSeason)
