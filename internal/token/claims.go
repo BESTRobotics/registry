@@ -10,3 +10,9 @@ type Claims struct {
 	Hubs  []int
 	Teams []int
 }
+
+// IsEmpty is a convenience check to tell if the claims being
+// inspected are in fact empty.
+func (c *Claims) IsEmpty() bool {
+	return c == &Claims{}
+}

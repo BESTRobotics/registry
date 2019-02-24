@@ -8,6 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/BESTRobotics/registry/internal/models"
+	"github.com/BESTRobotics/registry/internal/token"
 )
 
 func (s *Server) newUser(c *gin.Context) {
@@ -86,6 +87,20 @@ func (s *Server) getUsers(c *gin.Context) {
 }
 
 func (s *Server) modUser(c *gin.Context) {
+	// Fetch the User from the request
+	uidStr := c.Param("uid")
+	uid, err := strconv.ParseInt(uidStr, 10, 32)
+	if err != nil {
+		c.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+
+	// Perform Authentication Checks
+	if err := canModUser(extractClaims(c), int(uid)); err != nil {
+		s.handleError(c, err)
+		return
+	}
+
 	// Deserialize the user
 	var user models.User
 	if err := c.ShouldBindJSON(&user); err != nil {
@@ -94,13 +109,6 @@ func (s *Server) modUser(c *gin.Context) {
 		return
 	}
 
-	// Fetch the User from the request
-	uidStr := c.Param("uid")
-	uid, err := strconv.ParseInt(uidStr, 10, 32)
-	if err != nil {
-		c.AbortWithError(http.StatusBadRequest, err)
-		return
-	}
 	user.ID = int(uid)
 	user.Username = ""
 
@@ -111,4 +119,18 @@ func (s *Server) modUser(c *gin.Context) {
 	}
 
 	c.Status(http.StatusNoContent)
+}
+
+// canModUser checks if a user modification is allowed.  This will
+// return true in the case of the included user matching the requested
+// ID, or the USER_ADMIN capability being present.
+func canModUser(claims token.Claims, id int) error {
+	if claims.IsEmpty() {
+		return newAuthError("Unauthorized", "Claims are empty")
+	}
+
+	if claims.User.ID != id {
+		return newAuthError("Unauthorized", "You are not authorized to modify this user")
+	}
+	return nil
 }

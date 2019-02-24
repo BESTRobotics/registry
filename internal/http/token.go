@@ -110,21 +110,3 @@ func (s *Server) inspectToken(c *gin.Context) {
 	claims := extractClaims(c)
 	c.JSON(http.StatusOK, claims)
 }
-
-// extractClaims fishes out the token and asserts the type back to
-// something sane.
-func extractClaims(c *gin.Context) token.Claims {
-	cl, exists := c.Get("authinfo")
-	if !exists {
-		// Bail out now with empty claims.  Its safe to bail
-		// with no error because empty claims can't be used
-		// for anything.  Auth checks implicitly fail.
-		return token.Claims{}
-	}
-	claims, ok := cl.(token.Claims)
-	if !ok {
-		log.Println("Something that wasn't authinfo was in the token:", cl)
-		return token.Claims{}
-	}
-	return claims
-}

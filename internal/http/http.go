@@ -120,6 +120,13 @@ func (s *Server) handleError(c *gin.Context, err error) {
 		}
 		c.AbortWithStatusJSON(ierr.Code(), err)
 		return
+	case AuthError:
+		aerr, ok := err.(AuthError)
+		if !ok {
+			break
+		}
+		c.AbortWithStatusJSON(aerr.Code(), err)
+		return
 	}
 	c.AbortWithError(http.StatusInternalServerError, err)
 	return
