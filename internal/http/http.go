@@ -36,6 +36,9 @@ func New(mg MechGreg, tkn *token.RSATokenService) (*Server, error) {
 		v1.POST("/users", s.newUser)
 		v1.GET("/users/:uid", s.getUser)
 		v1.PUT("/users/:uid", s.modUser)
+		v1.GET("/users/:uid/capabilities", s.getUserCapabilities)
+		v1.PUT("/users/:uid/capabilities", s.addUserCapability)
+		v1.DELETE("/users/:uid/capabilities", s.delUserCapability)
 
 		v1.GET("/token/:id", s.getToken)
 		v1.GET("/token-inspect", s.inspectToken)

@@ -111,7 +111,100 @@ func (s *Server) modUser(c *gin.Context) {
 
 	user.ID = int(uid)
 	user.Username = ""
+	user.Capabilities = nil
 
+	err = s.mg.ModUser(user)
+	if err != nil {
+		s.handleError(c, err)
+		return
+	}
+
+	c.Status(http.StatusNoContent)
+}
+
+func (s *Server) getUserCapabilities(c *gin.Context) {
+	// Fetch the User from the request
+	uidStr := c.Param("uid")
+	uid, err := strconv.ParseInt(uidStr, 10, 32)
+	if err != nil {
+		c.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+
+	user, err := s.mg.GetUser(int(uid))
+	if err != nil {
+		s.handleError(c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, user.Capabilities)
+}
+
+func (s *Server) addUserCapability(c *gin.Context) {
+	// Perform Authentication Checks
+	if err := canModCapabilities(extractClaims(c)); err != nil {
+		s.handleError(c, err)
+		return
+	}
+
+	// Fetch the User from the request
+	uidStr := c.Param("uid")
+	uid, err := strconv.ParseInt(uidStr, 10, 32)
+	if err != nil {
+		c.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+
+	var cap models.Capability
+	if err := c.ShouldBindJSON(&cap); err != nil {
+		c.AbortWithError(http.StatusBadRequest, err)
+		log.Println(err)
+		return
+	}
+
+	user, err := s.mg.GetUser(int(uid))
+	if err != nil {
+		s.handleError(c, err)
+		return
+	}
+	user.GrantCapability(cap)
+	err = s.mg.ModUser(user)
+	if err != nil {
+		s.handleError(c, err)
+		return
+	}
+
+	c.Status(http.StatusNoContent)
+}
+
+func (s *Server) delUserCapability(c *gin.Context) {
+	// Perform Authentication Checks
+	if err := canModCapabilities(extractClaims(c)); err != nil {
+		s.handleError(c, err)
+		return
+	}
+
+	// Fetch the User from the request
+	uidStr := c.Param("uid")
+	uid, err := strconv.ParseInt(uidStr, 10, 32)
+	if err != nil {
+		c.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+
+	var cap models.Capability
+	if err := c.ShouldBindJSON(&cap); err != nil {
+		c.AbortWithError(http.StatusBadRequest, err)
+		log.Println(err)
+		return
+	}
+
+	user, err := s.mg.GetUser(int(uid))
+	if err != nil {
+		s.handleError(c, err)
+		return
+	}
+	user.RemoveCapability(cap)
 	err = s.mg.ModUser(user)
 	if err != nil {
 		s.handleError(c, err)
@@ -131,6 +224,22 @@ func canModUser(claims token.Claims, id int) error {
 
 	if claims.User.ID != id {
 		return newAuthError("Unauthorized", "You are not authorized to modify this user")
+	}
+	return nil
+}
+
+// canModCapabilities takes care of returning an error if the user
+// lacks sufficient power to make a change to capabilities.  Since
+// capabilities gate the ability to gain special powers, the ability
+// to add and remove capabilities from them is only available to a
+// SuperAdmin.
+func canModCapabilities(claims token.Claims) error {
+	if claims.IsEmpty() {
+		return newAuthError("Unauthorized", "Claims are empty")
+	}
+
+	if !claims.User.HasCapability(models.CapSuperAdmin) {
+		return newAuthError("Unauthorized", "Only a SuperAdmin can modify capabilities!")
 	}
 	return nil
 }

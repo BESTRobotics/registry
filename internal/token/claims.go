@@ -14,5 +14,8 @@ type Claims struct {
 // IsEmpty is a convenience check to tell if the claims being
 // inspected are in fact empty.
 func (c *Claims) IsEmpty() bool {
-	return c == &Claims{}
+	// This is an ugly hack that is used to check if the claims
+	// are empty because claims for a valid user will always have
+	// a username encoded.
+	return c.User.Username == ""
 }
