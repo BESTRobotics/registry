@@ -97,6 +97,11 @@ const (
 	// publicly visible.
 	CapUserRead
 
+	// CapHubAdmin permits the holder to create new hubs, manage
+	// the archival of existing ones, and set the director on
+	// hubs.
+	CapHubAdmin
+
 	// CapIDMax isn't so much a capability as an upper bound to
 	// iterate to.  It doesn't confer powers, but provides an
 	// upper point to the range to validate to.

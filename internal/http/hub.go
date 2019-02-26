@@ -8,9 +8,16 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/BESTRobotics/registry/internal/models"
+	"github.com/BESTRobotics/registry/internal/token"
 )
 
 func (s *Server) newHub(c *gin.Context) {
+	// Perform Authorization Checks
+	if err := canManageHubs(extractClaims(c)); err != nil {
+		s.handleError(c, err)
+		return
+	}
+
 	var hub models.Hub
 	if err := c.ShouldBindJSON(&hub); err != nil {
 		c.AbortWithError(http.StatusBadRequest, err)
@@ -73,6 +80,12 @@ func (s *Server) modHub(c *gin.Context) {
 		return
 	}
 
+	// Perform Authorization Checks
+	if err := canModHub(extractClaims(c), int(id)); err != nil {
+		s.handleError(c, err)
+		return
+	}
+
 	var hub models.Hub
 	if err := c.ShouldBindJSON(&hub); err != nil {
 		c.AbortWithError(http.StatusBadRequest, err)
@@ -81,6 +94,10 @@ func (s *Server) modHub(c *gin.Context) {
 	}
 
 	hub.ID = int(id)
+	// Admins has to be set by the correct endpoint, director has
+	// to be set with the right endpoint as well.
+	hub.Admins = nil
+	hub.Director = models.User{}
 
 	err = s.mg.ModHub(hub)
 	if err != nil {
@@ -92,6 +109,12 @@ func (s *Server) modHub(c *gin.Context) {
 }
 
 func (s *Server) deactivateHub(c *gin.Context) {
+	// Perform Authorization Checks
+	if err := canManageHubs(extractClaims(c)); err != nil {
+		s.handleError(c, err)
+		return
+	}
+
 	idStr := c.Param("id")
 	id, err := strconv.ParseInt(idStr, 10, 32)
 	if err != nil {
@@ -109,6 +132,12 @@ func (s *Server) deactivateHub(c *gin.Context) {
 }
 
 func (s *Server) activateHub(c *gin.Context) {
+	// Perform Authorization Checks
+	if err := canManageHubs(extractClaims(c)); err != nil {
+		s.handleError(c, err)
+		return
+	}
+
 	idStr := c.Param("id")
 	id, err := strconv.ParseInt(idStr, 10, 32)
 	if err != nil {
@@ -126,6 +155,12 @@ func (s *Server) activateHub(c *gin.Context) {
 }
 
 func (s *Server) setHubDirector(c *gin.Context) {
+	// Perform Authorization Checks
+	if err := canManageHubs(extractClaims(c)); err != nil {
+		s.handleError(c, err)
+		return
+	}
+
 	idStr := c.Param("id")
 	id, err := strconv.ParseInt(idStr, 10, 32)
 	if err != nil {
@@ -174,6 +209,17 @@ func (s *Server) addHubAdmin(c *gin.Context) {
 		return
 	}
 
+	// Perform Authorization Checks
+	hub, err := s.mg.GetHub(int(id))
+	if err != nil {
+		s.handleError(c, err)
+		return
+	}
+	if err := permitDirectorActions(extractClaims(c), hub); err != nil {
+		s.handleError(c, err)
+		return
+	}
+
 	var user models.User
 	if err := c.ShouldBindJSON(&user); err != nil {
 		c.AbortWithError(http.StatusBadRequest, err)
@@ -198,6 +244,17 @@ func (s *Server) delHubAdmin(c *gin.Context) {
 		return
 	}
 
+	// Perform Authorization Checks
+	hub, err := s.mg.GetHub(int(id))
+	if err != nil {
+		s.handleError(c, err)
+		return
+	}
+	if err := permitDirectorActions(extractClaims(c), hub); err != nil {
+		s.handleError(c, err)
+		return
+	}
+
 	var user models.User
 	if err := c.ShouldBindJSON(&user); err != nil {
 		c.AbortWithError(http.StatusBadRequest, err)
@@ -212,4 +269,54 @@ func (s *Server) delHubAdmin(c *gin.Context) {
 	}
 
 	c.Status(http.StatusNoContent)
+}
+
+// canModHub checks whether appropriate claims are available to modify
+// a hub.  General modifications can be done by a hub admin, so we
+// check all hubs the user may be allowed to handle.
+func canModHub(claims token.Claims, hubID int) error {
+	if claims.IsEmpty() {
+		return newAuthError("Unauthorized", "Claims are empty")
+	}
+	if claims.User.HasCapability(models.CapSuperAdmin) {
+		return nil
+	}
+
+	for i := range claims.Hubs {
+		if claims.Hubs[i] == hubID {
+			return nil
+		}
+	}
+	return newAuthError("Unauthorized", "You do not have the appropriate clearance to modify this hub!")
+}
+
+// canManageHubs tells whether or not the requestor is allowed to
+// handle things like creating and archiving hubs, or setting the hub
+// director.
+func canManageHubs(claims token.Claims) error {
+	if claims.IsEmpty() {
+		return newAuthError("Unauthorized", "Claims are empty")
+	}
+	if !claims.User.HasCapability(models.CapHubAdmin) {
+		return newAuthError("Unauthorized", "You must posess CapHubAdmin to do that!")
+	}
+	return nil
+}
+
+// isHubDirector figures out if this user has a claim as the director
+// of this hub.
+func permitDirectorActions(claims token.Claims, hub models.Hub) error {
+	if claims.IsEmpty() {
+		return newAuthError("Unauthorized", "Claims are empty")
+	}
+	if claims.User.HasCapability(models.CapHubAdmin) {
+		// Short circuit if they're can HubAdmin
+		return nil
+	}
+	for i := range claims.Hubs {
+		if claims.Hubs[i] == hub.Director.ID {
+			return nil
+		}
+	}
+	return newAuthError("Unauthorized", "You must be a hub director to do that!")
 }
