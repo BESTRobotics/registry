@@ -1,17 +1,25 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { Button, Form, Modal, Header } from "semantic-ui-react";
+import { Button, Form, Message, Modal, Header } from "semantic-ui-react";
 import NewUserForm from "./NewUserForm";
+import PropTypes from "prop-types";
 
-const NewHubForm = ({ addToList }) => {
+const NewHubForm = ({ addToList, existingItem }) => {
+  const hub = existingItem;
   const [users, setUsers] = useState([]);
-  const [name, setName] = useState("");
-  const [location, setLocation] = useState("");
-  const [founded, setFounded] = useState("");
-  const [description, setDescription] = useState("");
-  const [director, setDirector] = useState(null);
+  const [name, setName] = useState(hub ? hub.Name : "");
+  const [location, setLocation] = useState(hub ? hub.Location : "");
+  const [founded, setFounded] = useState(
+    hub ? hub.Founded.substring(0, 10) : ""
+  );
+  const [description, setDescription] = useState(hub ? hub.Description : "");
+  const [id, setId] = useState(hub ? hub.ID : "");
+  const [director, setDirector] = useState(
+    hub && hub.Director ? hub.Director.ID : null
+  );
 
   const [newUser, setNewUser] = useState("");
+  const [message, setMessage] = useState(null);
 
   useEffect(() => {
     axios
@@ -19,7 +27,14 @@ const NewHubForm = ({ addToList }) => {
       .then(response => {
         setUsers(response.data);
       })
-      .catch(e => console.log(e));
+      .catch(e => {
+        setMessage({
+          error: true,
+          header: `Problem getting users`,
+          content:
+            e.response && e.response.data ? e.response.data.Message : e.message
+        });
+      });
   }, []);
 
   const submitForm = () => {
@@ -27,28 +42,47 @@ const NewHubForm = ({ addToList }) => {
       Name: name,
       Location: location,
       Description: description,
-      Founded: new Date(founded).toISOString()
+      Founded: founded !== "" ? new Date(founded).toISOString() : null
     };
-    axios
-      .post(`http://${process.env.REACT_APP_API_URL}/v1/hubs`, newHub)
+    let call = axios.post;
+    let url = `http://${process.env.REACT_APP_API_URL}/v1/hubs`;
+    if (id !== "") {
+      newHub.ID = id;
+      call = axios.put;
+      url = `http://${process.env.REACT_APP_API_URL}/v1/hubs/${id}/update`;
+    }
+    call(url, newHub)
       .then(response => {
-        newHub.ID = response.data.ID;
-        newHub.Director = users.filter(u => u.ID === director)[0];
-        return axios.put(
-          `http://${process.env.REACT_APP_API_URL}/v1/hubs/${
-            response.data.ID
-          }/director`,
-          { ID: director }
-        );
+        if (!newHub.ID) {
+          newHub.ID = response.data.ID;
+          setId(response.data.ID);
+        }
+        if (director !== "") {
+          newHub.Director = users.filter(u => u.ID === director)[0];
+          return axios.put(
+            `http://${process.env.REACT_APP_API_URL}/v1/hubs/${
+              newHub.ID
+            }/director`,
+            { ID: director }
+          );
+        }
       })
       .then(() => {
         addToList(newHub);
       })
-      .catch(e => console.log(e));
+      .catch(e => {
+        setMessage({
+          error: true,
+          header: `Problem saving hub`,
+          content:
+            e.response && e.response.data ? e.response.data.Message : e.message
+        });
+      });
   };
 
   return (
     <React.Fragment>
+      {message ? <Message {...message} /> : null}
       <Form onSubmit={submitForm}>
         <Form.Input
           label="Name"
@@ -85,7 +119,7 @@ const NewHubForm = ({ addToList }) => {
           onChange={(_, { value }) => setDirector(value)}
           onAddItem={(_, { value }) => setNewUser(value)}
         />
-        <Button color="green">Add Hub</Button>
+        <Button color="green">{hub.ID ? "Update Hub" : "Add Hub"}</Button>
       </Form>
       <Modal open={!!newUser} onClose={() => setNewUser("")}>
         <Header icon="user" content="Add New User" />
@@ -105,3 +139,7 @@ const NewHubForm = ({ addToList }) => {
 };
 
 export default NewHubForm;
+
+NewHubForm.propTypes = {
+  addToList: PropTypes.func.isRequired
+};

@@ -18,8 +18,12 @@ const Item = ({ itemName, fields, NewItemForm }) => {
   const [message, setMessage] = useState(null);
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(0);
-  const [newItemModalOpen, setNewItemModalOpen] = useState(false);
+  const [newItemModalOpen, setNewItemModalOpen] = useState(null);
   const pageSize = 20;
+
+  useEffect(() => {
+    console.log("amazing");
+  }, [message]);
 
   useEffect(() => {
     axios
@@ -28,30 +32,51 @@ const Item = ({ itemName, fields, NewItemForm }) => {
       )
       .then(response => {
         setItems(response.data);
-        setMessage(null);
+        setMessage();
       })
       .catch(e => {
         setMessage({
           error: true,
           header: `Problem getting ${itemName.toLowerCase()}s`,
-          content: e.response.message || e.message
+          content:
+            e.response && e.response.data ? e.response.data.Message : e.message
         });
       });
   }, []);
 
-  const deleteItem = id => {
+  const deactivateItem = id => {
+    console.log("DELETING");
     axios
-      .delete(
-        `http://${process.env.REACT_APP_API_URL}/v1/${itemName.toLowerCase()}`
+      .put(
+        `http://${
+          process.env.REACT_APP_API_URL
+        }/v1/${itemName.toLowerCase()}s/${id}/deactivate`
       )
       .then(() => {
         setItems(items.filter(i => i.ID !== id));
       })
-      .catch(e => console.log(e));
+      .catch(e => {
+        setMessage({
+          error: true,
+          header: `Problem deleting ${itemName.toLowerCase()}s`,
+          content:
+            e.response && e.response.data ? e.response.data.Message : e.message
+        });
+      });
   };
 
   const addItem = item => {
-    setItems([...items, item]);
+    const existingItem = items.findIndex(i => i.ID === item.ID);
+    console.log(existingItem);
+    setItems(
+      existingItem
+        ? [
+            ...items.slice(0, existingItem - 1),
+            item,
+            ...items.slice(existingItem)
+          ]
+        : [...items, item]
+    );
     setPage(Math.ceil(items.length / pageSize) - 1);
     setNewItemModalOpen(false);
   };
@@ -75,13 +100,19 @@ const Item = ({ itemName, fields, NewItemForm }) => {
         <Grid.Column width={2}>
           <Modal
             trigger={<Button icon="add" />}
-            onOpen={() => setNewItemModalOpen(true)}
-            onClose={() => setNewItemModalOpen(false)}
-            open={newItemModalOpen}
+            onOpen={() => setNewItemModalOpen({})}
+            onClose={() => setNewItemModalOpen(null)}
+            open={!!newItemModalOpen}
           >
-            <Modal.Header>Add a new {itemName}</Modal.Header>
+            <Modal.Header>
+              {newItemModalOpen && newItemModalOpen.ID ? "Edit" : "Add a new"}{" "}
+              {itemName}
+            </Modal.Header>
             <Modal.Content>
-              <NewItemForm addToList={addItem} />
+              <NewItemForm
+                addToList={addItem}
+                existingItem={newItemModalOpen}
+              />
             </Modal.Content>
           </Modal>
         </Grid.Column>
@@ -95,7 +126,8 @@ const Item = ({ itemName, fields, NewItemForm }) => {
                 .map(f => (
                   <Table.HeaderCell key={f.header}>{f.header}</Table.HeaderCell>
                 ))}
-              <Table.HeaderCell key="delete" />
+              <Table.HeaderCell key="edit" />
+              <Table.HeaderCell key="deactivate" />
             </Table.Row>
           </Table.Header>
           {items && items.length ? (
@@ -122,8 +154,17 @@ const Item = ({ itemName, fields, NewItemForm }) => {
                       .map((f, i) => (
                         <Table.Cell key={i}>{f}</Table.Cell>
                       ))}
-                    <Table.Cell collapsing key="delete">
-                      <Button icon="trash" onClick={deleteItem(item.ID)} />
+                    <Table.Cell collapsing key="edit">
+                      <Button
+                        icon="edit"
+                        onClick={() => setNewItemModalOpen(item)}
+                      />
+                    </Table.Cell>
+                    <Table.Cell collapsing key="deactivate">
+                      <Button
+                        icon="trash"
+                        onClick={() => deactivateItem(item.ID)}
+                      />
                     </Table.Cell>
                   </Table.Row>
                 ))}
@@ -135,7 +176,7 @@ const Item = ({ itemName, fields, NewItemForm }) => {
             {!search ? (
               <Table.Row>
                 <Table.HeaderCell
-                  colSpan={fields.filter(f => f.header).length}
+                  colSpan={fields.filter(f => f.header).length + 2}
                   textAlign="right"
                 >
                   <Pagination

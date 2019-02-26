@@ -1,11 +1,14 @@
 import React, { useState } from "react";
 import axios from "axios";
-import { Button, Form } from "semantic-ui-react";
+import { Button, Form, Message } from "semantic-ui-react";
 
-const NewSchoolForm = ({ addToList }) => {
-  const [name, setName] = useState("");
-  const [address, setAddress] = useState("");
-  const [website, setWebsite] = useState("");
+const NewSchoolForm = ({ addToList, existingItem }) => {
+  const school = existingItem;
+  const [name, setName] = useState(school ? school.Name : "");
+  const [address, setAddress] = useState(school ? school.Address : "");
+  const [website, setWebsite] = useState(school ? school.Website : "");
+  const [message, setMessage] = useState(null);
+  const [id, setId] = useState(school ? school.ID : "");
 
   const submitForm = () => {
     const newSchool = {
@@ -13,35 +16,56 @@ const NewSchoolForm = ({ addToList }) => {
       Address: address,
       Website: website
     };
-    axios
-      .post(`http://${process.env.REACT_APP_API_URL}/v1/schools`, newSchool)
+    let call = axios.post;
+    let url = `http://${process.env.REACT_APP_API_URL}/v1/hubs`;
+    if (id !== "") {
+      newSchool.ID = id;
+      call = axios.put;
+      url = `http://${process.env.REACT_APP_API_URL}/v1/hubs/${id}/update`;
+    }
+    call(url, newSchool)
       .then(response => {
-        newSchool.ID = response.data.ID;
+        if (!newSchool.ID) {
+          newSchool.ID = response.data.ID;
+          setId(response.data.ID);
+        }
         addToList(newSchool);
       })
-      .catch(e => console.log(e));
+      .catch(e => {
+        setMessage({
+          error: true,
+          header: `Problem getting users`,
+          content:
+            e.response && e.response.data ? e.response.data.Message : e.message
+        });
+      });
   };
 
   return (
-    <Form onSubmit={submitForm}>
-      <Form.Input
-        label="Name"
-        value={name}
-        onChange={(_, { value }) => setName(value)}
-      />
-      <Form.TextArea
-        label="Address"
-        value={address}
-        onChange={(_, { value }) => setAddress(value)}
-      />
-      <Form.Input
-        label="Website"
-        type="url"
-        value={website}
-        onChange={(_, { value }) => setWebsite(value)}
-      />
-      <Button color="green">Add School</Button>
-    </Form>
+    <React.Fragment>
+      {message ? <Message {...message} /> : null}
+      <Form onSubmit={submitForm}>
+        <Form.Input
+          label="Name"
+          value={name}
+          onChange={(_, { value }) => setName(value)}
+        />
+        <Form.TextArea
+          label="Address"
+          value={address}
+          onChange={(_, { value }) => setAddress(value)}
+        />
+        <Form.Input
+          label="Website"
+          type="url"
+          value={website}
+          onChange={(_, { value }) => setWebsite(value)}
+        />
+        <Button color="green">
+          {school && school.ID ? "Update School" : "Add School"}
+        </Button>
+      </Form>
+    </React.Fragment>
   );
 };
 
