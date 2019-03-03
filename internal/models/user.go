@@ -102,6 +102,10 @@ const (
 	// hubs.
 	CapHubAdmin
 
+	// CapTeamAdmin permits the holder to create new teams, manage
+	// artifacts for existing ones, and set the coach on teams.
+	CapTeamAdmin
+
 	// CapIDMax isn't so much a capability as an upper bound to
 	// iterate to.  It doesn't confer powers, but provides an
 	// upper point to the range to validate to.

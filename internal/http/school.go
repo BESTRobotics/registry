@@ -11,6 +11,12 @@ import (
 )
 
 func (s *Server) newSchool(c *gin.Context) {
+	// Perform Authorization Checks
+	if err := canManageTeams(extractClaims(c)); err != nil {
+		s.handleError(c, err)
+		return
+	}
+
 	var school models.School
 	if err := c.ShouldBindJSON(&school); err != nil {
 		c.AbortWithError(http.StatusBadRequest, err)
@@ -58,6 +64,12 @@ func (s *Server) getSchools(c *gin.Context) {
 }
 
 func (s *Server) modSchool(c *gin.Context) {
+	// Perform Authorization Checks
+	if err := canManageTeams(extractClaims(c)); err != nil {
+		s.handleError(c, err)
+		return
+	}
+
 	idStr := c.Param("id")
 	id, err := strconv.ParseInt(idStr, 10, 32)
 	if err != nil {
