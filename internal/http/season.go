@@ -8,6 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/BESTRobotics/registry/internal/models"
+	"github.com/BESTRobotics/registry/internal/token"
 )
 
 func (s *Server) newSeason(c *gin.Context) {
@@ -106,4 +107,17 @@ func (s *Server) archiveSeason(c *gin.Context) {
 	}
 
 	c.Status(http.StatusNoContent)
+}
+
+// canManageSeasons handles the actions around seasons.  These actions
+// are reserved to the superadmins because of how many other parts of
+// the system key off of whether or not a season is live.
+func canManageSeasons(claims token.Claims) error {
+	if claims.IsEmpty() {
+		return newAuthError("Unauthorized", "Claims are empty")
+	}
+	if claims.User.HasCapability(models.CapSuperAdmin) {
+		return nil
+	}
+	return newAuthError("Unauthorized", "You must be a SuperAdmin to do that!")
 }
