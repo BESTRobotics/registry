@@ -5,7 +5,7 @@ import (
 )
 
 func patchUserSlice(in []models.User, insert bool, user models.User) []models.User {
-	if in == nil && insert {
+	if (in == nil || len(in) == 0) && insert {
 		return []models.User{user}
 	}
 
@@ -17,6 +17,9 @@ func patchUserSlice(in []models.User, insert bool, user models.User) []models.Us
 		} else if in[i].ID == user.ID && insert && !done {
 			done = true
 		}
+		out = append(out, models.User{ID: in[i].ID})
+	}
+	if insert && !done {
 		out = append(out, models.User{ID: user.ID})
 	}
 	return out
