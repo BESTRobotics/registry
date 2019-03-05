@@ -23,7 +23,10 @@ func New(mg MechGreg, tkn *token.RSATokenService) (*Server, error) {
 
 	if viper.GetBool("dev.cors") {
 		log.Println("CORS is operating in dev mode")
-		s.g.Use(cors.Default())
+		cfg := cors.DefaultConfig()
+		cfg.AllowAllOrigins = true
+		cfg.AllowHeaders = append(cfg.AllowHeaders, "Authorization")
+		s.g.Use(cors.New(cfg))
 	}
 
 	s.g.Use(s.validateToken)
