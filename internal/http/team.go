@@ -251,14 +251,14 @@ func (s *Server) delTeamMentor(c *gin.Context) {
 		return
 	}
 
-	var user models.User
-	if err := c.ShouldBindJSON(&user); err != nil {
+	uidStr := c.Param("uid")
+	uid, err := strconv.ParseInt(uidStr, 10, 32)
+	if err != nil {
 		c.AbortWithError(http.StatusBadRequest, err)
-		log.Println(err)
 		return
 	}
 
-	err = s.mg.DelTeamMentor(int(id), user)
+	err = s.mg.DelTeamMentor(int(id), models.User{ID: int(uid)})
 	if err != nil {
 		s.handleError(c, err)
 		return
