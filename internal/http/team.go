@@ -431,7 +431,7 @@ func permitCoachActions(claims token.Claims, team models.Team) error {
 			return nil
 		}
 	}
-	return newAuthError("Unauthorized", "You must be a team director to do that!")
+	return newAuthError("Unauthorized", "You must be a team coach to do that!")
 }
 
 // permitHomeHubActions provides a way for the home hub to take some
