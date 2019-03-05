@@ -26,6 +26,7 @@ func New(mg MechGreg, tkn *token.RSATokenService) (*Server, error) {
 		cfg := cors.DefaultConfig()
 		cfg.AllowAllOrigins = true
 		cfg.AllowHeaders = append(cfg.AllowHeaders, "Authorization")
+		cfg.AllowMethods = append(cfg.AllowMethods, "DELETE")
 		s.g.Use(cors.New(cfg))
 	}
 
