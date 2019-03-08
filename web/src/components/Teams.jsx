@@ -2,7 +2,7 @@ import React from "react";
 import Item from "./Item";
 import NewTeamForm from "./NewTeamForm";
 
-const Teams = () => {
+const Teams = ({ token }) => {
   const fields = [
     { header: "Name", name: "StaticName", filter: true },
     { header: "Hub", displayFn: team => team.HomeHub.Name, filter: true },
@@ -19,7 +19,14 @@ const Teams = () => {
       filter: true
     }
   ];
-  return <Item itemName="Team" fields={fields} NewItemForm={NewTeamForm} />;
+  return (
+    <Item
+      itemName="Team"
+      fields={fields}
+      NewItemForm={NewTeamForm}
+      token={token}
+    />
+  );
 };
 
 export default Teams;

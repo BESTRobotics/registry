@@ -3,7 +3,7 @@ import { Image, Menu } from "semantic-ui-react";
 import logo from "../assets/logo.jpg";
 import { NavLink } from "react-router-dom";
 
-const Topbar = () => {
+const Topbar = ({ logout }) => {
   return (
     <Menu>
       <Menu.Item header fitted>
@@ -23,6 +23,9 @@ const Topbar = () => {
       </Menu.Item>
       <Menu.Item as={NavLink} to="/users">
         Users
+      </Menu.Item>
+      <Menu.Item position="right" onClick={logout}>
+        Logout
       </Menu.Item>
     </Menu>
   );

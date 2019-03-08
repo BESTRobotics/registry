@@ -1,24 +1,34 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { Button, Form, Modal, Header } from "semantic-ui-react";
+import { Button, Form, Modal, Header, Message } from "semantic-ui-react";
 import NewUserForm from "./NewUserForm";
 import NewHubForm from "./NewHubForm";
 import NewSchoolForm from "./NewSchoolForm";
+import PropTypes from "prop-types";
 
-const NewTeamForm = ({ addToList }) => {
+const NewTeamForm = ({ addToList, existingItem, token }) => {
+  const headers = { authorization: token };
+  const team = existingItem;
   const [users, setUsers] = useState([]);
   const [schools, setSchools] = useState([]);
   const [hubs, setHubs] = useState([]);
 
-  const [name, setName] = useState("");
-  const [hub, setHub] = useState(null);
-  const [coach, setCoach] = useState(null);
-  const [school, setSchool] = useState(null);
-  const [founded, setFounded] = useState("");
+  const [id, setId] = useState(team ? team.ID : "");
+  const [name, setName] = useState(team ? team.StaticName : "");
+  const [hub, setHub] = useState(team ? team.HomeHub.ID : null);
+  const [coach, setCoach] = useState(team ? team.Coach.ID : null);
+  const [school, setSchool] = useState(team ? team.School.ID : null);
+  const [founded, setFounded] = useState(
+    team ? team.Founded.substring(0, 10) : ""
+  );
+  const [mentors, setMentors] = useState(
+    team && team.Mentors ? team.Mentors.map(m => m.ID) : []
+  );
 
   const [newUser, setNewUser] = useState("");
   const [newSchool, setNewSchool] = useState("");
   const [newHub, setNewHub] = useState("");
+  const [message, setMessage] = useState(null);
 
   useEffect(() => {
     axios
@@ -26,7 +36,14 @@ const NewTeamForm = ({ addToList }) => {
       .then(response => {
         setUsers(response.data);
       })
-      .catch(e => console.log(e));
+      .catch(e => {
+        setMessage({
+          error: true,
+          header: `Problem getting users`,
+          content:
+            e.response && e.response.data ? e.response.data.Message : e.message
+        });
+      });
   }, []);
 
   useEffect(() => {
@@ -35,7 +52,14 @@ const NewTeamForm = ({ addToList }) => {
       .then(response => {
         setSchools(response.data);
       })
-      .catch(e => console.log(e));
+      .catch(e => {
+        setMessage({
+          error: true,
+          header: `Problem getting schools`,
+          content:
+            e.response && e.response.data ? e.response.data.Message : e.message
+        });
+      });
   }, []);
 
   useEffect(() => {
@@ -44,7 +68,14 @@ const NewTeamForm = ({ addToList }) => {
       .then(response => {
         setHubs(response.data);
       })
-      .catch(e => console.log(e));
+      .catch(e => {
+        setMessage({
+          error: true,
+          header: `Problem getting hubs`,
+          content:
+            e.response && e.response.data ? e.response.data.Message : e.message
+        });
+      });
   }, []);
 
   const submitForm = () => {
@@ -52,42 +83,104 @@ const NewTeamForm = ({ addToList }) => {
       StaticName: name,
       Founded: founded ? new Date(founded).toISOString() : null
     };
-    axios
-      .post(`http://${process.env.REACT_APP_API_URL}/v1/teams`, newTeam)
+    let call = axios.post;
+    let url = `http://${process.env.REACT_APP_API_URL}/v1/teams`;
+    if (id !== "") {
+      newTeam.ID = id;
+      call = axios.put;
+      url = `http://${process.env.REACT_APP_API_URL}/v1/teams/${id}`;
+    }
+    call(url, newTeam, { headers: headers })
       .then(response => {
-        newTeam.ID = response.data.ID;
+        if (!newTeam.ID) {
+          newTeam.ID = response.data.ID;
+          setId(response.data.ID);
+        }
         newTeam.HomeHub = hubs.filter(h => h.ID === hub)[0];
         newTeam.Coach = users.filter(u => u.ID === coach)[0];
         newTeam.School = schools.filter(s => s.ID === school)[0];
+        const { addMentors, subtractMentors } = (() => {
+          if (existingItem && existingItem.Mentors) {
+            const existingMentors = existingItem.Mentors.map(m => m.ID);
+            const addMentors = mentors.filter(
+              m => !existingMentors.includes(m)
+            );
+            const subtractMentors = existingMentors.filter(
+              m => !mentors.includes(m)
+            );
+            return { addMentors, subtractMentors };
+          } else {
+            return { addMentors: mentors, subtractMentors: [] };
+          }
+        })();
+
+        let adjustmentRequests = [];
+        if (addMentors.length) {
+          adjustmentRequests.push(
+            ...addMentors.map(m =>
+              axios.put(
+                `http://${process.env.REACT_APP_API_URL}/v1/teams/${
+                  newTeam.ID
+                }/mentors`,
+                { ID: m },
+                { headers: headers }
+              )
+            )
+          );
+        }
+        if (subtractMentors.length) {
+          adjustmentRequests.push(
+            ...subtractMentors.map(m =>
+              axios.delete(
+                `http://${process.env.REACT_APP_API_URL}/v1/teams/${
+                  newTeam.ID
+                }/mentors/${m}`,
+                { headers: headers }
+              )
+            )
+          );
+        }
         return axios.all([
           axios.put(
             `http://${process.env.REACT_APP_API_URL}/v1/teams/${
-              response.data.ID
+              newTeam.ID
             }/home`,
-            { ID: hub }
+            { ID: hub },
+            { headers: headers }
           ),
           axios.put(
             `http://${process.env.REACT_APP_API_URL}/v1/teams/${
-              response.data.ID
+              newTeam.ID
             }/coach`,
-            { ID: coach }
+            { ID: coach },
+            { headers: headers }
           ),
           axios.put(
             `http://${process.env.REACT_APP_API_URL}/v1/teams/${
-              response.data.ID
+              newTeam.ID
             }/school`,
-            { ID: school }
-          )
+            { ID: school },
+            { headers: headers }
+          ),
+          ...adjustmentRequests
         ]);
       })
       .then(() => {
         addToList(newTeam);
       })
-      .catch(e => console.log(e));
+      .catch(e => {
+        setMessage({
+          error: true,
+          header: `Problem saving team`,
+          content:
+            e.response && e.response.data ? e.response.data.Message : e.message
+        });
+      });
   };
 
   return (
     <React.Fragment>
+      {message ? <Message {...message} /> : null}
       <Form onSubmit={submitForm}>
         <Form.Input
           label="Name"
@@ -120,6 +213,21 @@ const NewTeamForm = ({ addToList }) => {
           selection
           value={coach}
           onChange={(_, { value }) => setCoach(value)}
+          onAddItem={(_, { value }) => setNewUser(value)}
+        />
+        <Form.Dropdown
+          label="Mentors"
+          search
+          multiple
+          allowAdditions
+          loading={!users}
+          options={users.map(u => ({
+            text: `${u.FirstName} ${u.LastName}`,
+            value: u.ID
+          }))}
+          selection
+          value={mentors}
+          onChange={(_, { value }) => setMentors(value)}
           onAddItem={(_, { value }) => setNewUser(value)}
         />
         <Form.Dropdown
@@ -190,3 +298,7 @@ const NewTeamForm = ({ addToList }) => {
 };
 
 export default NewTeamForm;
+
+NewTeamForm.propTypes = {
+  addToList: PropTypes.func.isRequired
+};

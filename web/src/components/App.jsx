@@ -1,9 +1,11 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Hubs from "./Hubs";
 import Teams from "./Teams";
 import Schools from "./Schools";
+import Seasons from "./Seasons";
 import Users from "./Users";
 import Topbar from "./Topbar";
+import Login from "./Login";
 import {
   BrowserRouter as Router,
   Switch,
@@ -12,19 +14,45 @@ import {
 } from "react-router-dom";
 
 const App = () => {
+  const [token, setToken] = useState(
+    window.localStorage.getItem("token") || null
+  );
+
+  useEffect(() => {
+    if (token) {
+      window.localStorage.setItem("token", token);
+    } else {
+      window.localStorage.removeItem("token");
+    }
+  }, [token]);
+
+  const logout = () => {
+    setToken(null);
+  };
   return (
     <Router>
-      <section>
-        <Topbar />
-        <Switch>
-          <Redirect exact path="/" to="/hubs" />
-          <Route path="/hubs" component={Hubs} />} />
-          <Route path="/schools" component={Schools} />
-          <Route path="/teams" component={Teams} />
-          <Route path="/users" component={Users} />
-          <Route default render={() => <div>No route at path.</div>} />
-        </Switch>
-      </section>
+      {token ? (
+        <section className="root">
+          <Topbar logout={logout} />
+          <Switch>
+            <Redirect exact path="/" to="/hubs" />
+            <Route path="/hubs" render={p => <Hubs {...p} token={token} />} />
+            <Route
+              path="/schools"
+              render={p => <Schools {...p} token={token} />}
+            />
+            <Route path="/teams" render={p => <Teams {...p} token={token} />} />
+            <Route
+              path="/seasons"
+              render={p => <Seasons {...p} token={token} />}
+            />
+            <Route path="/users" render={p => <Users {...p} token={token} />} />
+            <Route default render={() => <div>No route at path.</div>} />
+          </Switch>
+        </section>
+      ) : (
+        <Login setToken={setToken} />
+      )}
     </Router>
   );
 };

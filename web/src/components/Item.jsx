@@ -13,17 +13,14 @@ import {
 import FakeRows from "./FakeRows";
 import PropTypes from "prop-types";
 
-const Item = ({ itemName, fields, NewItemForm }) => {
+const Item = ({ deactivateable, itemName, fields, NewItemForm, token }) => {
+  const headers = { authorization: token };
   const [items, setItems] = useState([]);
   const [message, setMessage] = useState(null);
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(0);
   const [newItemModalOpen, setNewItemModalOpen] = useState(null);
   const pageSize = 20;
-
-  useEffect(() => {
-    console.log("amazing");
-  }, [message]);
 
   useEffect(() => {
     axios
@@ -45,12 +42,13 @@ const Item = ({ itemName, fields, NewItemForm }) => {
   }, []);
 
   const deactivateItem = id => {
-    console.log("DELETING");
     axios
       .put(
         `http://${
           process.env.REACT_APP_API_URL
-        }/v1/${itemName.toLowerCase()}s/${id}/deactivate`
+        }/v1/${itemName.toLowerCase()}s/${id}/deactivate`,
+        {},
+        { headers: headers }
       )
       .then(() => {
         setItems(items.filter(i => i.ID !== id));
@@ -67,17 +65,18 @@ const Item = ({ itemName, fields, NewItemForm }) => {
 
   const addItem = item => {
     const existingItem = items.findIndex(i => i.ID === item.ID);
-    console.log(existingItem);
+    if (existingItem === -1) {
+      setPage(Math.ceil(items.length + 1 / pageSize) - 1);
+    }
     setItems(
-      existingItem
+      existingItem !== -1
         ? [
-            ...items.slice(0, existingItem - 1),
+            ...items.slice(0, existingItem),
             item,
-            ...items.slice(existingItem)
+            ...items.slice(existingItem + 1)
           ]
         : [...items, item]
     );
-    setPage(Math.ceil(items.length / pageSize) - 1);
     setNewItemModalOpen(false);
   };
 
@@ -100,7 +99,7 @@ const Item = ({ itemName, fields, NewItemForm }) => {
         <Grid.Column width={2}>
           <Modal
             trigger={<Button icon="add" />}
-            onOpen={() => setNewItemModalOpen({})}
+            onOpen={() => setNewItemModalOpen(true)}
             onClose={() => setNewItemModalOpen(null)}
             open={!!newItemModalOpen}
           >
@@ -111,7 +110,10 @@ const Item = ({ itemName, fields, NewItemForm }) => {
             <Modal.Content>
               <NewItemForm
                 addToList={addItem}
-                existingItem={newItemModalOpen}
+                existingItem={
+                  newItemModalOpen === true ? null : newItemModalOpen
+                }
+                token={token}
               />
             </Modal.Content>
           </Modal>
@@ -127,7 +129,7 @@ const Item = ({ itemName, fields, NewItemForm }) => {
                   <Table.HeaderCell key={f.header}>{f.header}</Table.HeaderCell>
                 ))}
               <Table.HeaderCell key="edit" />
-              <Table.HeaderCell key="deactivate" />
+              {!deactivateable ? <Table.HeaderCell key="deactivate" /> : null}
             </Table.Row>
           </Table.Header>
           {items && items.length ? (
@@ -184,7 +186,7 @@ const Item = ({ itemName, fields, NewItemForm }) => {
                     onPageChange={(_, { activePage }) =>
                       setPage(activePage - 1)
                     }
-                    totalPages={Math.ceil(items.length / pageSize)}
+                    totalPages={Math.ceil(items.length / pageSize) || 1}
                     prevItem={null}
                     nextItem={null}
                   />

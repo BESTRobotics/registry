@@ -4,7 +4,8 @@ import { Button, Form, Message, Modal, Header } from "semantic-ui-react";
 import NewUserForm from "./NewUserForm";
 import PropTypes from "prop-types";
 
-const NewHubForm = ({ addToList, existingItem }) => {
+const NewHubForm = ({ addToList, existingItem, token }) => {
+  const headers = { authorization: token };
   const hub = existingItem;
   const [users, setUsers] = useState([]);
   const [name, setName] = useState(hub ? hub.Name : "");
@@ -51,19 +52,20 @@ const NewHubForm = ({ addToList, existingItem }) => {
       call = axios.put;
       url = `http://${process.env.REACT_APP_API_URL}/v1/hubs/${id}/update`;
     }
-    call(url, newHub)
+    call(url, newHub, { headers: headers })
       .then(response => {
         if (!newHub.ID) {
           newHub.ID = response.data.ID;
           setId(response.data.ID);
         }
-        if (director !== "") {
+        if (director) {
           newHub.Director = users.filter(u => u.ID === director)[0];
           return axios.put(
             `http://${process.env.REACT_APP_API_URL}/v1/hubs/${
               newHub.ID
             }/director`,
-            { ID: director }
+            { ID: director },
+            { headers: headers }
           );
         }
       })
@@ -119,7 +121,7 @@ const NewHubForm = ({ addToList, existingItem }) => {
           onChange={(_, { value }) => setDirector(value)}
           onAddItem={(_, { value }) => setNewUser(value)}
         />
-        <Button color="green">{hub.ID ? "Update Hub" : "Add Hub"}</Button>
+        <Button color="green">{id ? "Update Hub" : "Add Hub"}</Button>
       </Form>
       <Modal open={!!newUser} onClose={() => setNewUser("")}>
         <Header icon="user" content="Add New User" />

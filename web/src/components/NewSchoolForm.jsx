@@ -2,7 +2,8 @@ import React, { useState } from "react";
 import axios from "axios";
 import { Button, Form, Message } from "semantic-ui-react";
 
-const NewSchoolForm = ({ addToList, existingItem }) => {
+const NewSchoolForm = ({ addToList, existingItem, token }) => {
+  const headers = { authorization: token };
   const school = existingItem;
   const [name, setName] = useState(school ? school.Name : "");
   const [address, setAddress] = useState(school ? school.Address : "");
@@ -17,13 +18,13 @@ const NewSchoolForm = ({ addToList, existingItem }) => {
       Website: website
     };
     let call = axios.post;
-    let url = `http://${process.env.REACT_APP_API_URL}/v1/hubs`;
+    let url = `http://${process.env.REACT_APP_API_URL}/v1/schools`;
     if (id !== "") {
       newSchool.ID = id;
       call = axios.put;
-      url = `http://${process.env.REACT_APP_API_URL}/v1/hubs/${id}/update`;
+      url = `http://${process.env.REACT_APP_API_URL}/v1/schools/${id}/update`;
     }
-    call(url, newSchool)
+    call(url, newSchool, { headers: headers })
       .then(response => {
         if (!newSchool.ID) {
           newSchool.ID = response.data.ID;
@@ -34,7 +35,7 @@ const NewSchoolForm = ({ addToList, existingItem }) => {
       .catch(e => {
         setMessage({
           error: true,
-          header: `Problem getting users`,
+          header: "Problem saving school",
           content:
             e.response && e.response.data ? e.response.data.Message : e.message
         });
@@ -61,9 +62,7 @@ const NewSchoolForm = ({ addToList, existingItem }) => {
           value={website}
           onChange={(_, { value }) => setWebsite(value)}
         />
-        <Button color="green">
-          {school && school.ID ? "Update School" : "Add School"}
-        </Button>
+        <Button color="green">{id ? "Update School" : "Add School"}</Button>
       </Form>
     </React.Fragment>
   );
