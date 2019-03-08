@@ -4,9 +4,9 @@ package models
 
 import "strconv"
 
-const _Capability_name = "CapSuperAdminCapUserAdminCapIDMax"
+const _Capability_name = "CapSuperAdminCapUserAdminCapUserReadCapHubAdminCapTeamAdminCapIDMax"
 
-var _Capability_index = [...]uint8{0, 13, 25, 33}
+var _Capability_index = [...]uint8{0, 13, 25, 36, 47, 59, 67}
 
 func (i Capability) String() string {
 	if i < 0 || i >= Capability(len(_Capability_index)-1) {

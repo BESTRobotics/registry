@@ -11,6 +11,7 @@ import (
 
 	"github.com/BESTRobotics/registry/internal/mechgreg"
 	"github.com/BESTRobotics/registry/internal/token"
+	"github.com/BESTRobotics/registry/web"
 )
 
 // New returns a new http.Server or dies trying.
@@ -96,8 +97,15 @@ func New(mg MechGreg, tkn *token.RSATokenService) (*Server, error) {
 // Serve is the entrypoint to the http package that serves the API.
 func (s *Server) Serve() {
 	if viper.GetBool("dev.extweb") {
+		log.Println("###########################################")
+		log.Println("#      HARD TO DEBUG PROBLEM WARNING      #")
+		log.Println("###########################################")
 		log.Println("Using external webroot", viper.GetString("dev.webroot"))
 		s.g.StaticFS("/app", http.Dir(viper.GetString("dev.webroot")))
+	} else {
+		log.Println("Using built in webapp")
+		log.Println("If a crash happens rebuild after running go generate ./...")
+		s.g.StaticFS("/app", web.HTTP)
 	}
 
 	bindstr := fmt.Sprintf("%s:%d",
