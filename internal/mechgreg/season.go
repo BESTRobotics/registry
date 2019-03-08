@@ -48,10 +48,14 @@ func (mg *MechanicalGreg) GetSeasons(all bool) ([]models.Season, error) {
 	} else {
 		err = mg.s.Find("Archived", false, &out)
 	}
-	if err != nil {
+	switch err {
+	case nil:
+		return out, nil
+	case storm.ErrNotFound:
+		return []models.Season{}, nil
+	default:
 		return nil, err
 	}
-	return out, nil
 }
 
 // ModSeason updates an existing season.  An error is returned if the
