@@ -35,12 +35,19 @@ func main() {
 	log.Println("regitryd initializing")
 	log.Println("Preparing to serve")
 
+	dbPath := filepath.Join(viper.GetString("storage.root"), "registry.db")
+
+	s, err := storm.Open(dbPath)
+	if err != nil {
+		log.Panic(err)
+	}
+
 	tkn, err := token.NewRSA()
 	if err != nil {
 		log.Panic(err)
 	}
 
-	mg, err := mechgreg.New()
+	mg, err := mechgreg.New(mechgreg.ResourceBundle{s})
 	if err != nil {
 		log.Panic(err)
 	}

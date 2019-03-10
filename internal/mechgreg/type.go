@@ -9,3 +9,9 @@ import (
 type MechanicalGreg struct {
 	s *storm.DB
 }
+
+// ResourceBundle is a type for bundling up resources that should be
+// handed off for management by a mechgreg instance.
+type ResourceBundle struct {
+	StormDB *storm.DB
+}
