@@ -42,36 +42,7 @@ func (s *Server) getToken(c *gin.Context) {
 		return
 	}
 
-	log.Println("Requesting token for ID", id)
-
-	invs, err := s.getInvolvements(int(id))
-	if err != nil {
-		s.handleError(c, err)
-		return
-	}
-
-	user, err := s.mg.GetUser(int(id))
-	if err != nil {
-		s.handleError(c, err)
-	}
-
-	var hubIDs []int
-	for i := range invs.Hubs {
-		hubIDs = append(hubIDs, invs.Hubs[i].ID)
-	}
-
-	var teamIDs []int
-	for i := range invs.Teams {
-		teamIDs = append(teamIDs, invs.Teams[i].ID)
-	}
-
-	claims := token.Claims{
-		User:  user,
-		Hubs:  hubIDs,
-		Teams: teamIDs,
-	}
-
-	token, err := s.tkn.Generate(claims, token.GetConfig())
+	token, err := s.generateToken(int(id), token.GetConfig())
 	if err != nil {
 		s.handleError(c, err)
 		return
@@ -109,4 +80,38 @@ func (s *Server) validateToken(c *gin.Context) {
 func (s *Server) inspectToken(c *gin.Context) {
 	claims := extractClaims(c)
 	c.JSON(http.StatusOK, claims)
+}
+
+// generateToken figures out the contents of a token with the given
+// configuration.  This is meant as a general purpose function to get
+// tokens.
+func (s *Server) generateToken(id int, cfg token.Config) (string, error) {
+	log.Println("Requesting token for ID", id)
+
+	invs, err := s.getInvolvements(id)
+	if err != nil {
+		return "", err
+	}
+
+	user, err := s.mg.GetUser(id)
+	if err != nil {
+		return "", err
+	}
+
+	var hubIDs []int
+	for i := range invs.Hubs {
+		hubIDs = append(hubIDs, invs.Hubs[i].ID)
+	}
+
+	var teamIDs []int
+	for i := range invs.Teams {
+		teamIDs = append(teamIDs, invs.Teams[i].ID)
+	}
+
+	claims := token.Claims{
+		User:  user,
+		Hubs:  hubIDs,
+		Teams: teamIDs,
+	}
+	return s.tkn.Generate(claims, cfg)
 }

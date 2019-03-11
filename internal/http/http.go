@@ -37,6 +37,9 @@ func New(mg MechGreg, tkn *token.RSATokenService) (*Server, error) {
 
 	v1 := s.g.Group("v1/")
 	{
+		v1.POST("/account/register/local", s.registerLocalUser)
+		v1.POST("/account/login/local", s.loginLocalUser)
+
 		v1.GET("/users", s.getUsers)
 		v1.POST("/users", s.newUser)
 		v1.GET("/users/:uid", s.getUser)
@@ -135,6 +138,13 @@ func (s *Server) handleError(c *gin.Context, err error) {
 		}
 		c.AbortWithStatusJSON(ierr.Code(), err)
 		return
+	case *mechgreg.AuthError:
+		aerr, ok := err.(*mechgreg.AuthError)
+		if !ok {
+			break
+		}
+		c.AbortWithStatusJSON(aerr.Code(), err)
+		return
 	case AuthError:
 		aerr, ok := err.(AuthError)
 		if !ok {
@@ -143,6 +153,7 @@ func (s *Server) handleError(c *gin.Context, err error) {
 		c.AbortWithStatusJSON(aerr.Code(), err)
 		return
 	}
+	log.Println(err)
 	c.AbortWithError(http.StatusInternalServerError, err)
 	return
 }

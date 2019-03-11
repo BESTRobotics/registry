@@ -3,7 +3,9 @@ package main
 import (
 	"log"
 	"os"
+	"path/filepath"
 
+	"github.com/asdine/storm"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 
@@ -37,7 +39,7 @@ func main() {
 
 	dbPath := filepath.Join(viper.GetString("storage.root"), "registry.db")
 
-	s, err := storm.Open(dbPath)
+	st, err := storm.Open(dbPath)
 	if err != nil {
 		log.Panic(err)
 	}
@@ -47,7 +49,7 @@ func main() {
 		log.Panic(err)
 	}
 
-	mg, err := mechgreg.New(mechgreg.ResourceBundle{s})
+	mg, err := mechgreg.New(mechgreg.ResourceBundle{st})
 	if err != nil {
 		log.Panic(err)
 	}

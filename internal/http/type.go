@@ -24,6 +24,9 @@ type MechGreg interface {
 	GetUser(int) (models.User, error)
 	ModUser(models.User) error
 	GetUserPage(int, int) ([]models.User, error)
+	UsernameExists(string) (models.User, error)
+	SetUserPassword(string, string) error
+	CheckUserPassword(string, string) error
 
 	NewSeason(models.Season) (int, error)
 	GetSeason(int) (models.Season, error)

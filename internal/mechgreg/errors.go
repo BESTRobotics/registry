@@ -53,3 +53,30 @@ func (e *InternalError) Error() string {
 func (e *InternalError) Code() int {
 	return e.httpCode
 }
+
+// AuthError is returned when authentication information on login is
+// incorrect.
+type AuthError struct {
+	Message string
+	Cause   error
+
+	httpCode int
+}
+
+// NewAuthError returns a populated AuthError.
+func NewAuthError(s string, err error, c int) error {
+	return &AuthError{
+		Message:  s,
+		Cause:    err,
+		httpCode: c,
+	}
+}
+
+func (e *AuthError) Error() string {
+	return e.Message
+}
+
+// Code returns the http status code represented by this error.
+func (e *AuthError) Code() int {
+	return e.httpCode
+}

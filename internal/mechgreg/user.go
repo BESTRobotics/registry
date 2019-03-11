@@ -1,12 +1,20 @@
 package mechgreg
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/asdine/storm"
+	"github.com/asdine/storm/q"
+	"github.com/spf13/viper"
+	"golang.org/x/crypto/bcrypt"
 
 	"github.com/BESTRobotics/registry/internal/models"
 )
+
+func init() {
+	viper.SetDefault("auth.hashcost", 10)
+}
 
 // NewUser creates a new user from the provided user model.  If the
 // user already exists an error will be returned instead.
@@ -37,6 +45,23 @@ func (mg *MechanicalGreg) GetUser(uid int) (models.User, error) {
 	}
 }
 
+// UsernameExists can be used to check if a username exists before creating a new user.
+func (mg *MechanicalGreg) UsernameExists(username string) (models.User, error) {
+	var user models.User
+
+	log.Println(username)
+	err := mg.s.One("Username", username, &user)
+	log.Println(user)
+	switch err {
+	case nil:
+		return user, nil
+	case storm.ErrNotFound:
+		return models.User{}, NewConstraintError("No such user exists", err, http.StatusNotFound)
+	default:
+		return models.User{}, NewInternalError("An unspecified error has occured", err, http.StatusInternalServerError)
+	}
+}
+
 // GetUserPage returns a slice of users starting with a minID and
 // returning count number of users.
 func (mg *MechanicalGreg) GetUserPage(page int, count int) ([]models.User, error) {
@@ -60,4 +85,53 @@ func (mg *MechanicalGreg) ModUser(u models.User) error {
 	default:
 		return NewInternalError("An unspecified error has occured", err, http.StatusInternalServerError)
 	}
+}
+
+// SetUserPassword is used to, unsurprisingly, set the user password.
+// This is meant to be used during user setup, and uses bcrypt as the
+// hashing engine.
+func (mg *MechanicalGreg) SetUserPassword(username, password string) error {
+	// Compute the hash from the incomming password
+	cost := viper.GetInt("auth.hashcost")
+	hash, err := bcrypt.GenerateFromPassword([]byte(password), cost)
+	if err != nil {
+		return NewInternalError("BCrypt Failure", err, http.StatusInternalServerError)
+	}
+
+	// Save the data
+	d := models.AuthData{
+		Username: username,
+		Provider: "PASSWORD",
+		Password: string(hash[:]),
+	}
+	err = mg.s.Save(&d)
+	if err != nil {
+		return NewInternalError("An unspecified error has occured", err, http.StatusInternalServerError)
+	}
+	log.Println(string(hash[:]))
+	return nil
+}
+
+// CheckUserPassword checks a password for a specific user.
+func (mg *MechanicalGreg) CheckUserPassword(username, password string) error {
+	query := mg.s.Select(q.Eq("Username", username), q.Eq("Provider", "PASSWORD"))
+
+	var ad models.AuthData
+	// Safe to use First here because there had better only ever
+	// be one of these.
+	err := query.First(&ad)
+	switch err {
+	case nil:
+		break
+	case storm.ErrNotFound:
+		return NewConstraintError("No such user exists with that ID", err, http.StatusNotFound)
+	default:
+		return NewInternalError("An unspecified error has occured", err, http.StatusInternalServerError)
+	}
+
+	log.Println(ad.Password, password)
+	if err := bcrypt.CompareHashAndPassword([]byte(ad.Password), []byte(password)); err != nil {
+		return NewAuthError("The authentication information is incorrect", err, http.StatusUnauthorized)
+	}
+	return nil
 }
