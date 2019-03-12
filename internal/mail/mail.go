@@ -12,6 +12,7 @@ var (
 
 func init() {
 	factories = make(map[string]Factory)
+	viper.SetDefault("mailer", "null")
 }
 
 // Register is called by external implementations of the mailer

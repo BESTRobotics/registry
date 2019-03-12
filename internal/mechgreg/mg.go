@@ -13,7 +13,8 @@ import (
 // them with better repeatability and accuracy than a human could.
 func New(rb ResourceBundle) (*MechanicalGreg, error) {
 	mg := MechanicalGreg{
-		s: rb.StormDB,
+		s:  rb.StormDB,
+		po: rb.Mailer,
 	}
 
 	if err := mg.s.ReIndex(&models.User{}); err != nil {

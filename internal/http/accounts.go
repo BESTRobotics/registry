@@ -7,6 +7,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	"github.com/BESTRobotics/registry/internal/mail"
 	"github.com/BESTRobotics/registry/internal/models"
 	"github.com/BESTRobotics/registry/internal/token"
 )
@@ -43,6 +44,16 @@ func (s *Server) registerLocalUser(c *gin.Context) {
 	// And now we set the authdata (password in this case).
 	if err := s.mg.SetUserPassword(regRequest.U.Username, regRequest.Password); err != nil {
 		s.handleError(c, err)
+		return
+	}
+
+	l := mail.NewLetter()
+	l.AddTo(mail.UserToAddress(regRequest.U))
+	l.Subject = "Activate Your BRI Registry Account"
+	l.Body = "Some magic link in here to activate this account..."
+
+	if err := s.po.SendMail(l); err != nil {
+		c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
 

@@ -1,7 +1,6 @@
 package mechgreg
 
 import (
-	"log"
 	"net/http"
 
 	"github.com/asdine/storm"
@@ -49,9 +48,7 @@ func (mg *MechanicalGreg) GetUser(uid int) (models.User, error) {
 func (mg *MechanicalGreg) UsernameExists(username string) (models.User, error) {
 	var user models.User
 
-	log.Println(username)
 	err := mg.s.One("Username", username, &user)
-	log.Println(user)
 	switch err {
 	case nil:
 		return user, nil
@@ -108,7 +105,6 @@ func (mg *MechanicalGreg) SetUserPassword(username, password string) error {
 	if err != nil {
 		return NewInternalError("An unspecified error has occured", err, http.StatusInternalServerError)
 	}
-	log.Println(string(hash[:]))
 	return nil
 }
 
@@ -129,7 +125,6 @@ func (mg *MechanicalGreg) CheckUserPassword(username, password string) error {
 		return NewInternalError("An unspecified error has occured", err, http.StatusInternalServerError)
 	}
 
-	log.Println(ad.Password, password)
 	if err := bcrypt.CompareHashAndPassword([]byte(ad.Password), []byte(password)); err != nil {
 		return NewAuthError("The authentication information is incorrect", err, http.StatusUnauthorized)
 	}

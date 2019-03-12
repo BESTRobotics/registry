@@ -7,6 +7,7 @@ import (
 
 	"github.com/asdine/storm"
 
+	"github.com/BESTRobotics/registry/internal/mail"
 	"github.com/BESTRobotics/registry/internal/models"
 )
 
@@ -191,7 +192,16 @@ func (mg *MechanicalGreg) SetHubDirector(hubID int, director models.User) error 
 		return err
 	}
 
-	return mg.modHub(models.Hub{ID: hubID, Director: models.User{ID: user.ID}})
+	if err := mg.modHub(models.Hub{ID: hubID, Director: models.User{ID: user.ID}}); err != nil {
+		return err
+	}
+
+	l := mail.NewLetter()
+	l.AddTo(mail.UserToAddress(user))
+	l.Subject = "Welcome"
+	l.Body = "Congradulations, you're now the director of a hub"
+
+	return mg.po.SendMail(l)
 }
 
 // GetHubDirector returns the director for a given hub.
@@ -210,14 +220,33 @@ func (mg *MechanicalGreg) AddHubAdmin(hubID int, admin models.User) error {
 		return err
 	}
 
+	u, err := mg.GetUser(admin.ID)
+	if err != nil {
+		return err
+	}
+
 	hub.Admins = patchUserSlice(hub.Admins, true, admin)
 
-	return mg.modHub(hub)
+	if err := mg.modHub(hub); err != nil {
+		return err
+	}
+
+	l := mail.NewLetter()
+	l.AddTo(mail.UserToAddress(u))
+	l.Subject = "Welcome"
+	l.Body = "Thanks for helping out, you're now an admin for " + hub.Name + "."
+
+	return mg.po.SendMail(l)
 }
 
 // DelHubAdmin removes an administrator from the hub.
 func (mg *MechanicalGreg) DelHubAdmin(hubID int, admin models.User) error {
 	hub, err := mg.GetHub(hubID)
+	if err != nil {
+		return err
+	}
+
+	u, err := mg.GetUser(admin.ID)
 	if err != nil {
 		return err
 	}
@@ -229,10 +258,17 @@ func (mg *MechanicalGreg) DelHubAdmin(hubID int, admin models.User) error {
 	err = mg.s.UpdateField(&models.Hub{ID: hubID}, "Admins", admins)
 	switch err {
 	case nil:
-		return nil
+		break
 	case storm.ErrNotFound:
 		return NewConstraintError("No hub exists for that ID", err, http.StatusNotFound)
 	default:
 		return NewInternalError("An unspecified error has occured", err, http.StatusInternalServerError)
 	}
+
+	l := mail.NewLetter()
+	l.AddTo(mail.UserToAddress(u))
+	l.Subject = "Sorry to see you go"
+	l.Body = "Thanks for your time, you're no longer a hub admin."
+
+	return mg.po.SendMail(l)
 }

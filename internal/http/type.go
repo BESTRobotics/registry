@@ -3,6 +3,7 @@ package http
 import (
 	"github.com/gin-gonic/gin"
 
+	"github.com/BESTRobotics/registry/internal/mail"
 	"github.com/BESTRobotics/registry/internal/models"
 	"github.com/BESTRobotics/registry/internal/token"
 )
@@ -13,6 +14,7 @@ type Server struct {
 	mg  MechGreg
 	tkn *token.RSATokenService
 	g   *gin.Engine
+	po  mail.Mailer
 }
 
 // The MechGreg or "Mechanical Greg" interface defines all the actions

@@ -7,6 +7,7 @@ import (
 
 	"github.com/asdine/storm"
 
+	"github.com/BESTRobotics/registry/internal/mail"
 	"github.com/BESTRobotics/registry/internal/models"
 )
 
@@ -194,7 +195,18 @@ func (mg *MechanicalGreg) SetTeamCoach(id int, u models.User) error {
 		return err
 	}
 
-	return mg.modTeam(models.Team{ID: id, Coach: user})
+	err = mg.modTeam(models.Team{ID: id, Coach: user})
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
+	l := mail.NewLetter()
+	l.AddTo(mail.UserToAddress(u))
+	l.Subject = "You're now a coach!"
+	l.Body = "Thanks for helping to further STEM education, you're now a team coach."
+
+	return mg.po.SendMail(l)
 }
 
 // GetTeamCoach returns the coach for a given team.
@@ -215,8 +227,16 @@ func (mg *MechanicalGreg) AddTeamMentor(id int, u models.User) error {
 	}
 
 	team.Mentors = patchUserSlice(team.Mentors, true, u)
+	if err := mg.modTeam(team); err != nil {
+		return err
+	}
 
-	return mg.modTeam(team)
+	l := mail.NewLetter()
+	l.AddTo(mail.UserToAddress(u))
+	l.Subject = "You're now a mentor!"
+	l.Body = "Thanks for helping to further STEM education, you're now a team mentor."
+
+	return mg.po.SendMail(l)
 }
 
 // DelTeamMentor removes a mentor from the listed team.
@@ -230,12 +250,19 @@ func (mg *MechanicalGreg) DelTeamMentor(id int, u models.User) error {
 	err = mg.s.UpdateField(&models.Team{ID: id}, "Mentors", mentors)
 	switch err {
 	case nil:
-		return nil
+		break
 	case storm.ErrNotFound:
 		return NewConstraintError("No team exists with that ID", err, http.StatusNotFound)
 	default:
 		return NewInternalError("An unspecified internal error has occured", err, http.StatusInternalServerError)
 	}
+
+	l := mail.NewLetter()
+	l.AddTo(mail.UserToAddress(u))
+	l.Subject = "You've been removed from a team"
+	l.Body = "Thanks for your time, you're no longer listed as a mentor on " + team.StaticName + "."
+
+	return mg.po.SendMail(l)
 }
 
 // DeactivateTeam allows us to mark a team as "dead".  When this

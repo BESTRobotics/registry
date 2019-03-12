@@ -9,16 +9,18 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
 
+	"github.com/BESTRobotics/registry/internal/mail"
 	"github.com/BESTRobotics/registry/internal/mechgreg"
 	"github.com/BESTRobotics/registry/internal/token"
 	"github.com/BESTRobotics/registry/web"
 )
 
 // New returns a new http.Server or dies trying.
-func New(mg MechGreg, tkn *token.RSATokenService) (*Server, error) {
+func New(mg MechGreg, tkn *token.RSATokenService, po mail.Mailer) (*Server, error) {
 	s := Server{
 		mg:  mg,
 		tkn: tkn,
+		po:  po,
 	}
 	s.g = gin.New()
 

@@ -10,11 +10,12 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/BESTRobotics/registry/internal/http"
+	"github.com/BESTRobotics/registry/internal/mail"
 	"github.com/BESTRobotics/registry/internal/mechgreg"
 	"github.com/BESTRobotics/registry/internal/models"
 	"github.com/BESTRobotics/registry/internal/token"
 
-	_ "github.com/jinzhu/gorm/dialects/sqlite"
+	_ "github.com/BESTRobotics/registry/internal/mail/null"
 )
 
 func init() {
@@ -44,12 +45,22 @@ func main() {
 		log.Panic(err)
 	}
 
+	mailer, err := mail.Initialize()
+	if err != nil {
+		log.Panic(err)
+	}
+
 	tkn, err := token.NewRSA()
 	if err != nil {
 		log.Panic(err)
 	}
 
-	mg, err := mechgreg.New(mechgreg.ResourceBundle{st})
+	rb := mechgreg.ResourceBundle{
+		StormDB: st,
+		Mailer:  mailer,
+	}
+
+	mg, err := mechgreg.New(rb)
 	if err != nil {
 		log.Panic(err)
 	}
@@ -67,7 +78,7 @@ func main() {
 		os.Exit(0)
 	}
 
-	s, err := http.New(mg, tkn)
+	s, err := http.New(mg, tkn, mailer)
 	if err != nil {
 		log.Panic(err)
 	}
