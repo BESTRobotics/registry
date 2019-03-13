@@ -11,7 +11,7 @@ const NewHubForm = ({ addToList, existingItem, token }) => {
   const [name, setName] = useState(hub ? hub.Name : "");
   const [location, setLocation] = useState(hub ? hub.Location : "");
   const [founded, setFounded] = useState(
-    hub ? hub.Founded.substring(0, 10) : ""
+    hub && hub.Founded ? hub.Founded.substring(0, 10) : ""
   );
   const [description, setDescription] = useState(hub ? hub.Description : "");
   const [id, setId] = useState(hub ? hub.ID : "");

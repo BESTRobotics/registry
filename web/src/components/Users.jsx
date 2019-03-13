@@ -2,7 +2,7 @@ import React from "react";
 import Item from "./Item";
 import NewUserForm from "./NewUserForm";
 
-const Users = () => {
+const Users = ({ token }) => {
   const fields = [
     {
       header: "Name",
@@ -23,7 +23,14 @@ const Users = () => {
       filter: false
     }
   ];
-  return <Item itemName="User" fields={fields} NewItemForm={NewUserForm} />;
+  return (
+    <Item
+      itemName="User"
+      fields={fields}
+      NewItemForm={NewUserForm}
+      token={token}
+    />
+  );
 };
 
 export default Users;

@@ -6,6 +6,7 @@ import Seasons from "./Seasons";
 import Users from "./Users";
 import Topbar from "./Topbar";
 import Login from "./Login";
+import Register from "./Register";
 import {
   BrowserRouter as Router,
   Switch,
@@ -51,17 +52,18 @@ const App = () => {
           </Switch>
         </section>
       ) : (
-        <Login setToken={setToken} />
+        <Switch>
+          <Redirect exact path="/" to="/login" />
+          <Route
+            path="/login"
+            render={p => <Login {...p} setToken={setToken} />}
+          />
+          <Route path="/register" render={p => <Register {...p} />} />
+          <Route default render={p => <Login {...p} setToken={setToken} />} />
+        </Switch>
       )}
     </Router>
   );
 };
 
 export default App;
-
-// <Table.Cell>{item.Name}</Table.Cell>
-// <Table.Cell>{hub.Location}</Table.Cell>
-// <Table.Cell>
-//   {hub.Director.FirstName} {hub.Director.LastName}
-// </Table.Cell>
-// <Table.Cell>{hub.Description}</Table.Cell>

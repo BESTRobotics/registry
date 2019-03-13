@@ -11,7 +11,7 @@ import {
 import logo from "../assets/logo.jpg";
 import axios from "axios";
 
-const Login = ({ setToken }) => {
+const Register = ({ setToken }) => {
   const [username, setUserName] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
@@ -36,7 +36,7 @@ const Login = ({ setToken }) => {
         <Grid.Column style={{ maxWidth: 450 }}>
           <Header as="h2" color="teal" textAlign="center">
             <Image src={logo} />
-            Log-in to your account
+            Create a new account
           </Header>
           <Form size="large" onSubmit={login}>
             <Segment stacked>
@@ -59,13 +59,10 @@ const Login = ({ setToken }) => {
               />
 
               <Button color="teal" fluid size="large">
-                Login
+                Create Account
               </Button>
             </Segment>
           </Form>
-          <Message>
-            New account? <a href="/register">Sign Up</a>
-          </Message>
           {message ? <Message {...message} /> : null}
         </Grid.Column>
       </Grid.Row>
@@ -73,4 +70,4 @@ const Login = ({ setToken }) => {
   );
 };
 
-export default Login;
+export default Register;

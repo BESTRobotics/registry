@@ -2,13 +2,20 @@ import React, { useState } from "react";
 import axios from "axios";
 import { Button, Form, Message } from "semantic-ui-react";
 
-const NewUserForm = ({ addToList, name }) => {
-  const [firstName, setFirstName] = useState(name ? name.split(" ")[0] : "");
-  const [lastName, setLastName] = useState(name ? name.split(" ")[1] : "");
-  const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
-  const [birthdate, setBirthdate] = useState("");
-  const [type, setType] = useState("");
+const NewUserForm = ({ addToList, existingItem, name, token }) => {
+  const headers = { authorization: token };
+  const user = existingItem;
+  const [firstName, setFirstName] = useState(
+    user ? user.FirstName : name ? name.split(" ")[0] : ""
+  );
+  const [lastName, setLastName] = useState(
+    user ? user.LastName : name ? name.split(" ")[1] : ""
+  );
+  const [username, setUsername] = useState(user ? user.Username : "");
+  const [id, setId] = useState(user ? user.ID : "");
+  const [email, setEmail] = useState(user ? user.EMail : "");
+  const [birthdate, setBirthdate] = useState(user ? user.Birthdate : "");
+  const [type, setType] = useState(user ? user.Type : "");
   const [message, setMessage] = useState("");
 
   const submitForm = () => {
@@ -21,7 +28,9 @@ const NewUserForm = ({ addToList, name }) => {
       Birthdate: birthdate ? new Date(birthdate).toISOString() : null
     };
     axios
-      .post(`http://${process.env.REACT_APP_API_URL}/v1/users`, newUser)
+      .post(`http://${process.env.REACT_APP_API_URL}/v1/users`, newUser, {
+        headers: headers
+      })
       .then(response => {
         newUser.ID = response.data.ID;
         addToList(newUser);
@@ -68,7 +77,7 @@ const NewUserForm = ({ addToList, name }) => {
         <Form.Input
           type="date"
           label="Birthdate"
-          value={birthdate}
+          value={birthdate || ""}
           onChange={(_, { value }) => setBirthdate(value)}
         />
         <Form.Input
@@ -76,7 +85,7 @@ const NewUserForm = ({ addToList, name }) => {
           value={type}
           onChange={(_, { value }) => setType(value)}
         />
-        <Button color="green">Add User</Button>
+        <Button color="green">{id ? "Update User" : "Add User"}</Button>
       </Form>
     </React.Fragment>
   );

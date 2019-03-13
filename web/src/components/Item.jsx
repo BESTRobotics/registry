@@ -41,6 +41,10 @@ const Item = ({ deactivateable, itemName, fields, NewItemForm, token }) => {
       });
   }, []);
 
+  useEffect(() => {
+    console.log(page);
+  });
+
   const deactivateItem = id => {
     axios
       .put(
@@ -66,7 +70,9 @@ const Item = ({ deactivateable, itemName, fields, NewItemForm, token }) => {
   const addItem = item => {
     const existingItem = items.findIndex(i => i.ID === item.ID);
     if (existingItem === -1) {
-      setPage(Math.ceil(items.length + 1 / pageSize) - 1);
+      console.log(items.length);
+      console.log(pageSize);
+      setPage(Math.ceil(items.length + 1 / pageSize));
     }
     setItems(
       existingItem !== -1
@@ -126,7 +132,9 @@ const Item = ({ deactivateable, itemName, fields, NewItemForm, token }) => {
               {fields
                 .filter(f => !!f.header)
                 .map(f => (
-                  <Table.HeaderCell key={f.header}>{f.header}</Table.HeaderCell>
+                  <Table.HeaderCell key={f.header}>
+                    {f.h}eader}
+                  </Table.HeaderCell>
                 ))}
               <Table.HeaderCell key="edit" />
               {!deactivateable ? <Table.HeaderCell key="deactivate" /> : null}
