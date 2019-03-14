@@ -29,6 +29,7 @@ func init() {
 	pflag.String("storage.path", ".", "Path to the data area")
 	pflag.Bool("token.generate", false, "Enable generation of token keys")
 	pflag.Int("token.bits", 2048, "How many bits to include in token keys")
+	pflag.Bool("internal.reindex", false, "Reindex internal data structures")
 }
 
 func main() {

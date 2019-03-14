@@ -3,6 +3,8 @@ package mechgreg
 import (
 	"log"
 
+	"github.com/spf13/viper"
+
 	"github.com/BESTRobotics/registry/internal/models"
 )
 
@@ -17,23 +19,25 @@ func New(rb ResourceBundle) (*MechanicalGreg, error) {
 		po: rb.Mailer,
 	}
 
-	if err := mg.s.ReIndex(&models.User{}); err != nil {
-		log.Println("Error during indexing", err)
-	}
-	if err := mg.s.ReIndex(&models.AuthData{}); err != nil {
-		log.Println("Error during indexing", err)
-	}
-	if err := mg.s.ReIndex(&models.Hub{}); err != nil {
-		log.Println("Error during indexing", err)
-	}
-	if err := mg.s.ReIndex(&models.Team{}); err != nil {
-		log.Println("Error during indexing", err)
-	}
-	if err := mg.s.ReIndex(&models.Season{}); err != nil {
-		log.Println("Error during indexing", err)
-	}
-	if err := mg.s.ReIndex(&models.School{}); err != nil {
-		log.Println("Error during indexing", err)
+	if viper.GetBool("internal.reindex") {
+		if err := mg.s.ReIndex(&models.User{}); err != nil {
+			log.Println("Error during indexing", err)
+		}
+		if err := mg.s.ReIndex(&models.AuthData{}); err != nil {
+			log.Println("Error during indexing", err)
+		}
+		if err := mg.s.ReIndex(&models.Hub{}); err != nil {
+			log.Println("Error during indexing", err)
+		}
+		if err := mg.s.ReIndex(&models.Team{}); err != nil {
+			log.Println("Error during indexing", err)
+		}
+		if err := mg.s.ReIndex(&models.Season{}); err != nil {
+			log.Println("Error during indexing", err)
+		}
+		if err := mg.s.ReIndex(&models.School{}); err != nil {
+			log.Println("Error during indexing", err)
+		}
 	}
 
 	return &mg, nil
