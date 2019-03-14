@@ -37,6 +37,8 @@ const App = () => {
           <Topbar logout={logout} />
           <Switch>
             <Redirect exact path="/" to="/hubs" />
+            <Redirect path="/login" to="/hubs" />
+            <Redirect path="/register" to="/hubs" />
             <Route path="/hubs" render={p => <Hubs {...p} token={token} />} />
             <Route
               path="/schools"

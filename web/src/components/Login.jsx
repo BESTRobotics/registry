@@ -17,7 +17,10 @@ const Login = ({ setToken }) => {
   const [message, setMessage] = useState("");
   const login = () => {
     axios
-      .get(`http://${process.env.REACT_APP_API_URL}/v1/token/${username}`)
+      .post(`http://${process.env.REACT_APP_API_URL}/v1/account/login/local`, {
+        Username: username,
+        Password: password
+      })
       .then(response => {
         setToken(response.data);
       })
