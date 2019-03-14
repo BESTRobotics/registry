@@ -31,7 +31,7 @@ const App = () => {
     setToken(null);
   };
   return (
-    <Router>
+    <Router basename={process.env.PUBLIC_URL}>
       {token ? (
         <section className="root">
           <Topbar logout={logout} />

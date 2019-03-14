@@ -132,9 +132,7 @@ const Item = ({ deactivateable, itemName, fields, NewItemForm, token }) => {
               {fields
                 .filter(f => !!f.header)
                 .map(f => (
-                  <Table.HeaderCell key={f.header}>
-                    {f.h}eader}
-                  </Table.HeaderCell>
+                  <Table.HeaderCell key={f.header}>{f.header}</Table.HeaderCell>
                 ))}
               <Table.HeaderCell key="edit" />
               {!deactivateable ? <Table.HeaderCell key="deactivate" /> : null}
