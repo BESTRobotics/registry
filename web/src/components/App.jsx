@@ -4,6 +4,7 @@ import Teams from "./Teams";
 import Schools from "./Schools";
 import Seasons from "./Seasons";
 import Users from "./Users";
+import Events from "./Events";
 import Topbar from "./Topbar";
 import Login from "./Login";
 import Register from "./Register";
@@ -52,6 +53,10 @@ const App = () => {
               render={p => <Seasons {...p} token={token} />}
             />
             <Route path="/users" render={p => <Users {...p} token={token} />} />
+            <Route
+              path="/events"
+              render={p => <Events {...p} token={token} />}
+            />
             <Route default render={() => <div>No route at path.</div>} />
           </Switch>
         </section>

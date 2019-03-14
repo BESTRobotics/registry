@@ -19,7 +19,7 @@ const Users = ({ token }) => {
     {
       header: "Birthday",
       displayFn: user =>
-        user.birthdate ? user.Birthdate.substring(0, 10) : "",
+        user.Birthdate ? user.Birthdate.substring(0, 10) : "",
       filter: false
     }
   ];
@@ -29,6 +29,7 @@ const Users = ({ token }) => {
       fields={fields}
       NewItemForm={NewUserForm}
       token={token}
+      trashcan={null}
     />
   );
 };

@@ -8,7 +8,8 @@ const Hubs = ({ token }) => {
     { header: "Location", name: "Location", filter: true },
     {
       header: "Director",
-      displayFn: h => `${h.Director.FirstName} ${h.Director.LastName}`,
+      displayFn: h =>
+        h.Director ? `${h.Director.FirstName} ${h.Director.LastName}` : "",
       filter: false
     },
     {
@@ -23,6 +24,7 @@ const Hubs = ({ token }) => {
       fields={fields}
       NewItemForm={NewHubForm}
       token={token}
+      trashcan="deactivate"
     />
   );
 };

@@ -10,6 +10,7 @@ const Hubs = ({ token }) => {
       fields={fields}
       NewItemForm={NewSeasonForm}
       token={token}
+      trashcan="archive"
     />
   );
 };

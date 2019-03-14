@@ -14,7 +14,9 @@ const NewUserForm = ({ addToList, existingItem, name, token }) => {
   const [username, setUsername] = useState(user ? user.Username : "");
   const [id, setId] = useState(user ? user.ID : "");
   const [email, setEmail] = useState(user ? user.EMail : "");
-  const [birthdate, setBirthdate] = useState(user ? user.Birthdate : "");
+  const [birthdate, setBirthdate] = useState(
+    user && user.Birthdate ? user.Birthdate.substring(0, 10) : ""
+  );
   const [type, setType] = useState(user ? user.Type : "");
   const [message, setMessage] = useState("");
 
@@ -27,12 +29,19 @@ const NewUserForm = ({ addToList, existingItem, name, token }) => {
       LastName: lastName,
       Birthdate: birthdate ? new Date(birthdate).toISOString() : null
     };
-    axios
-      .post(`http://${process.env.REACT_APP_API_URL}/v1/users`, newUser, {
-        headers: headers
-      })
+    let call = axios.post;
+    let url = `http://${process.env.REACT_APP_API_URL}/v1/users`;
+    if (id !== "") {
+      newUser.ID = id;
+      call = axios.put;
+      url = `http://${process.env.REACT_APP_API_URL}/v1/users/${id}`;
+    }
+    call(url, newUser, { headers: headers })
       .then(response => {
-        newUser.ID = response.data.ID;
+        if (!newUser.ID) {
+          newUser.ID = response.data.ID;
+          setId(response.data.ID);
+        }
         addToList(newUser);
       })
       .catch(e => {

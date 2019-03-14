@@ -49,9 +49,7 @@ const NewSeasonForm = ({ addToList, existingItem }) => {
           value={name}
           onChange={(_, { value }) => setName(value)}
         />
-        <Button color="green">
-          {season.ID ? "Update Season" : "Add Season"}
-        </Button>
+        <Button color="green">{id ? "Update Season" : "Add Season"}</Button>
       </Form>
     </React.Fragment>
   );

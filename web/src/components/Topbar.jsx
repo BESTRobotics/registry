@@ -24,6 +24,9 @@ const Topbar = ({ logout }) => {
       <Menu.Item as={NavLink} to="/users">
         Users
       </Menu.Item>
+      <Menu.Item as={NavLink} to="/events">
+        Events
+      </Menu.Item>
       <Menu.Item position="right" onClick={logout}>
         Logout
       </Menu.Item>

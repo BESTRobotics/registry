@@ -99,6 +99,7 @@ const NewTeamForm = ({ addToList, existingItem, token }) => {
         newTeam.HomeHub = hubs.filter(h => h.ID === hub)[0];
         newTeam.Coach = users.filter(u => u.ID === coach)[0];
         newTeam.School = schools.filter(s => s.ID === school)[0];
+        newTeam.Mentors = users.filter(u => mentors.includes(u.ID));
         const { addMentors, subtractMentors } = (() => {
           if (existingItem && existingItem.Mentors) {
             const existingMentors = existingItem.Mentors.map(m => m.ID);
@@ -250,7 +251,7 @@ const NewTeamForm = ({ addToList, existingItem, token }) => {
           value={founded}
           onChange={(_, { value }) => setFounded(value)}
         />
-        <Button color="green">Add Team</Button>
+        <Button color="green">{id ? "Update Team" : "Add Team"}</Button>
       </Form>
       <Modal open={!!newUser} onClose={() => setNewUser("")}>
         <Header icon="user" content="Add New User" />

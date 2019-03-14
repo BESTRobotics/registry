@@ -14,7 +14,7 @@ const Schools = ({ token }) => {
       fields={fields}
       NewItemForm={NewSchoolForm}
       token={token}
-      deactivateable={true}
+      trashcan={null}
     />
   );
 };

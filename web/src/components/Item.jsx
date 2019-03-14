@@ -13,7 +13,7 @@ import {
 import FakeRows from "./FakeRows";
 import PropTypes from "prop-types";
 
-const Item = ({ deactivateable, itemName, fields, NewItemForm, token }) => {
+const Item = ({ trashcan, itemName, fields, NewItemForm, token }) => {
   const headers = { authorization: token };
   const [items, setItems] = useState([]);
   const [message, setMessage] = useState(null);
@@ -28,8 +28,10 @@ const Item = ({ deactivateable, itemName, fields, NewItemForm, token }) => {
         `http://${process.env.REACT_APP_API_URL}/v1/${itemName.toLowerCase()}s`
       )
       .then(response => {
-        setItems(response.data);
-        setMessage();
+        if (response.data) {
+          setItems(response.data);
+          setMessage();
+        }
       })
       .catch(e => {
         setMessage({
@@ -41,16 +43,12 @@ const Item = ({ deactivateable, itemName, fields, NewItemForm, token }) => {
       });
   }, []);
 
-  useEffect(() => {
-    console.log(page);
-  });
-
   const deactivateItem = id => {
     axios
       .put(
         `http://${
           process.env.REACT_APP_API_URL
-        }/v1/${itemName.toLowerCase()}s/${id}/deactivate`,
+        }/v1/${itemName.toLowerCase()}s/${id}/${trashcan}`,
         {},
         { headers: headers }
       )
@@ -70,9 +68,7 @@ const Item = ({ deactivateable, itemName, fields, NewItemForm, token }) => {
   const addItem = item => {
     const existingItem = items.findIndex(i => i.ID === item.ID);
     if (existingItem === -1) {
-      console.log(items.length);
-      console.log(pageSize);
-      setPage(Math.ceil(items.length + 1 / pageSize));
+      setPage(Math.floor((items.length + 1) / pageSize));
     }
     setItems(
       existingItem !== -1
@@ -135,7 +131,7 @@ const Item = ({ deactivateable, itemName, fields, NewItemForm, token }) => {
                   <Table.HeaderCell key={f.header}>{f.header}</Table.HeaderCell>
                 ))}
               <Table.HeaderCell key="edit" />
-              {!deactivateable ? <Table.HeaderCell key="deactivate" /> : null}
+              {trashcan ? <Table.HeaderCell key="deactivate" /> : null}
             </Table.Row>
           </Table.Header>
           {items && items.length ? (
@@ -168,23 +164,29 @@ const Item = ({ deactivateable, itemName, fields, NewItemForm, token }) => {
                         onClick={() => setNewItemModalOpen(item)}
                       />
                     </Table.Cell>
-                    <Table.Cell collapsing key="deactivate">
-                      <Button
-                        icon="trash"
-                        onClick={() => deactivateItem(item.ID)}
-                      />
-                    </Table.Cell>
+                    {trashcan ? (
+                      <Table.Cell collapsing key="deactivate">
+                        <Button
+                          icon="trash"
+                          onClick={() => deactivateItem(item.ID)}
+                        />
+                      </Table.Cell>
+                    ) : null}
                   </Table.Row>
                 ))}
             </Table.Body>
           ) : (
-            <FakeRows cols={4} />
+            <FakeRows
+              cols={fields.filter(f => f.header).length + (!!trashcan ? 2 : 1)}
+            />
           )}
           <Table.Footer>
             {!search ? (
               <Table.Row>
                 <Table.HeaderCell
-                  colSpan={fields.filter(f => f.header).length + 2}
+                  colSpan={
+                    fields.filter(f => f.header).length + (!!trashcan ? 2 : 1)
+                  }
                   textAlign="right"
                 >
                   <Pagination
