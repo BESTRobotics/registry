@@ -10,6 +10,7 @@ import {
 } from "semantic-ui-react";
 import logo from "../assets/logo.jpg";
 import axios from "axios";
+import { Link } from "react-router-dom";
 
 const Login = ({ setToken }) => {
   const [username, setUserName] = useState("");
@@ -67,7 +68,7 @@ const Login = ({ setToken }) => {
             </Segment>
           </Form>
           <Message>
-            New account? <a href="/register">Sign Up</a>
+            New account? <Link to="/register">Sign Up</Link>
           </Message>
           {message ? <Message {...message} /> : null}
         </Grid.Column>

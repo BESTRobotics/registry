@@ -8,7 +8,7 @@ import Topbar from "./Topbar";
 import Login from "./Login";
 import Register from "./Register";
 import {
-  BrowserRouter as Router,
+  HashRouter as Router,
   Switch,
   Route,
   Redirect
@@ -31,7 +31,9 @@ const App = () => {
     setToken(null);
   };
   return (
-    <Router basename={process.env.PUBLIC_URL}>
+    <Router
+    // basename={process.env.PUBLIC_URL}
+    >
       {token ? (
         <section className="root">
           <Topbar logout={logout} />

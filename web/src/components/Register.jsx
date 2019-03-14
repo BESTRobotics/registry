@@ -8,6 +8,7 @@ import {
   Image,
   Message
 } from "semantic-ui-react";
+import { Link } from "react-router-dom";
 import logo from "../assets/logo.jpg";
 import axios from "axios";
 
@@ -133,7 +134,7 @@ const Register = ({ history }) => {
             </Segment>
           </Form>
           <Message>
-            Already have an account? <a href="/login">Log in</a>
+            Already have an account? <Link to="/login">Log in</Link>
           </Message>
           {message ? <Message {...message} /> : null}
         </Grid.Column>
