@@ -1,7 +1,6 @@
 package http
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 
@@ -66,7 +65,7 @@ func (s *Server) registerLocalUser(c *gin.Context) {
 // information provided and redirects the browser into the app with a
 // token unless a boomerang target was specified in the query string.
 func (s *Server) loginLocalUser(c *gin.Context) {
-	target := "/app/login#t=%s"
+	// target := "/app/login#t=%s"
 
 	var ld struct {
 		Username string
