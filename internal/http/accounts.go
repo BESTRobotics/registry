@@ -101,7 +101,5 @@ func (s *Server) loginLocalUser(c *gin.Context) {
 		return
 	}
 
-	// Put the token into the URL
-	target = fmt.Sprintf(target, tkn)
-	c.Redirect(http.StatusMovedPermanently, target)
+	c.JSON(http.StatusOK, tkn)
 }
