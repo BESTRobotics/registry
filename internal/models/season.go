@@ -13,4 +13,21 @@ type Season struct {
 	// Archived determines if this season is archived or not.
 	// Archived seasons lock all resources within them.
 	Archived bool
+
+	// Open determines whether or not the season can be registered
+	// for
+	Open bool
+
+	// Program allows us to determine what program this season
+	// represents.  Not all seasons necessarily have programs, but
+	// programs usually do have seasons.
+	Program Program
 }
+
+// Program allows us to know what program this season is referencing.
+type Program int
+
+const (
+	// ProgramBRC is the BEST Robotics Competition
+	ProgramBRC Program = iota
+)
