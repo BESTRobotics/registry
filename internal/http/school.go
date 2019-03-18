@@ -1,96 +1,82 @@
 package http
 
 import (
-	"log"
 	"net/http"
 	"strconv"
 
-	"github.com/gin-gonic/gin"
+	"github.com/labstack/echo"
 
 	"github.com/BESTRobotics/registry/internal/models"
 )
 
-func (s *Server) newSchool(c *gin.Context) {
+func (s *Server) newSchool(c echo.Context) error {
 	// Perform Authorization Checks
 	if err := canManageTeams(extractClaims(c)); err != nil {
-		s.handleError(c, err)
-		return
+		return s.handleError(c, err)
 	}
 
 	var school models.School
-	if err := c.ShouldBindJSON(&school); err != nil {
-		c.AbortWithError(http.StatusBadRequest, err)
-		log.Println(err)
-		return
+	if err := c.Bind(&school); err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
 	}
 
 	id, err := s.mg.NewSchool(school)
 	if err != nil {
-		s.handleError(c, err)
-		return
+		return s.handleError(c, err)
 	}
 	school, err = s.mg.GetSchool(id)
 	if err != nil {
-		s.handleError(c, err)
-		return
+		return s.handleError(c, err)
 	}
-	c.JSON(http.StatusCreated, school)
+	return c.JSON(http.StatusCreated, school)
 }
 
-func (s *Server) getSchool(c *gin.Context) {
+func (s *Server) getSchool(c echo.Context) error {
 	idStr := c.Param("id")
 	id, err := strconv.ParseInt(idStr, 10, 32)
 	if err != nil {
-		c.AbortWithError(http.StatusBadRequest, err)
-		return
+		return c.String(http.StatusBadRequest, err.Error())
 	}
 
 	school, err := s.mg.GetSchool(int(id))
 	if err != nil {
-		s.handleError(c, err)
-		return
+		return s.handleError(c, err)
 	}
 
-	c.JSON(http.StatusOK, school)
+	return c.JSON(http.StatusOK, school)
 }
 
-func (s *Server) getSchools(c *gin.Context) {
+func (s *Server) getSchools(c echo.Context) error {
 	schools, err := s.mg.GetSchools()
 	if err != nil {
-		c.AbortWithError(http.StatusInternalServerError, err)
-		return
+		return c.String(http.StatusInternalServerError, err.Error())
 	}
-	c.JSON(http.StatusOK, schools)
+	return c.JSON(http.StatusOK, schools)
 }
 
-func (s *Server) modSchool(c *gin.Context) {
+func (s *Server) modSchool(c echo.Context) error {
 	// Perform Authorization Checks
 	if err := canManageTeams(extractClaims(c)); err != nil {
-		s.handleError(c, err)
-		return
+		return s.handleError(c, err)
 	}
 
 	idStr := c.Param("id")
 	id, err := strconv.ParseInt(idStr, 10, 32)
 	if err != nil {
-		c.AbortWithError(http.StatusBadRequest, err)
-		return
+		return c.String(http.StatusBadRequest, err.Error())
 	}
 
 	var school models.School
-	if err := c.ShouldBindJSON(&school); err != nil {
-		c.AbortWithError(http.StatusBadRequest, err)
-		log.Println(err)
-		return
+	if err := c.Bind(&school); err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
 	}
 
 	school.ID = int(id)
 
 	err = s.mg.ModSchool(school)
 	if err != nil {
-		s.handleError(c, err)
-		return
+		return s.handleError(c, err)
 	}
 
-	c.Status(http.StatusNoContent)
+	return c.NoContent(http.StatusNoContent)
 }

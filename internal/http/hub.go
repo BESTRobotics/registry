@@ -1,63 +1,55 @@
 package http
 
 import (
-	"log"
 	"net/http"
 	"strconv"
 
-	"github.com/gin-gonic/gin"
+	"github.com/labstack/echo"
 
 	"github.com/BESTRobotics/registry/internal/models"
 	"github.com/BESTRobotics/registry/internal/token"
 )
 
-func (s *Server) newHub(c *gin.Context) {
+func (s *Server) newHub(c echo.Context) error {
 	// Perform Authorization Checks
 	if err := canManageHubs(extractClaims(c)); err != nil {
-		s.handleError(c, err)
-		return
+		return s.handleError(c, err)
 	}
 
 	var hub models.Hub
-	if err := c.ShouldBindJSON(&hub); err != nil {
-		c.AbortWithError(http.StatusBadRequest, err)
-		log.Println(err)
-		return
+	if err := c.Bind(&hub); err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
 	}
 
 	id, err := s.mg.NewHub(hub)
 	if err != nil {
-		s.handleError(c, err)
-		return
+		return s.handleError(c, err)
 	}
 	hub, err = s.mg.GetHub(id)
 	if err != nil {
-		s.handleError(c, err)
-		return
+		return s.handleError(c, err)
 	}
 
-	c.JSON(http.StatusCreated, hub)
+	return c.JSON(http.StatusCreated, hub)
 }
 
-func (s *Server) getHub(c *gin.Context) {
+func (s *Server) getHub(c echo.Context) error {
 	idStr := c.Param("id")
 	id, err := strconv.ParseInt(idStr, 10, 32)
 	if err != nil {
-		c.AbortWithError(http.StatusBadRequest, err)
-		return
+		return c.String(http.StatusBadRequest, err.Error())
 	}
 
 	hub, err := s.mg.GetHub(int(id))
 	if err != nil {
-		s.handleError(c, err)
-		return
+		return s.handleError(c, err)
 	}
 
-	c.JSON(http.StatusOK, hub)
+	return c.JSON(http.StatusOK, hub)
 }
 
-func (s *Server) getHubs(c *gin.Context) {
-	allStr := c.Query("include-inactive")
+func (s *Server) getHubs(c echo.Context) error {
+	allStr := c.QueryParam("include-inactive")
 	all := false
 	if allStr != "" {
 		all = true
@@ -65,32 +57,27 @@ func (s *Server) getHubs(c *gin.Context) {
 
 	set, err := s.mg.GetHubs(all)
 	if err != nil {
-		s.handleError(c, err)
-		return
+		return s.handleError(c, err)
 	}
 
-	c.JSON(http.StatusOK, set)
+	return c.JSON(http.StatusOK, set)
 }
 
-func (s *Server) modHub(c *gin.Context) {
+func (s *Server) modHub(c echo.Context) error {
 	idStr := c.Param("id")
 	id, err := strconv.ParseInt(idStr, 10, 32)
 	if err != nil {
-		c.AbortWithError(http.StatusBadRequest, err)
-		return
+		return c.String(http.StatusBadRequest, err.Error())
 	}
 
 	// Perform Authorization Checks
 	if err := canModHub(extractClaims(c), int(id)); err != nil {
-		s.handleError(c, err)
-		return
+		return s.handleError(c, err)
 	}
 
 	var hub models.Hub
-	if err := c.ShouldBindJSON(&hub); err != nil {
-		c.AbortWithError(http.StatusBadRequest, err)
-		log.Println(err)
-		return
+	if err := c.Bind(&hub); err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
 	}
 
 	hub.ID = int(id)
@@ -101,174 +88,149 @@ func (s *Server) modHub(c *gin.Context) {
 
 	err = s.mg.ModHub(hub)
 	if err != nil {
-		s.handleError(c, err)
-		return
+		return s.handleError(c, err)
 	}
 
-	c.Status(http.StatusNoContent)
+	return c.NoContent(http.StatusNoContent)
 }
 
-func (s *Server) deactivateHub(c *gin.Context) {
+func (s *Server) deactivateHub(c echo.Context) error {
 	// Perform Authorization Checks
 	if err := canManageHubs(extractClaims(c)); err != nil {
-		s.handleError(c, err)
-		return
+		return s.handleError(c, err)
 	}
 
 	idStr := c.Param("id")
 	id, err := strconv.ParseInt(idStr, 10, 32)
 	if err != nil {
-		c.AbortWithError(http.StatusBadRequest, err)
-		return
+		return c.String(http.StatusBadRequest, err.Error())
 	}
 
 	err = s.mg.DeactivateHub(int(id))
 	if err != nil {
-		s.handleError(c, err)
-		return
+		return s.handleError(c, err)
 	}
 
-	c.Status(http.StatusNoContent)
+	return c.NoContent(http.StatusNoContent)
 }
 
-func (s *Server) activateHub(c *gin.Context) {
+func (s *Server) activateHub(c echo.Context) error {
 	// Perform Authorization Checks
 	if err := canManageHubs(extractClaims(c)); err != nil {
-		s.handleError(c, err)
-		return
+		return s.handleError(c, err)
 	}
 
 	idStr := c.Param("id")
 	id, err := strconv.ParseInt(idStr, 10, 32)
 	if err != nil {
-		c.AbortWithError(http.StatusBadRequest, err)
-		return
+		return c.String(http.StatusBadRequest, err.Error())
 	}
 
 	err = s.mg.ActivateHub(int(id))
 	if err != nil {
-		s.handleError(c, err)
-		return
+		return s.handleError(c, err)
 	}
 
-	c.Status(http.StatusNoContent)
+	return c.NoContent(http.StatusNoContent)
 }
 
-func (s *Server) setHubDirector(c *gin.Context) {
+func (s *Server) setHubDirector(c echo.Context) error {
 	// Perform Authorization Checks
 	if err := canManageHubs(extractClaims(c)); err != nil {
-		s.handleError(c, err)
-		return
+		return s.handleError(c, err)
 	}
 
 	idStr := c.Param("id")
 	id, err := strconv.ParseInt(idStr, 10, 32)
 	if err != nil {
-		c.AbortWithError(http.StatusBadRequest, err)
-		return
+		return c.String(http.StatusBadRequest, err.Error())
 	}
 
 	var user models.User
-	if err := c.ShouldBindJSON(&user); err != nil {
-		c.AbortWithError(http.StatusBadRequest, err)
-		log.Println(err)
-		return
+	if err := c.Bind(&user); err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
 	}
 
 	err = s.mg.SetHubDirector(int(id), user)
 	if err != nil {
-		s.handleError(c, err)
-		return
+		return s.handleError(c, err)
 	}
 
-	c.Status(http.StatusNoContent)
+	return c.NoContent(http.StatusNoContent)
 }
 
-func (s *Server) getHubDirector(c *gin.Context) {
+func (s *Server) getHubDirector(c echo.Context) error {
 	idStr := c.Param("id")
 	id, err := strconv.ParseInt(idStr, 10, 32)
 	if err != nil {
-		c.AbortWithError(http.StatusBadRequest, err)
-		return
+		return c.String(http.StatusBadRequest, err.Error())
 	}
 
 	hub, err := s.mg.GetHubDirector(int(id))
 	if err != nil {
-		s.handleError(c, err)
-		return
+		return s.handleError(c, err)
 	}
 
-	c.JSON(http.StatusOK, hub)
+	return c.JSON(http.StatusOK, hub)
 }
 
-func (s *Server) addHubAdmin(c *gin.Context) {
+func (s *Server) addHubAdmin(c echo.Context) error {
 	idStr := c.Param("id")
 	id, err := strconv.ParseInt(idStr, 10, 32)
 	if err != nil {
-		c.AbortWithError(http.StatusBadRequest, err)
-		return
+		return c.String(http.StatusBadRequest, err.Error())
 	}
 
 	// Perform Authorization Checks
 	hub, err := s.mg.GetHub(int(id))
 	if err != nil {
-		s.handleError(c, err)
-		return
+		return s.handleError(c, err)
 	}
 	if err := permitDirectorActions(extractClaims(c), hub); err != nil {
-		s.handleError(c, err)
-		return
+		return s.handleError(c, err)
 	}
 
 	var user models.User
-	if err := c.ShouldBindJSON(&user); err != nil {
-		c.AbortWithError(http.StatusBadRequest, err)
-		log.Println(err)
-		return
+	if err := c.Bind(&user); err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
 	}
 
 	err = s.mg.AddHubAdmin(int(id), user)
 	if err != nil {
-		s.handleError(c, err)
-		return
+		return s.handleError(c, err)
 	}
 
-	c.Status(http.StatusNoContent)
+	return c.NoContent(http.StatusNoContent)
 }
 
-func (s *Server) delHubAdmin(c *gin.Context) {
+func (s *Server) delHubAdmin(c echo.Context) error {
 	idStr := c.Param("id")
 	id, err := strconv.ParseInt(idStr, 10, 32)
 	if err != nil {
-		c.AbortWithError(http.StatusBadRequest, err)
-		return
+		return c.String(http.StatusBadRequest, err.Error())
 	}
 
 	// Perform Authorization Checks
 	hub, err := s.mg.GetHub(int(id))
 	if err != nil {
-		s.handleError(c, err)
-		return
+		return s.handleError(c, err)
 	}
 	if err := permitDirectorActions(extractClaims(c), hub); err != nil {
-		s.handleError(c, err)
-		return
+		return s.handleError(c, err)
 	}
 
 	uidStr := c.Param("uid")
 	uid, err := strconv.ParseInt(uidStr, 10, 32)
 	if err != nil {
-		c.AbortWithError(http.StatusBadRequest, err)
-		return
+		return c.String(http.StatusBadRequest, err.Error())
 	}
 
 	err = s.mg.DelHubAdmin(int(id), models.User{ID: int(uid)})
 	if err != nil {
-		s.handleError(c, err)
-		return
+		return s.handleError(c, err)
 	}
 
-	c.Status(http.StatusNoContent)
+	return c.NoContent(http.StatusNoContent)
 }
 
 // canModHub checks whether appropriate claims are available to modify

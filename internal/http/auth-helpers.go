@@ -4,7 +4,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/gin-gonic/gin"
+	"github.com/labstack/echo"
 
 	"github.com/BESTRobotics/registry/internal/token"
 )
@@ -34,9 +34,9 @@ func newAuthError(m, c string) AuthError {
 
 // extractClaims fishes out the token and asserts the type back to
 // something sane.
-func extractClaims(c *gin.Context) token.Claims {
-	cl, exists := c.Get("authinfo")
-	if !exists {
+func extractClaims(c echo.Context) token.Claims {
+	cl := c.Get("authinfo")
+	if cl == nil {
 		// Bail out now with empty claims.  Its safe to bail
 		// with no error because empty claims can't be used
 		// for anything.  Auth checks implicitly fail.

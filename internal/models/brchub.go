@@ -25,7 +25,7 @@ type BRCHub struct {
 	// participation in a season.
 	Meta struct {
 		BRIApproved bool
-		Sponsors []struct{
+		Sponsors    []struct {
 			Name string
 			Logo url.URL
 		}

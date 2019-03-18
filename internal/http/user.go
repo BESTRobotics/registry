@@ -1,112 +1,104 @@
 package http
 
 import (
-	"log"
 	"net/http"
 	"strconv"
 
-	"github.com/gin-gonic/gin"
+	"github.com/labstack/echo"
 
 	"github.com/BESTRobotics/registry/internal/models"
 	"github.com/BESTRobotics/registry/internal/token"
 )
 
-func (s *Server) newUser(c *gin.Context) {
+func (s *Server) newUser(c echo.Context) error {
 	// Deserialize the user
 	var user models.User
-	if err := c.ShouldBindJSON(&user); err != nil {
-		c.AbortWithError(http.StatusBadRequest, err)
-		log.Println(err)
-		return
+	if err := c.Bind(&user); err != nil {
+		return c.JSON(http.StatusBadRequest, err)
 	}
 
 	// Attempt to create the user
 	uid, err := s.mg.NewUser(user)
 	if err != nil {
-		s.handleError(c, err)
-		return
+		return s.handleError(c, err)
+
 	}
 	user, err = s.mg.GetUser(uid)
 	if err != nil {
-		s.handleError(c, err)
-		return
+		return s.handleError(c, err)
+
 	}
 
-	c.JSON(http.StatusCreated, user)
+	return c.JSON(http.StatusCreated, user)
 }
 
-func (s *Server) getUser(c *gin.Context) {
+func (s *Server) getUser(c echo.Context) error {
 	// Fetch the User from the request
 	uidStr := c.Param("uid")
 	uid, err := strconv.ParseInt(uidStr, 10, 32)
 	if err != nil {
-		c.AbortWithError(http.StatusBadRequest, err)
-		return
+		return c.String(http.StatusBadRequest, err.Error())
+
 	}
 
 	user, err := s.mg.GetUser(int(uid))
 	if err != nil {
-		s.handleError(c, err)
-		return
+		return s.handleError(c, err)
+
 	}
 
-	c.JSON(http.StatusOK, user)
+	return c.JSON(http.StatusOK, user)
 }
 
-func (s *Server) getUsers(c *gin.Context) {
+func (s *Server) getUsers(c echo.Context) error {
 	page := int64(0)
 	count := int64(25)
-	pageStr := c.Query("page")
-	countStr := c.Query("count")
+	pageStr := c.QueryParam("page")
+	countStr := c.QueryParam("count")
 	var err error
 
 	if pageStr != "" {
 		page, err = strconv.ParseInt(pageStr, 10, 32)
 		if err != nil {
-			c.AbortWithError(http.StatusBadRequest, err)
-			return
+			return c.String(http.StatusBadRequest, err.Error())
+
 		}
 	}
 
 	if countStr != "" {
 		count, err = strconv.ParseInt(countStr, 10, 32)
 		if err != nil {
-			c.AbortWithError(http.StatusBadRequest, err)
-			return
+			return c.String(http.StatusBadRequest, err.Error())
 		}
 	}
 
 	set, err := s.mg.GetUserPage(int(page), int(count))
 	if err != nil {
-		c.AbortWithError(http.StatusInternalServerError, err)
-		log.Println(err)
-		return
+		return c.String(http.StatusInternalServerError, err.Error())
 	}
 
-	c.JSON(http.StatusOK, set)
+	return c.JSON(http.StatusOK, set)
 }
 
-func (s *Server) modUser(c *gin.Context) {
+func (s *Server) modUser(c echo.Context) error {
 	// Fetch the User from the request
 	uidStr := c.Param("uid")
 	uid, err := strconv.ParseInt(uidStr, 10, 32)
 	if err != nil {
-		c.AbortWithError(http.StatusBadRequest, err)
-		return
+		return c.String(http.StatusBadRequest, err.Error())
+
 	}
 
 	// Perform Authentication Checks
 	if err := canModUser(extractClaims(c), int(uid)); err != nil {
-		s.handleError(c, err)
-		return
+		return s.handleError(c, err)
+
 	}
 
 	// Deserialize the user
 	var user models.User
-	if err := c.ShouldBindJSON(&user); err != nil {
-		c.AbortWithError(http.StatusBadRequest, err)
-		log.Println(err)
-		return
+	if err := c.Bind(&user); err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
 	}
 
 	user.ID = int(uid)
@@ -115,103 +107,89 @@ func (s *Server) modUser(c *gin.Context) {
 
 	err = s.mg.ModUser(user)
 	if err != nil {
-		s.handleError(c, err)
-		return
+		return s.handleError(c, err)
 	}
 
-	c.Status(http.StatusNoContent)
+	return c.NoContent(http.StatusNoContent)
 }
 
-func (s *Server) getUserCapabilities(c *gin.Context) {
+func (s *Server) getUserCapabilities(c echo.Context) error {
 	// Fetch the User from the request
 	uidStr := c.Param("uid")
 	uid, err := strconv.ParseInt(uidStr, 10, 32)
 	if err != nil {
-		c.AbortWithError(http.StatusBadRequest, err)
-		return
+		return c.String(http.StatusBadRequest, err.Error())
 	}
 
 	user, err := s.mg.GetUser(int(uid))
 	if err != nil {
-		s.handleError(c, err)
-		return
+		return s.handleError(c, err)
 	}
 
-	c.JSON(http.StatusOK, user.Capabilities)
+	return c.JSON(http.StatusOK, user.Capabilities)
 }
 
-func (s *Server) addUserCapability(c *gin.Context) {
+func (s *Server) addUserCapability(c echo.Context) error {
 	// Perform Authentication Checks
 	if err := canModCapabilities(extractClaims(c)); err != nil {
-		s.handleError(c, err)
-		return
+		return s.handleError(c, err)
 	}
 
 	// Fetch the User from the request
 	uidStr := c.Param("uid")
 	uid, err := strconv.ParseInt(uidStr, 10, 32)
 	if err != nil {
-		c.AbortWithError(http.StatusBadRequest, err)
-		return
+		return c.String(http.StatusBadRequest, err.Error())
 	}
 
 	var cap models.Capability
-	if err := c.ShouldBindJSON(&cap); err != nil {
-		c.AbortWithError(http.StatusBadRequest, err)
-		log.Println(err)
-		return
+	if err := c.Bind(&cap); err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
 	}
 
 	user, err := s.mg.GetUser(int(uid))
 	if err != nil {
-		s.handleError(c, err)
-		return
+		return s.handleError(c, err)
 	}
 	user.GrantCapability(cap)
 	err = s.mg.ModUser(user)
 	if err != nil {
-		s.handleError(c, err)
-		return
+		return s.handleError(c, err)
 	}
 
-	c.Status(http.StatusNoContent)
+	return c.NoContent(http.StatusNoContent)
 }
 
-func (s *Server) delUserCapability(c *gin.Context) {
+func (s *Server) delUserCapability(c echo.Context) error {
 	// Perform Authentication Checks
 	if err := canModCapabilities(extractClaims(c)); err != nil {
-		s.handleError(c, err)
-		return
+		return s.handleError(c, err)
+
 	}
 
 	// Fetch the User from the request
 	uidStr := c.Param("uid")
 	uid, err := strconv.ParseInt(uidStr, 10, 32)
 	if err != nil {
-		c.AbortWithError(http.StatusBadRequest, err)
-		return
+		return c.String(http.StatusBadRequest, err.Error())
 	}
 
 	var cap models.Capability
-	if err := c.ShouldBindJSON(&cap); err != nil {
-		c.AbortWithError(http.StatusBadRequest, err)
-		log.Println(err)
-		return
+	if err := c.Bind(&cap); err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
 	}
 
 	user, err := s.mg.GetUser(int(uid))
 	if err != nil {
-		s.handleError(c, err)
-		return
 	}
+
 	user.RemoveCapability(cap)
 	err = s.mg.ModUser(user)
 	if err != nil {
-		s.handleError(c, err)
-		return
-	}
+		return s.handleError(c, err)
 
-	c.Status(http.StatusNoContent)
+	}
+	return c.NoContent(http.StatusNoContent)
 }
 
 // canModUser checks if a user modification is allowed.  This will

@@ -1,85 +1,73 @@
 package http
 
 import (
-	"log"
 	"net/http"
 	"strconv"
 
-	"github.com/gin-gonic/gin"
+	"github.com/labstack/echo"
 
 	"github.com/BESTRobotics/registry/internal/models"
 )
 
-func (s *Server) newEvent(c *gin.Context) {
+func (s *Server) newEvent(c echo.Context) error {
 	var event models.Event
-	if err := c.ShouldBindJSON(&event); err != nil {
-		c.AbortWithError(http.StatusBadRequest, err)
-		log.Println(err)
-		return
+	if err := c.Bind(&event); err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
 	}
 
 	id, err := s.mg.NewEvent(event)
 	if err != nil {
-		s.handleError(c, err)
-		return
+		return s.handleError(c, err)
 	}
 	event, err = s.mg.GetEvent(id)
 	if err != nil {
-		s.handleError(c, err)
-		return
+		return s.handleError(c, err)
 	}
-	c.JSON(http.StatusCreated, event)
+	return c.JSON(http.StatusCreated, event)
 }
 
-func (s *Server) getEvent(c *gin.Context) {
+func (s *Server) getEvent(c echo.Context) error {
 	idStr := c.Param("id")
 	id, err := strconv.ParseInt(idStr, 10, 32)
 	if err != nil {
-		c.AbortWithError(http.StatusBadRequest, err)
-		return
+		return c.String(http.StatusBadRequest, err.Error())
 	}
 
 	event, err := s.mg.GetEvent(int(id))
 	if err != nil {
-		s.handleError(c, err)
-		return
+		return s.handleError(c, err)
 	}
 
-	c.JSON(http.StatusOK, event)
+	return c.JSON(http.StatusOK, event)
 }
 
-func (s *Server) getEvents(c *gin.Context) {
+func (s *Server) getEvents(c echo.Context) error {
 	set, err := s.mg.GetEvents()
 	if err != nil {
-		s.handleError(c, err)
-		return
+		return s.handleError(c, err)
 	}
 
-	c.JSON(http.StatusOK, set)
+	return c.JSON(http.StatusOK, set)
 }
 
-func (s *Server) modEvent(c *gin.Context) {
+func (s *Server) modEvent(c echo.Context) error {
 	idStr := c.Param("id")
 	id, err := strconv.ParseInt(idStr, 10, 32)
 	if err != nil {
-		c.AbortWithError(http.StatusBadRequest, err)
-		return
+		return c.String(http.StatusBadRequest, err.Error())
 	}
 
 	var event models.Event
-	if err := c.ShouldBindJSON(&event); err != nil {
-		c.AbortWithError(http.StatusBadRequest, err)
-		log.Println(err)
-		return
+	if err := c.Bind(&event); err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
 	}
 
 	event.ID = int(id)
 
 	err = s.mg.ModEvent(event)
 	if err != nil {
-		s.handleError(c, err)
-		return
+		return s.handleError(c, err)
 	}
 
-	c.Status(http.StatusNoContent)
+	return c.NoContent(http.StatusNoContent)
 }

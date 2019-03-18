@@ -4,14 +4,14 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/gin-gonic/gin"
+	"github.com/labstack/echo"
 
 	"github.com/BESTRobotics/registry/internal/mail"
 	"github.com/BESTRobotics/registry/internal/models"
 	"github.com/BESTRobotics/registry/internal/token"
 )
 
-func (s *Server) registerLocalUser(c *gin.Context) {
+func (s *Server) registerLocalUser(c echo.Context) error {
 	// Decode the user struct and add the authenticating
 	// information to an authdata which needs to be seperated from
 	// the user meta.  After that send a mail with the magic link
@@ -20,30 +20,26 @@ func (s *Server) registerLocalUser(c *gin.Context) {
 		U        models.User
 		Password string
 	}
-	if err := c.ShouldBindJSON(&regRequest); err != nil {
-		c.AbortWithError(http.StatusBadRequest, err)
+	if err := c.Bind(&regRequest); err != nil {
 		log.Println(err)
-		return
+		return c.JSON(http.StatusBadRequest, err)
 	}
 
 	// If this returns nil then the user already exists and we
 	// abort.
 	if _, err := s.mg.UsernameExists(regRequest.U.Username); err == nil {
-		c.Status(http.StatusConflict)
-		return
+		return c.NoContent(http.StatusConflict)
 	}
 
 	// User doesn't exist, time to create the user:
 	_, err := s.mg.NewUser(regRequest.U)
 	if err != nil {
-		s.handleError(c, err)
-		return
+		return s.handleError(c, err)
 	}
 
 	// And now we set the authdata (password in this case).
 	if err := s.mg.SetUserPassword(regRequest.U.Username, regRequest.Password); err != nil {
-		s.handleError(c, err)
-		return
+		return s.handleError(c, err)
 	}
 
 	l := mail.NewLetter()
@@ -52,53 +48,48 @@ func (s *Server) registerLocalUser(c *gin.Context) {
 	l.Body = "Some magic link in here to activate this account..."
 
 	if err := s.po.SendMail(l); err != nil {
-		c.AbortWithError(http.StatusInternalServerError, err)
-		return
+		return c.JSON(http.StatusInternalServerError, err)
 	}
 
 	// TODO Message the user via Email that they need to use the
 	// activation link.
-	c.Status(http.StatusCreated)
+	return c.NoContent(http.StatusCreated)
 }
 
 // loginLocaluser logs in the user using the authentication
 // information provided and redirects the browser into the app with a
 // token unless a boomerang target was specified in the query string.
-func (s *Server) loginLocalUser(c *gin.Context) {
+func (s *Server) loginLocalUser(c echo.Context) error {
 	// target := "/app/login#t=%s"
 
 	var ld struct {
 		Username string
 		Password string
 	}
-	if err := c.ShouldBindJSON(&ld); err != nil {
-		c.AbortWithError(http.StatusBadRequest, err)
+	if err := c.Bind(&ld); err != nil {
 		log.Println(err)
-		return
+		return c.String(http.StatusBadRequest, err.Error())
 	}
 
 	// Figure out who this user is.
 	user, err := s.mg.UsernameExists(ld.Username)
 	if err != nil {
-		s.handleError(c, err)
-		return
+		return s.handleError(c, err)
 	}
 
 	// Check the user password, if its successful then generate a
 	// token and hand it off.
 	err = s.mg.CheckUserPassword(ld.Username, ld.Password)
 	if err != nil {
-		s.handleError(c, err)
-		return
+		return s.handleError(c, err)
 	}
 
 	// Get the token
 	log.Println(user)
 	tkn, err := s.generateToken(user.ID, token.GetConfig())
 	if err != nil {
-		s.handleError(c, err)
-		return
+		return s.handleError(c, err)
 	}
 
-	c.JSON(http.StatusOK, tkn)
+	return c.JSON(http.StatusOK, tkn)
 }

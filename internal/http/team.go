@@ -1,62 +1,55 @@
 package http
 
 import (
-	"log"
 	"net/http"
 	"strconv"
 
-	"github.com/gin-gonic/gin"
+	"github.com/labstack/echo"
 
 	"github.com/BESTRobotics/registry/internal/models"
 	"github.com/BESTRobotics/registry/internal/token"
 )
 
-func (s *Server) newTeam(c *gin.Context) {
+func (s *Server) newTeam(c echo.Context) error {
 	// Perform Authorization Checks
 	if err := canManageTeams(extractClaims(c)); err != nil {
-		s.handleError(c, err)
-		return
+		return s.handleError(c, err)
 	}
 
 	var team models.Team
-	if err := c.ShouldBindJSON(&team); err != nil {
-		c.AbortWithError(http.StatusBadRequest, err)
-		log.Println(err)
-		return
+	if err := c.Bind(&team); err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
 	}
 
 	id, err := s.mg.NewTeam(team)
 	if err != nil {
-		s.handleError(c, err)
-		return
+		return s.handleError(c, err)
 	}
 	team, err = s.mg.GetTeam(id)
 	if err != nil {
-		s.handleError(c, err)
-		return
+		return s.handleError(c, err)
 	}
-	c.JSON(http.StatusCreated, team)
+
+	return c.JSON(http.StatusCreated, team)
 }
 
-func (s *Server) getTeam(c *gin.Context) {
+func (s *Server) getTeam(c echo.Context) error {
 	idStr := c.Param("id")
 	id, err := strconv.ParseInt(idStr, 10, 32)
 	if err != nil {
-		c.AbortWithError(http.StatusBadRequest, err)
-		return
+		return c.String(http.StatusBadRequest, err.Error())
 	}
 
 	team, err := s.mg.GetTeam(int(id))
 	if err != nil {
-		s.handleError(c, err)
-		return
+		return s.handleError(c, err)
 	}
 
-	c.JSON(http.StatusOK, team)
+	return c.JSON(http.StatusOK, team)
 }
 
-func (s *Server) getTeams(c *gin.Context) {
-	allStr := c.Query("include-inactive")
+func (s *Server) getTeams(c echo.Context) error {
+	allStr := c.QueryParam("include-inactive")
 	all := false
 	if allStr != "" {
 		all = true
@@ -64,316 +57,267 @@ func (s *Server) getTeams(c *gin.Context) {
 
 	set, err := s.mg.GetTeams(all)
 	if err != nil {
-		s.handleError(c, err)
-		return
+		return s.handleError(c, err)
 	}
 
-	c.JSON(http.StatusOK, set)
+	return c.JSON(http.StatusOK, set)
 }
 
-func (s *Server) modTeam(c *gin.Context) {
+func (s *Server) modTeam(c echo.Context) error {
 	idStr := c.Param("id")
 	id, err := strconv.ParseInt(idStr, 10, 32)
 	if err != nil {
-		c.AbortWithError(http.StatusBadRequest, err)
-		return
+		return c.String(http.StatusBadRequest, err.Error())
 	}
 
 	// Perform Authorization Checks
 	if err := canModTeam(extractClaims(c), int(id)); err != nil {
-		s.handleError(c, err)
-		return
+		return s.handleError(c, err)
 	}
 
 	var team models.Team
-	if err := c.ShouldBindJSON(&team); err != nil {
-		c.AbortWithError(http.StatusBadRequest, err)
-		log.Println(err)
-		return
+	if err := c.Bind(&team); err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
 	}
 
 	team.ID = int(id)
 
 	err = s.mg.ModTeam(team)
 	if err != nil {
-		s.handleError(c, err)
-		return
+		return s.handleError(c, err)
 	}
 
-	c.Status(http.StatusNoContent)
+	return c.NoContent(http.StatusNoContent)
 }
 
-func (s *Server) setTeamSchool(c *gin.Context) {
+func (s *Server) setTeamSchool(c echo.Context) error {
 	// Perform Authorization Checks
 	if err := canManageTeams(extractClaims(c)); err != nil {
-		s.handleError(c, err)
-		return
+		return s.handleError(c, err)
 	}
 
 	idStr := c.Param("id")
 	id, err := strconv.ParseInt(idStr, 10, 32)
 	if err != nil {
-		c.AbortWithError(http.StatusBadRequest, err)
-		return
+		return c.String(http.StatusBadRequest, err.Error())
 	}
 
 	var school models.School
-	if err := c.ShouldBindJSON(&school); err != nil {
-		c.AbortWithError(http.StatusBadRequest, err)
-		log.Println(err)
-		return
+	if err := c.Bind(&school); err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
 	}
 
 	err = s.mg.SetTeamSchool(int(id), school)
 	if err != nil {
-		s.handleError(c, err)
-		return
+		return s.handleError(c, err)
 	}
 
-	c.Status(http.StatusNoContent)
+	return c.NoContent(http.StatusNoContent)
 }
 
-func (s *Server) getTeamSchool(c *gin.Context) {
+func (s *Server) getTeamSchool(c echo.Context) error {
 	idStr := c.Param("id")
 	id, err := strconv.ParseInt(idStr, 10, 32)
 	if err != nil {
-		c.AbortWithError(http.StatusBadRequest, err)
-		return
+		return c.String(http.StatusBadRequest, err.Error())
 	}
 
 	school, err := s.mg.GetTeamSchool(int(id))
 	if err != nil {
-		s.handleError(c, err)
-		return
+		return s.handleError(c, err)
 	}
 
-	c.JSON(http.StatusOK, school)
+	return c.JSON(http.StatusOK, school)
 }
 
-func (s *Server) setTeamCoach(c *gin.Context) {
+func (s *Server) setTeamCoach(c echo.Context) error {
 	// Perform Authorization Checks
 	if err := canManageTeams(extractClaims(c)); err != nil {
-		s.handleError(c, err)
-		return
+		return s.handleError(c, err)
 	}
 
 	idStr := c.Param("id")
 	id, err := strconv.ParseInt(idStr, 10, 32)
 	if err != nil {
-		c.AbortWithError(http.StatusBadRequest, err)
-		return
+		return s.handleError(c, err)
 	}
 
 	var user models.User
-	if err := c.ShouldBindJSON(&user); err != nil {
-		c.AbortWithError(http.StatusBadRequest, err)
-		log.Println(err)
-		return
+	if err := c.Bind(&user); err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
 	}
 
 	err = s.mg.SetTeamCoach(int(id), user)
 	if err != nil {
-		s.handleError(c, err)
-		return
+		return s.handleError(c, err)
 	}
 
-	c.Status(http.StatusNoContent)
+	return c.NoContent(http.StatusNoContent)
 }
 
-func (s *Server) getTeamCoach(c *gin.Context) {
+func (s *Server) getTeamCoach(c echo.Context) error {
 	idStr := c.Param("id")
 	id, err := strconv.ParseInt(idStr, 10, 32)
 	if err != nil {
-		c.AbortWithError(http.StatusBadRequest, err)
-		return
+		return c.String(http.StatusBadRequest, err.Error())
 	}
 
 	user, err := s.mg.GetTeamCoach(int(id))
 	if err != nil {
-		s.handleError(c, err)
-		return
+		return s.handleError(c, err)
 	}
 
-	c.JSON(http.StatusOK, user)
+	return c.JSON(http.StatusOK, user)
 }
 
-func (s *Server) addTeamMentor(c *gin.Context) {
+func (s *Server) addTeamMentor(c echo.Context) error {
 	idStr := c.Param("id")
 	id, err := strconv.ParseInt(idStr, 10, 32)
 	if err != nil {
-		c.AbortWithError(http.StatusBadRequest, err)
-		return
+		return c.String(http.StatusBadRequest, err.Error())
 	}
 
 	// Perform Authorization Checks
 	team, err := s.mg.GetTeam(int(id))
 	if err != nil {
-		s.handleError(c, err)
-		return
+		return s.handleError(c, err)
 	}
 	if err := permitCoachActions(extractClaims(c), team); err != nil {
-		s.handleError(c, err)
-		return
+		return s.handleError(c, err)
 	}
 
 	var user models.User
-	if err := c.ShouldBindJSON(&user); err != nil {
-		c.AbortWithError(http.StatusBadRequest, err)
-		log.Println(err)
-		return
+	if err := c.Bind(&user); err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
 	}
 
 	err = s.mg.AddTeamMentor(int(id), user)
 	if err != nil {
-		s.handleError(c, err)
-		return
+		return s.handleError(c, err)
 	}
 
-	c.Status(http.StatusNoContent)
+	return c.NoContent(http.StatusNoContent)
 }
 
-func (s *Server) delTeamMentor(c *gin.Context) {
+func (s *Server) delTeamMentor(c echo.Context) error {
 	idStr := c.Param("id")
 	id, err := strconv.ParseInt(idStr, 10, 32)
 	if err != nil {
-		c.AbortWithError(http.StatusBadRequest, err)
-		return
+		return c.String(http.StatusBadRequest, err.Error())
 	}
 
 	// Perform Authorization Checks
 	team, err := s.mg.GetTeam(int(id))
 	if err != nil {
-		s.handleError(c, err)
-		return
+		return s.handleError(c, err)
 	}
 	if err := permitCoachActions(extractClaims(c), team); err != nil {
-		s.handleError(c, err)
-		return
+		return s.handleError(c, err)
 	}
 
 	uidStr := c.Param("uid")
 	uid, err := strconv.ParseInt(uidStr, 10, 32)
 	if err != nil {
-		c.AbortWithError(http.StatusBadRequest, err)
-		return
+		return c.String(http.StatusBadRequest, err.Error())
 	}
 
 	err = s.mg.DelTeamMentor(int(id), models.User{ID: int(uid)})
 	if err != nil {
-		s.handleError(c, err)
-		return
+		return s.handleError(c, err)
 	}
 
-	c.Status(http.StatusNoContent)
+	return c.NoContent(http.StatusNoContent)
 }
 
-func (s *Server) setTeamHome(c *gin.Context) {
+func (s *Server) setTeamHome(c echo.Context) error {
 	idStr := c.Param("id")
 	id, err := strconv.ParseInt(idStr, 10, 32)
 	if err != nil {
-		c.AbortWithError(http.StatusBadRequest, err)
-		return
+		return c.String(http.StatusBadRequest, err.Error())
 	}
 
 	// Perform Authorization Checks
 	team, err := s.mg.GetTeam(int(id))
 	if err != nil {
-		s.handleError(c, err)
-		return
+		return s.handleError(c, err)
 	}
 	if err := permitHomeHubActions(extractClaims(c), team); err != nil {
-		s.handleError(c, err)
-		return
+		return s.handleError(c, err)
 	}
 
 	var hub models.Hub
-	err = c.ShouldBindJSON(&hub)
+	err = c.Bind(&hub)
 	if err != nil {
-		c.AbortWithError(http.StatusBadRequest, err)
-		log.Println(err)
-		return
+		return c.String(http.StatusBadRequest, err.Error())
 	}
 
 	err = s.mg.SetTeamHome(int(id), hub)
 	if err != nil {
-		s.handleError(c, err)
-		return
+		return s.handleError(c, err)
 	}
 
-	c.Status(http.StatusNoContent)
+	return c.NoContent(http.StatusNoContent)
 }
 
-func (s *Server) getTeamHome(c *gin.Context) {
+func (s *Server) getTeamHome(c echo.Context) error {
 	idStr := c.Param("id")
 	id, err := strconv.ParseInt(idStr, 10, 32)
 	if err != nil {
-		c.AbortWithError(http.StatusBadRequest, err)
-		return
+		return c.String(http.StatusBadRequest, err.Error())
 	}
 
 	hub, err := s.mg.GetTeamHome(int(id))
 	if err != nil {
-		s.handleError(c, err)
-		return
+		return s.handleError(c, err)
 	}
 
-	c.JSON(http.StatusOK, hub)
+	return c.JSON(http.StatusOK, hub)
 }
 
-func (s *Server) deactivateTeam(c *gin.Context) {
+func (s *Server) deactivateTeam(c echo.Context) error {
 	idStr := c.Param("id")
 	id, err := strconv.ParseInt(idStr, 10, 32)
 	if err != nil {
-		c.AbortWithError(http.StatusBadRequest, err)
-		return
+		return c.String(http.StatusBadRequest, err.Error())
 	}
 
 	// Perform Authorization Checks
 	team, err := s.mg.GetTeam(int(id))
 	if err != nil {
-		s.handleError(c, err)
-		return
+		return s.handleError(c, err)
 	}
 	if err := permitHomeHubActions(extractClaims(c), team); err != nil {
-		s.handleError(c, err)
-		return
+		return s.handleError(c, err)
 	}
 
-	err = s.mg.DeactivateTeam(int(id))
-	if err != nil {
-		s.handleError(c, err)
-		return
+	if err := s.mg.DeactivateTeam(int(id)); err != nil {
+		return s.handleError(c, err)
 	}
 
-	c.Status(http.StatusNoContent)
+	return c.NoContent(http.StatusNoContent)
 }
 
-func (s *Server) activateTeam(c *gin.Context) {
+func (s *Server) activateTeam(c echo.Context) error {
 	idStr := c.Param("id")
 	id, err := strconv.ParseInt(idStr, 10, 32)
 	if err != nil {
-		c.AbortWithError(http.StatusBadRequest, err)
-		return
+		return c.String(http.StatusBadRequest, err.Error())
 	}
 
 	// Perform Authorization Checks
 	team, err := s.mg.GetTeam(int(id))
 	if err != nil {
-		s.handleError(c, err)
-		return
+		return s.handleError(c, err)
 	}
 	if err := permitHomeHubActions(extractClaims(c), team); err != nil {
-		s.handleError(c, err)
-		return
+		return s.handleError(c, err)
 	}
 
-	err = s.mg.ActivateTeam(int(id))
-	if err != nil {
-		s.handleError(c, err)
-		return
+	if err = s.mg.ActivateTeam(int(id)); err != nil {
+		return s.handleError(c, err)
 	}
 
-	c.Status(http.StatusNoContent)
+	return c.NoContent(http.StatusNoContent)
 }
 
 // canModTeam checks whether the appropriate claims are available to

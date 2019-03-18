@@ -1,57 +1,50 @@
 package http
 
 import (
-	"log"
 	"net/http"
 	"strconv"
 
-	"github.com/gin-gonic/gin"
+	"github.com/labstack/echo"
 
 	"github.com/BESTRobotics/registry/internal/models"
 	"github.com/BESTRobotics/registry/internal/token"
 )
 
-func (s *Server) newSeason(c *gin.Context) {
+func (s *Server) newSeason(c echo.Context) error {
 	var season models.Season
-	if err := c.ShouldBindJSON(&season); err != nil {
-		c.AbortWithError(http.StatusBadRequest, err)
-		log.Println(err)
-		return
+	if err := c.Bind(&season); err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
 	}
 
 	id, err := s.mg.NewSeason(season)
 	if err != nil {
-		s.handleError(c, err)
-		return
+		return s.handleError(c, err)
 	}
 	season, err = s.mg.GetSeason(id)
 	if err != nil {
-		s.handleError(c, err)
-		return
+		return s.handleError(c, err)
 	}
 
-	c.JSON(http.StatusCreated, season)
+	return c.JSON(http.StatusCreated, season)
 }
 
-func (s *Server) getSeason(c *gin.Context) {
+func (s *Server) getSeason(c echo.Context) error {
 	idStr := c.Param("id")
 	id, err := strconv.ParseInt(idStr, 10, 32)
 	if err != nil {
-		c.AbortWithError(http.StatusBadRequest, err)
-		return
+		return c.String(http.StatusBadRequest, err.Error())
 	}
 
 	season, err := s.mg.GetSeason(int(id))
 	if err != nil {
-		s.handleError(c, err)
-		return
+		return s.handleError(c, err)
 	}
 
-	c.JSON(http.StatusOK, season)
+	return c.JSON(http.StatusOK, season)
 }
 
-func (s *Server) getSeasons(c *gin.Context) {
-	allStr := c.Query("all")
+func (s *Server) getSeasons(c echo.Context) error {
+	allStr := c.QueryParam("all")
 	all := false
 	if allStr != "" {
 		all = true
@@ -59,54 +52,47 @@ func (s *Server) getSeasons(c *gin.Context) {
 
 	set, err := s.mg.GetSeasons(all)
 	if err != nil {
-		s.handleError(c, err)
-		return
+		return s.handleError(c, err)
 	}
 
-	c.JSON(http.StatusOK, set)
+	return c.JSON(http.StatusOK, set)
 }
 
-func (s *Server) modSeason(c *gin.Context) {
+func (s *Server) modSeason(c echo.Context) error {
 	idStr := c.Param("id")
 	id, err := strconv.ParseInt(idStr, 10, 32)
 	if err != nil {
-		c.AbortWithError(http.StatusBadRequest, err)
-		return
+		return c.String(http.StatusBadRequest, err.Error())
 	}
 
 	var season models.Season
-	if err := c.ShouldBindJSON(&season); err != nil {
-		c.AbortWithError(http.StatusBadRequest, err)
-		log.Println(err)
-		return
+	if err := c.Bind(&season); err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
 	}
 
 	season.ID = int(id)
 
 	err = s.mg.ModSeason(season)
 	if err != nil {
-		s.handleError(c, err)
-		return
+		return s.handleError(c, err)
 	}
 
-	c.Status(http.StatusNoContent)
+	return c.NoContent(http.StatusNoContent)
 }
 
-func (s *Server) archiveSeason(c *gin.Context) {
+func (s *Server) archiveSeason(c echo.Context) error {
 	idStr := c.Param("id")
 	id, err := strconv.ParseInt(idStr, 10, 32)
 	if err != nil {
-		c.AbortWithError(http.StatusBadRequest, err)
-		return
+		return c.String(http.StatusBadRequest, err.Error())
 	}
 
 	err = s.mg.ArchiveSeason(int(id))
 	if err != nil {
-		s.handleError(c, err)
-		return
+		return s.handleError(c, err)
 	}
 
-	c.Status(http.StatusNoContent)
+	return c.NoContent(http.StatusNoContent)
 }
 
 // canManageSeasons handles the actions around seasons.  These actions

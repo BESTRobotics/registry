@@ -1,7 +1,7 @@
 package http
 
 import (
-	"github.com/gin-gonic/gin"
+	"github.com/labstack/echo"
 
 	"github.com/BESTRobotics/registry/internal/mail"
 	"github.com/BESTRobotics/registry/internal/models"
@@ -13,7 +13,7 @@ import (
 type Server struct {
 	mg  MechGreg
 	tkn *token.RSATokenService
-	g   *gin.Engine
+	ws  *echo.Echo
 	po  mail.Mailer
 }
 
