@@ -34,6 +34,8 @@ func New(mg MechGreg, tkn *token.RSATokenService, po mail.Mailer) (*Server, erro
 
 	s.ws.Use(s.validateToken)
 
+	s.ws.GET("/", func(c echo.Context) error { return c.Redirect(http.StatusPermanentRedirect, "/app/index.html") })
+
 	s.ws.GET("/status", s.statusPage)
 
 	s.ws.POST("v1/account/register/local", s.registerLocalUser)
