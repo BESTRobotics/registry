@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo"
+	"github.com/labstack/echo/middleware"
 	"github.com/spf13/viper"
 
 	"github.com/BESTRobotics/registry/internal/mail"
@@ -25,11 +26,7 @@ func New(mg MechGreg, tkn *token.RSATokenService, po mail.Mailer) (*Server, erro
 
 	if viper.GetBool("dev.cors") {
 		log.Println("CORS is operating in dev mode")
-		// cfg := cors.DefaultConfig()
-		// cfg.AllowAllOrigins = true
-		// cfg.AllowHeaders = append(cfg.AllowHeaders, "Authorization")
-		// cfg.AllowMethods = append(cfg.AllowMethods, "DELETE")
-		// s.g.Use(cors.New(cfg))
+		s.ws.Use(middleware.CORS())
 	}
 
 	s.ws.Use(s.validateToken)
