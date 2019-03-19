@@ -8,12 +8,12 @@ const defaultState = {
 export const { getMyTeams, getAllTeams } = createActions({
   GET_MY_TEAMS: {
     REQUEST: () => ({}),
-    SUCCESS: hubs => ({ hubs }),
+    SUCCESS: teams => ({ teams }),
     FAILURE: error => ({ error })
   },
   GET_ALL_TEAMS: {
     REQUEST: () => ({}),
-    SUCCESS: hubs => ({ hubs }),
+    SUCCESS: teams => ({ teams }),
     FAILURE: error => ({ error })
   }
 });

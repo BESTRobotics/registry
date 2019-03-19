@@ -3,7 +3,7 @@ import { connect } from "react-redux";
 import { Card, Grid, Header, Icon, List, Item } from "semantic-ui-react";
 import { Link } from "react-router-dom";
 import { getMyHubs } from "../../redux/hubs/reducer";
-import { getMyTeams } from "../../redux/hubs/reducer";
+import { getMyTeams } from "../../redux/teams/reducer";
 
 const Homepage = ({
   hubs,
@@ -32,22 +32,19 @@ const Homepage = ({
                   My Hubs
                 </Card.Header>
                 <Card.Description>
-                  <List>
-                    <List.Item>
-                      <List.Icon name="marker" />
-                      <List.Content>
-                        <List.Header as="a" Capital BEST />
-                        <List.Description>Austin, Texas</List.Description>
-                      </List.Content>
-                    </List.Item>
-                    <List.Item>
-                      <List.Icon name="marker" />
-                      <List.Content>
-                        <List.Header as="a">SA BEST</List.Header>
-                        <List.Description>San Antonio, Texas</List.Description>
-                      </List.Content>
-                    </List.Item>
-                  </List>
+                  <Item.Group divided>
+                    {hubs && hubs.length
+                      ? hubs.map(h => (
+                          <Item>
+                            <Item.Content>
+                              <Item.Header>{h.Name}</Item.Header>
+                              <Item.Meta>{h.Description}</Item.Meta>
+                              <Item.Description />
+                            </Item.Content>
+                          </Item>
+                        ))
+                      : "Loading"}
+                  </Item.Group>
                 </Card.Description>
               </Card.Content>
             </Card>
@@ -59,33 +56,29 @@ const Homepage = ({
           {teamsLength ? (
             <Grid.Row>
               <Grid.Column>
-                <Card fluid color="orange">
+                <Card fluid color="yellow">
                   <Card.Content>
                     <Card.Header as={Header} size="huge">
                       My Teams
                     </Card.Header>
                     <Card.Description>
                       <Item.Group divided>
-                        <Item>
-                          <Item.Content>
-                            <Item.Header>LASA Robotics</Item.Header>
-                            <Item.Meta>33 Students</Item.Meta>
-                            <Item.Description>
-                              <Icon color="green" name="check" />
-                              Ready to go
-                            </Item.Description>
-                          </Item.Content>
-                        </Item>
-                        <Item>
-                          <Item.Content>
-                            <Item.Header>One Day Academy</Item.Header>
-                            <Item.Meta>2 Students</Item.Meta>
-                            <Item.Description>
-                              <Icon color="orange" name="warning" />
-                              Action Required: <Link to="/">Form 1090-T</Link>
-                            </Item.Description>
-                          </Item.Content>
-                        </Item>
+                        {teams && teams.length
+                          ? teams.map(t => (
+                              <Item>
+                                <Item.Content>
+                                  <Item.Header>{t.StaticName}</Item.Header>
+                                  <Item.Meta>
+                                    {t.School && t.School.Name}
+                                  </Item.Meta>
+                                  <Item.Description>
+                                    <Icon color="green" name="check" />
+                                    Ready to go
+                                  </Item.Description>
+                                </Item.Content>
+                              </Item>
+                            ))
+                          : "Loading"}
                       </Item.Group>
                     </Card.Description>
                   </Card.Content>
@@ -109,8 +102,8 @@ const mapStateToProps = ({ loginReducer, hubsReducer, teamsReducer }) => ({
 });
 
 const mapDispatchToProps = {
-  fetchHubs: () => getMyHubs.request,
-  fetchTeams: () => getMyTeams.request
+  getMyHubs: () => getMyHubs.request(),
+  getMyTeams: () => getMyTeams.request()
 };
 // ...
 export default connect(

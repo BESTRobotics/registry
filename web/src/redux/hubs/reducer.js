@@ -22,6 +22,7 @@ const reducer = handleActions(
   {
     [getMyHubs.request]: state => {
       console.log("HELLO");
+      return state;
     },
     [getMyHubs.success]: (state, { payload: { hubs } }) => ({
       ...state,

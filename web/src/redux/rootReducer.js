@@ -1,7 +1,9 @@
-import { combineReducers, createStore } from "redux";
+import { combineReducers, createStore, applyMiddleware } from "redux";
+import createSagaMiddleware from "redux-saga";
 import loginReducer from "./login/reducer";
 import hubsReducer from "./hubs/reducer";
-import teamsReducer from "./hubs/reducer";
+import teamsReducer from "./teams/reducer";
+import rootSaga from "./rootSaga";
 
 export const rootReducer = combineReducers({
   loginReducer,
@@ -9,7 +11,9 @@ export const rootReducer = combineReducers({
   teamsReducer
 });
 
-const store = createStore(rootReducer);
+const sagaMiddleware = createSagaMiddleware();
+
+const store = createStore(rootReducer, applyMiddleware(sagaMiddleware));
 
 store.subscribe(() => {
   const token = store.getState().loginReducer.token;
@@ -19,5 +23,7 @@ store.subscribe(() => {
     window.localStorage.removeItem("token");
   }
 });
+
+sagaMiddleware.run(rootSaga);
 
 export default store;

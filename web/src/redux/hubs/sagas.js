@@ -1,6 +1,6 @@
 import { takeEvery, select, call, put } from "redux-saga/effects";
 import { getAllHubs, getMyHubs } from "./reducer";
-import { api } from "../../api";
+import * as api from "../../api";
 
 function* getAllHubsSaga(action) {
   console.log("unimplemented");
@@ -13,9 +13,10 @@ function* getMyHubsSaga(action) {
   const hubIds = yield select(({ loginReducer }) => loginReducer.hubs);
   try {
     const hubs = yield call(api.fetchHubs, hubIds, token);
-    yield put(getAllHubs.success, { payload: { hubs } });
+    yield put({ type: getMyHubs.success, payload: { hubs } });
   } catch (err) {
-    yield put(getAllHubs.failure, { payload: { error: err } });
+    console.error(err);
+    yield put({ type: getMyHubs.failure, payload: { error: err } });
   }
 }
 
