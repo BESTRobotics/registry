@@ -16,6 +16,11 @@ type BRCHub struct {
 	// BRC hubs are seasonal.
 	Season Season
 
+	// To make this even remotely fast, we also keep the HubID and
+	// SeasonID as unstructured ints.
+	HubID    int `storm:"index"`
+	SeasonID int `storm:"index"`
+
 	// Slice of events as a hub may have more than the minimum, so
 	// we give them a slice for convenience.
 	Events []Event

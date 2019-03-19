@@ -64,6 +64,10 @@ func New(mg MechGreg, tkn *token.RSATokenService, po mail.Mailer) (*Server, erro
 	s.ws.GET("v1/hubs/:id/director", s.getHubDirector)
 	s.ws.PUT("v1/hubs/:id/director", s.setHubDirector)
 	s.ws.PUT("v1/hubs/:id/admins", s.addHubAdmin)
+	s.ws.POST("v1/hubs/:id/brc/:season", s.registerBRCHub)
+	s.ws.GET("/v1/hubs/:id/brc/:season", s.getBRCHub)
+	s.ws.PUT("/v1/hubs/:id/brc/:season/update", s.updateBRCHub)
+	s.ws.POST("/v1/hubs/:id/brc/:season/bri-approve", s.approveBRCHub)
 	s.ws.DELETE("v1/hubs/:id/admins/delete/:uid", s.delHubAdmin)
 
 	s.ws.GET("v1/schools", s.getSchools)

@@ -48,6 +48,11 @@ type MechGreg interface {
 	AddHubAdmin(int, models.User) error
 	DelHubAdmin(int, models.User) error
 
+	RegisterBRCHub(int, int) (int, error)
+	GetBRCHub(int, int) (models.BRCHub, error)
+	UpdateBRCHub(int, int, models.BRCHub) error
+	ApproveBRCHub(int, int, bool) error
+
 	NewSchool(models.School) (int, error)
 	GetSchool(int) (models.School, error)
 	GetSchools() ([]models.School, error)
