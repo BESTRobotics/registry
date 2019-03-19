@@ -1,6 +1,6 @@
 import React from "react";
 import Item from "./Item";
-import NewEventForm from "./NewEventForm";
+import NewEventForm from "../itemForms/NewEventForm";
 
 const Users = ({ token }) => {
   const fields = [

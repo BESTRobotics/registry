@@ -1,6 +1,6 @@
 import React from "react";
 import Item from "./Item";
-import NewSchoolForm from "./NewSchoolForm";
+import NewSchoolForm from "../itemForms/NewSchoolForm";
 
 const Schools = ({ token }) => {
   const fields = [

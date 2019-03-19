@@ -1,6 +1,7 @@
 import React from "react";
 import Item from "./Item";
-import NewHubForm from "./NewHubForm";
+import NewHubForm from "../itemForms/NewHubForm";
+import { connect } from "react-redux";
 
 const Hubs = ({ token }) => {
   const fields = [
@@ -29,4 +30,6 @@ const Hubs = ({ token }) => {
   );
 };
 
-export default Hubs;
+const mapStateToProps = ({ loginReducer }) => ({ token: loginReducer.token });
+
+export default connect(mapStateToProps)(Hubs);

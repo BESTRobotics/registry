@@ -9,7 +9,7 @@ import {
   Message
 } from "semantic-ui-react";
 import { Link } from "react-router-dom";
-import logo from "../assets/logo.jpg";
+import logo from "../../assets/logo.jpg";
 import axios from "axios";
 
 const Register = ({ history }) => {

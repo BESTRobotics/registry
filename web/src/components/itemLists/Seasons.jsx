@@ -1,6 +1,6 @@
 import React from "react";
 import Item from "./Item";
-import NewSeasonForm from "./NewSeasonForm";
+import NewSeasonForm from "../itemForms/NewSeasonForm";
 
 const Hubs = ({ token }) => {
   const fields = [{ header: "Name", name: "Name", filter: true }];

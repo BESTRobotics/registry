@@ -1,78 +1,56 @@
-import React, { useState, useEffect } from "react";
-import Hubs from "./Hubs";
-import Teams from "./Teams";
-import Schools from "./Schools";
-import Seasons from "./Seasons";
-import Users from "./Users";
-import Events from "./Events";
+import React from "react";
+import Login from "./rootPages/Login";
+import Homepage from "./rootPages/Homepage";
+import NewUser from "./rootPages/NewUser";
+import Register from "./rootPages/Register";
+import Super from "./rootPages/Super";
 import Topbar from "./Topbar";
-import Login from "./Login";
-import Register from "./Register";
 import {
   HashRouter as Router,
   Switch,
   Route,
   Redirect
 } from "react-router-dom";
+import { connect } from "react-redux";
 
-const App = () => {
-  const [token, setToken] = useState(
-    window.localStorage.getItem("token") || null
-  );
-
-  useEffect(() => {
-    if (token) {
-      window.localStorage.setItem("token", token);
-    } else {
-      window.localStorage.removeItem("token");
-    }
-  }, [token]);
-
-  const logout = () => {
-    setToken(null);
-  };
+const App = ({ token, superAdmin, hubs, teams }) => {
   return (
     <Router
     // basename={process.env.PUBLIC_URL}
     >
       {token ? (
         <section className="root">
-          <Topbar logout={logout} />
-          <Switch>
-            <Redirect exact path="/" to="/hubs" />
-            <Redirect path="/login" to="/hubs" />
-            <Redirect path="/register" to="/hubs" />
-            <Route path="/hubs" render={p => <Hubs {...p} token={token} />} />
-            <Route
-              path="/schools"
-              render={p => <Schools {...p} token={token} />}
-            />
-            <Route path="/teams" render={p => <Teams {...p} token={token} />} />
-            <Route
-              path="/seasons"
-              render={p => <Seasons {...p} token={token} />}
-            />
-            <Route path="/users" render={p => <Users {...p} token={token} />} />
-            <Route
-              path="/events"
-              render={p => <Events {...p} token={token} />}
-            />
-            <Route default render={() => <div>No route at path.</div>} />
-          </Switch>
+          <Topbar />
+          {superAdmin ? (
+            <Super />
+          ) : (hubs && hubs.length) || (teams && teams.length) ? (
+            <Homepage />
+          ) : (
+            <NewUser />
+          )}
         </section>
       ) : (
         <Switch>
           <Redirect exact path="/" to="/login" />
-          <Route
-            path="/login"
-            render={p => <Login {...p} setToken={setToken} />}
-          />
-          <Route path="/register" render={p => <Register {...p} />} />
-          <Route default render={p => <Login {...p} setToken={setToken} />} />
+          <Route path="/login" component={Login} />
+          <Route path="/register" component={Register} />
+          <Route default component={Login} />
         </Switch>
       )}
     </Router>
   );
 };
 
-export default App;
+const mapStateToProps = ({ loginReducer }) => ({
+  token: loginReducer.token,
+  superAdmin: loginReducer.superAdmin,
+  hubs: loginReducer.hubs,
+  teams: loginReducer.teams
+});
+
+const mapDispatchToProps = dispatch => ({});
+// ...
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(App);

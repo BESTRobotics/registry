@@ -1,6 +1,6 @@
 import React from "react";
 import Item from "./Item";
-import NewUserForm from "./NewUserForm";
+import NewUserForm from "../itemForms/NewUserForm";
 
 const Users = ({ token }) => {
   const fields = [

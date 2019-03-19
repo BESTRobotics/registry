@@ -8,9 +8,11 @@ import {
   Image,
   Message
 } from "semantic-ui-react";
-import logo from "../assets/logo.jpg";
+import logo from "../../assets/logo.jpg";
 import axios from "axios";
 import { Link } from "react-router-dom";
+import { connect } from "react-redux";
+import { setToken as callSetToken } from "../../redux/login/reducer";
 
 const Login = ({ setToken }) => {
   const [username, setUserName] = useState("");
@@ -77,4 +79,12 @@ const Login = ({ setToken }) => {
   );
 };
 
-export default Login;
+const mapStateToProps = () => ({});
+
+const mapDispatchToProps = dispatch => ({
+  setToken: token => dispatch(callSetToken(token))
+});
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Login);

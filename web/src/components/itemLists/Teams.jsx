@@ -1,6 +1,6 @@
 import React from "react";
 import Item from "./Item";
-import NewTeamForm from "./NewTeamForm";
+import NewTeamForm from "../itemForms/NewTeamForm";
 
 const Teams = ({ token }) => {
   const trunc = (text, max) =>

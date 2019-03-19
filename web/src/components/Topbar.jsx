@@ -2,6 +2,8 @@ import React from "react";
 import { Image, Menu } from "semantic-ui-react";
 import logo from "../assets/logo.jpg";
 import { NavLink } from "react-router-dom";
+import { connect } from "react-redux";
+import { logout as callLogout } from "../redux/login/reducer";
 
 const Topbar = ({ logout }) => {
   return (
@@ -34,4 +36,18 @@ const Topbar = ({ logout }) => {
   );
 };
 
-export default Topbar;
+const mapStateToProps = ({ loginReducer }) => ({
+  token: loginReducer.token,
+  superAdmin: loginReducer.superAdmin,
+  hubs: loginReducer.hubs,
+  teams: loginReducer.teams
+});
+
+const mapDispatchToProps = dispatch => ({
+  logout: () => dispatch(callLogout())
+});
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Topbar);
