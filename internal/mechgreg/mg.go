@@ -35,9 +35,6 @@ func New(rb ResourceBundle) (*MechanicalGreg, error) {
 		if err := mg.s.ReIndex(&models.Season{}); err != nil {
 			log.Println("Error during indexing", err)
 		}
-		if err := mg.s.ReIndex(&models.School{}); err != nil {
-			log.Println("Error during indexing", err)
-		}
 	}
 
 	return &mg, nil

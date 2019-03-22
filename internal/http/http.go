@@ -70,17 +70,10 @@ func New(mg MechGreg, tkn *token.RSATokenService, po mail.Mailer) (*Server, erro
 	s.ws.POST("/v1/hubs/:id/brc/:season/bri-approve", s.approveBRCHub)
 	s.ws.DELETE("v1/hubs/:id/admins/delete/:uid", s.delHubAdmin)
 
-	s.ws.GET("v1/schools", s.getSchools)
-	s.ws.POST("v1/schools", s.newSchool)
-	s.ws.GET("v1/schools/:id", s.getSchool)
-	s.ws.PUT("v1/schools/:id/update", s.modSchool)
-
 	s.ws.GET("v1/teams", s.getTeams)
 	s.ws.POST("v1/teams", s.newTeam)
 	s.ws.GET("v1/teams/:id", s.getTeam)
 	s.ws.PUT("v1/teams/:id", s.modTeam)
-	s.ws.PUT("v1/teams/:id/school", s.setTeamSchool)
-	s.ws.GET("v1/teams/:id/school", s.getTeamSchool)
 	s.ws.GET("v1/teams/:id/coach", s.getTeamCoach)
 	s.ws.PUT("v1/teams/:id/coach", s.setTeamCoach)
 	s.ws.PUT("v1/teams/:id/mentors", s.addTeamMentor)

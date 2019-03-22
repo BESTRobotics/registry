@@ -90,46 +90,6 @@ func (s *Server) modTeam(c echo.Context) error {
 	return c.NoContent(http.StatusNoContent)
 }
 
-func (s *Server) setTeamSchool(c echo.Context) error {
-	// Perform Authorization Checks
-	if err := canManageTeams(extractClaims(c)); err != nil {
-		return s.handleError(c, err)
-	}
-
-	idStr := c.Param("id")
-	id, err := strconv.ParseInt(idStr, 10, 32)
-	if err != nil {
-		return c.String(http.StatusBadRequest, err.Error())
-	}
-
-	var school models.School
-	if err := c.Bind(&school); err != nil {
-		return c.String(http.StatusBadRequest, err.Error())
-	}
-
-	err = s.mg.SetTeamSchool(int(id), school)
-	if err != nil {
-		return s.handleError(c, err)
-	}
-
-	return c.NoContent(http.StatusNoContent)
-}
-
-func (s *Server) getTeamSchool(c echo.Context) error {
-	idStr := c.Param("id")
-	id, err := strconv.ParseInt(idStr, 10, 32)
-	if err != nil {
-		return c.String(http.StatusBadRequest, err.Error())
-	}
-
-	school, err := s.mg.GetTeamSchool(int(id))
-	if err != nil {
-		return s.handleError(c, err)
-	}
-
-	return c.JSON(http.StatusOK, school)
-}
-
 func (s *Server) setTeamCoach(c echo.Context) error {
 	// Perform Authorization Checks
 	if err := canManageTeams(extractClaims(c)); err != nil {

@@ -44,12 +44,6 @@ func (mg *MechanicalGreg) GetTeam(id int) (models.Team, error) {
 		return models.Team{}, NewInternalError("An unspecified internal error has occured", err, http.StatusInternalServerError)
 	}
 
-	school, err := mg.GetSchool(team.School.ID)
-	if err != nil {
-		log.Printf("Team ID %d has no school: %v", id, err)
-	}
-	team.School = school
-
 	var mentors []models.User
 	for i := range team.Mentors {
 		mentor, err := mg.GetUser(team.Mentors[i].ID)
@@ -165,26 +159,6 @@ func (mg *MechanicalGreg) modTeam(t models.Team) error {
 	default:
 		return NewInternalError("An unspecified internal error has occured", err, http.StatusInternalServerError)
 	}
-}
-
-// SetTeamSchool sets the school that's associated with a team in the
-// very unlikely event that it changes.
-func (mg *MechanicalGreg) SetTeamSchool(teamID int, school models.School) error {
-	_, err := mg.GetSchool(school.ID)
-	if err != nil {
-		return err
-	}
-
-	return mg.modTeam(models.Team{ID: teamID, School: models.School{ID: school.ID}})
-}
-
-// GetTeamSchool returns the school that the team is associated with.
-func (mg *MechanicalGreg) GetTeamSchool(id int) (models.School, error) {
-	t, err := mg.GetTeam(id)
-	if err != nil {
-		return models.School{}, err
-	}
-	return t.School, nil
 }
 
 // SetTeamCoach sets the coach of the team.  From an ACL perspective

@@ -9,6 +9,17 @@ type Team struct {
 	// instead the number that is used for internal tracking.
 	ID int `storm:"increment"`
 
+	// SchoolName is the name of the host school.
+	SchoolName string
+
+	// SchoolAddress is the address at which the school can get
+	// physical mail.
+	SchoolAddress string
+
+	// Website is the website for the school or team, it doesn't
+	// really matter which.
+	Website string
+
 	// While some teams will come up with a name ever year for how
 	// they wish to be represented, the entity that is a team
 	// needs to have a name we can call them.

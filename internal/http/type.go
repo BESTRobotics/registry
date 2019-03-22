@@ -53,18 +53,11 @@ type MechGreg interface {
 	UpdateBRCHub(int, int, models.BRCHub) error
 	ApproveBRCHub(int, int, bool) error
 
-	NewSchool(models.School) (int, error)
-	GetSchool(int) (models.School, error)
-	GetSchools() ([]models.School, error)
-	ModSchool(models.School) error
-
 	NewTeam(models.Team) (int, error)
 	GetTeam(int) (models.Team, error)
 	GetTeams(bool) ([]models.Team, error)
 	GetTeamsForUser(int) ([]models.Team, error)
 	ModTeam(models.Team) error
-	SetTeamSchool(int, models.School) error
-	GetTeamSchool(int) (models.School, error)
 	SetTeamCoach(int, models.User) error
 	GetTeamCoach(int) (models.User, error)
 	AddTeamMentor(int, models.User) error
