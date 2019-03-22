@@ -5,30 +5,38 @@ import { NavLink } from "react-router-dom";
 import { connect } from "react-redux";
 import { logout as callLogout } from "../redux/login/reducer";
 
-const Topbar = ({ logout }) => {
+const Topbar = ({ logout, superAdmin, hubs, teams }) => {
   return (
     <Menu>
-      <Menu.Item header fitted>
+      <Menu.Item as={NavLink} to="/" header fitted>
         <Image size="tiny" src={logo} />
       </Menu.Item>
-      <Menu.Item as={NavLink} to="/hubs">
-        Hubs
-      </Menu.Item>
-      <Menu.Item as={NavLink} to="/schools">
-        Schools
-      </Menu.Item>
-      <Menu.Item as={NavLink} to="/teams">
-        Teams
-      </Menu.Item>
-      <Menu.Item as={NavLink} to="/seasons">
-        Seasons
-      </Menu.Item>
-      <Menu.Item as={NavLink} to="/users">
-        Users
-      </Menu.Item>
-      <Menu.Item as={NavLink} to="/events">
-        Events
-      </Menu.Item>
+      {superAdmin || hubs ? (
+        <Menu.Item as={NavLink} to="/hubs">
+          Hubs
+        </Menu.Item>
+      ) : null}
+      {superAdmin || teams ? (
+        <Menu.Item as={NavLink} to="/teams">
+          Teams
+        </Menu.Item>
+      ) : null}
+      {superAdmin ? (
+        <>
+          <Menu.Item as={NavLink} to="/schools">
+            Schools
+          </Menu.Item>
+          <Menu.Item as={NavLink} to="/seasons">
+            Seasons
+          </Menu.Item>
+          <Menu.Item as={NavLink} to="/users">
+            Users
+          </Menu.Item>
+          <Menu.Item as={NavLink} to="/events">
+            Events
+          </Menu.Item>
+        </>
+      ) : null}
       <Menu.Item position="right" onClick={logout}>
         Logout
       </Menu.Item>
@@ -37,10 +45,9 @@ const Topbar = ({ logout }) => {
 };
 
 const mapStateToProps = ({ loginReducer }) => ({
-  token: loginReducer.token,
   superAdmin: loginReducer.superAdmin,
-  hubs: loginReducer.hubs,
-  teams: loginReducer.teams
+  hubs: loginReducer.hubs && loginReducer.hubs.length,
+  teams: loginReducer.teams && loginReducer.teams.length
 });
 
 const mapDispatchToProps = dispatch => ({

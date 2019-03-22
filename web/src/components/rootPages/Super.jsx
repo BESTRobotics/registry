@@ -1,10 +1,10 @@
 import React from "react";
-import Hubs from "../itemLists/Hubs";
-import Teams from "../itemLists/Teams";
-import Schools from "../itemLists/Schools";
-import Seasons from "../itemLists/Seasons";
-import Users from "../itemLists/Users";
-import Events from "../itemLists/Events";
+import Hubs from "../itemTables/Hubs";
+import Teams from "../itemTables/Teams";
+import Schools from "../itemTables/Schools";
+import Seasons from "../itemTables/Seasons";
+import Users from "../itemTables/Users";
+import Events from "../itemTables/Events";
 import { Switch, Redirect, Route } from "react-router-dom";
 
 const Super = () => (
