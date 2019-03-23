@@ -12,7 +12,7 @@ import (
 
 func (s *Server) newTeam(c echo.Context) error {
 	// Perform Authorization Checks
-	if err := canManageTeams(extractClaims(c)); err != nil {
+	if err := isAuthenticated(extractClaims(c)); err != nil {
 		return s.handleError(c, err)
 	}
 

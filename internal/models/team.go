@@ -53,4 +53,8 @@ type Team struct {
 
 	// Its handy to know how long teams have been around.
 	Founded DateTime
+
+	// BRIApproved determines whether or not this team has been
+	// approved and accepted.
+	BRIApproved bool
 }

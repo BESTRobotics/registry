@@ -11,13 +11,13 @@ import (
 	"github.com/BESTRobotics/registry/internal/models"
 )
 
-// NewTeam creates a new team.  It checks the school is valid before
-// allowing creation of the team.
+// NewTeam creates a new team.
 func (mg *MechanicalGreg) NewTeam(t models.Team) (int, error) {
 	// These fields need special handling and have to be set via
 	// dedicated interfaces.
 	t.School = models.School{}
 	t.Mentors = nil
+	t.BRIApproved = false
 
 	err := mg.s.Save(&t)
 	switch err {

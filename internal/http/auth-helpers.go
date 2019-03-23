@@ -49,3 +49,10 @@ func extractClaims(c echo.Context) token.Claims {
 	}
 	return claims
 }
+
+func isAuthenticated(c token.Claims) error {
+	if c.User.Username == "" {
+		return newAuthError("You need to be signed in", "no user present in claims")
+	}
+	return nil
+}
