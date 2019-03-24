@@ -234,6 +234,24 @@ func (s *Server) getTeamHome(c echo.Context) error {
 	return c.JSON(http.StatusOK, hub)
 }
 
+func (s *Server) approveTeam(c echo.Context) error {
+	idStr := c.Param("id")
+	id, err := strconv.ParseInt(idStr, 10, 32)
+	if err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
+	}
+
+	if err := canManageTeams(extractClaims(c)); err != nil {
+		return s.handleError(c, err)
+	}
+
+	if err := s.mg.ApproveTeam(int(id)); err != nil {
+		return s.handleError(c, err)
+	}
+
+	return c.NoContent(http.StatusNoContent)
+}
+
 func (s *Server) deactivateTeam(c echo.Context) error {
 	idStr := c.Param("id")
 	id, err := strconv.ParseInt(idStr, 10, 32)

@@ -84,6 +84,7 @@ func New(mg MechGreg, tkn *token.RSATokenService, po mail.Mailer) (*Server, erro
 	s.ws.DELETE("v1/teams/:id/mentors/:uid", s.delTeamMentor)
 	s.ws.PUT("v1/teams/:id/home", s.setTeamHome)
 	s.ws.GET("v1/teams/:id/home", s.getTeamHome)
+	s.ws.PUT("v1/teams/:id/approve", s.approveTeam)
 	s.ws.PUT("v1/teams/:id/deactivate", s.deactivateTeam)
 	s.ws.PUT("v1/teams/:id/activate", s.activateTeam)
 

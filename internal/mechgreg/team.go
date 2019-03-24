@@ -144,6 +144,14 @@ func (mg *MechanicalGreg) ModTeam(team models.Team) error {
 	team.Coach = models.User{}
 	team.School = models.School{}
 	team.Mentors = nil
+
+	// BRIApproved needs to be pulled and fed across any updates.
+	current, err := mg.GetTeam(team.ID)
+	if err != nil {
+		return err
+	}
+	team.BRIApproved = current.BRIApproved
+
 	return mg.modTeam(team)
 }
 
@@ -279,4 +287,15 @@ func (mg *MechanicalGreg) GetTeamHome(id int) (models.Hub, error) {
 		return models.Hub{}, err
 	}
 	return h, nil
+}
+
+// ApproveTeam approves a team which unlocks other abilities such as
+// BRC registration acceptance.
+func (mg *MechanicalGreg) ApproveTeam(id int) error {
+	t := models.Team{
+		ID:          id,
+		BRIApproved: true,
+	}
+
+	return mg.modTeam(t)
 }
