@@ -4,8 +4,42 @@ const url = process.env.REACT_APP_API_URL;
 
 export function fetchHub(id, token) {
   return axios.get(`http://${url}/v1/hubs/${id}`, {
-    token: token
+    headers: { Authorization: token }
   });
+}
+
+export function fetchSeasons(token) {
+  return axios
+    .get(`http://${url}/v1/seasons`, {
+      headers: { Authorization: token }
+    })
+    .then(s => s.data);
+}
+
+export function fetchBrcHub(id, season, token) {
+  return axios
+    .get(`http://${url}/v1/hubs/${id}/brc/${season}`, {
+      headers: { Authorization: token }
+    })
+    .then(h => ({ ...h.data }))
+    .catch(error => {
+      if (error.response && error.response.status === 404) {
+        return error.response.data;
+      }
+      throw error;
+    });
+}
+
+export function registerBrcHub(id, season, token) {
+  return axios
+    .post(
+      `http://${url}/v1/hubs/${id}/brc/${season}`,
+      {},
+      {
+        headers: { Authorization: token }
+      }
+    )
+    .then(h => ({ ...h.data }));
 }
 
 export function fetchHubs(ids, token) {
@@ -17,7 +51,7 @@ export function fetchHubs(ids, token) {
 
 export function fetchTeam(id, token) {
   return axios.get(`http://${url}/v1/teams/${id}`, {
-    token: token
+    headers: { Authorization: token }
   });
 }
 

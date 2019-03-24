@@ -25,7 +25,9 @@ const Teams = ({ token }) => {
           : "",
       filter: false
     },
-    { header: "School", displayFn: team => team.School.Name, filter: true },
+    { header: "School", name: "SchoolName", filter: true },
+    { header: "Address", name: "SchoolAddress", filter: true },
+    { header: "Website", name: "Website", filter: false },
     {
       header: "Founded",
       displayFn: team => (team.Founded ? team.Founded.substring(0, 10) : ""),

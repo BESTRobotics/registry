@@ -1,7 +1,6 @@
 import React from "react";
 import Hubs from "../itemTables/Hubs";
 import Teams from "../itemTables/Teams";
-import Schools from "../itemTables/Schools";
 import Seasons from "../itemTables/Seasons";
 import Users from "../itemTables/Users";
 import Events from "../itemTables/Events";
@@ -13,7 +12,6 @@ const Super = () => (
     <Redirect path="/login" to="/hubs" />
     <Redirect path="/register" to="/hubs" />
     <Route path="/hubs" component={Hubs} />
-    <Route path="/schools" component={Schools} />
     <Route path="/teams" component={Teams} />
     <Route path="/seasons" component={Seasons} />
     <Route path="/users" component={Users} />

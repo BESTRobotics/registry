@@ -1,5 +1,5 @@
 import { takeEvery, select, call, put } from "redux-saga/effects";
-import { getAllHubs, getMyHubs } from "./reducer";
+import { getBrcHub, getAllHubs, getMyHubs, registerBrc } from "./reducer";
 import * as api from "../../api";
 
 function* getAllHubsSaga(action) {
@@ -7,8 +7,31 @@ function* getAllHubsSaga(action) {
   //do something
 }
 
+function* getBrcHubSaga({ payload: { id } }) {
+  const token = yield select(({ loginReducer }) => loginReducer.token);
+  try {
+    const seasons = yield call(api.fetchSeasons, token);
+    const brcHub = yield call(api.fetchBrcHub, id, seasons[0].ID, token);
+    yield put({ type: getBrcHub.success, payload: { brcHub, id } });
+  } catch (err) {
+    console.error(err);
+    yield put({ type: getBrcHub.failure, payload: { error: err } });
+  }
+}
+
+function* registerBrcHubSaga({ payload: { id } }) {
+  const token = yield select(({ loginReducer }) => loginReducer.token);
+  try {
+    const seasons = yield call(api.fetchSeasons, token);
+    const brcHub = yield call(api.registerBrcHub, id, seasons[0].ID, token);
+    yield put({ type: getBrcHub.success, payload: { brcHub, id } });
+  } catch (err) {
+    console.error(err);
+    yield put({ type: getBrcHub.failure, payload: { error: err } });
+  }
+}
+
 function* getMyHubsSaga(action) {
-  console.log("implemented");
   const token = yield select(({ loginReducer }) => loginReducer.token);
   const hubIds = yield select(({ loginReducer }) => loginReducer.hubs);
   try {
@@ -23,5 +46,7 @@ function* getMyHubsSaga(action) {
 // use them in parallel
 export default [
   takeEvery(getAllHubs.request, getAllHubsSaga),
-  takeEvery(getMyHubs.request, getMyHubsSaga)
+  takeEvery(getMyHubs.request, getMyHubsSaga),
+  takeEvery(getBrcHub.request, getBrcHubSaga),
+  takeEvery(registerBrc.request, registerBrcHubSaga)
 ];

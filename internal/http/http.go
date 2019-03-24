@@ -26,7 +26,11 @@ func New(mg MechGreg, tkn *token.RSATokenService, po mail.Mailer) (*Server, erro
 
 	if viper.GetBool("dev.cors") {
 		log.Println("CORS is operating in dev mode")
-		s.ws.Use(middleware.CORS())
+		cors := middleware.CORSWithConfig(middleware.CORSConfig{
+			AllowOrigins: []string{"*"},
+			AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderAuthorization},
+		})
+		s.ws.Use(cors)
 	}
 
 	s.ws.Use(s.validateToken)

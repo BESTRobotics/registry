@@ -21,7 +21,7 @@ const InnerHomepage = connect(mapStateToProps)(
   }
 );
 
-const Homepage = ({ hubsLength, teamsLength, getMyHubs, getMyTeams }) => {
+const Homepage = () => {
   return (
     <Grid centered columns={2}>
       <Grid.Row>
@@ -32,7 +32,7 @@ const Homepage = ({ hubsLength, teamsLength, getMyHubs, getMyTeams }) => {
         <Redirect path="/login" to="/" />
         <Redirect path="/register" to="/" />
         <Route exact path="/" component={InnerHomepage} />
-        <Route path="/hubs" component={Hubs} />
+        <Route exact path={["/hubs", "/hubs/:id"]} component={Hubs} />
         <Route path="/teams" component={Teams} />
         <Route default render={() => <div>No route at path.</div>} />
       </Switch>
