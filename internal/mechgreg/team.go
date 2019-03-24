@@ -15,9 +15,10 @@ import (
 func (mg *MechanicalGreg) NewTeam(t models.Team) (int, error) {
 	// These fields need special handling and have to be set via
 	// dedicated interfaces.
-	t.School = models.School{}
 	t.Mentors = nil
 	t.BRIApproved = false
+
+	t.HomeHubID = t.HomeHub.ID
 
 	err := mg.s.Save(&t)
 	switch err {
@@ -138,11 +139,45 @@ func (mg *MechanicalGreg) GetTeamsForUser(userID int) ([]models.Team, error) {
 	return out, nil
 }
 
+// GetTeamsForHub returns all the teams that are homed to a particular
+// hub, active or not.
+func (mg *MechanicalGreg) GetTeamsForHub(hubID int) ([]models.Team, error) {
+	var tmp []models.Team
+	var out []models.Team
+	var err error
+
+	err = mg.s.Find("HomeHubID", hubID, &tmp)
+
+	switch err {
+	case nil:
+		break
+	case storm.ErrNotFound:
+		// In this specific case, notfound actually means
+		// there are no teams satisfying the query.
+		return []models.Team{}, nil
+	default:
+		return nil, NewInternalError("An unspecified internal error has occured", err, http.StatusInternalServerError)
+	}
+
+	// This looks rather innefficient, but remember that the
+	// backing boltdb is memory mapped, and the alternative would
+	// be to duplicate code from the GetTeam function.
+	for i := range tmp {
+		t, err := mg.GetTeam(tmp[i].ID)
+		if err != nil {
+			log.Println("Error loading team:", err)
+			continue
+		}
+		out = append(out, t)
+	}
+
+	return out, nil
+}
+
 // ModTeam modifies a team.  It protects certain specialized fields
 // that require different mechanisms to set.
 func (mg *MechanicalGreg) ModTeam(team models.Team) error {
 	team.Coach = models.User{}
-	team.School = models.School{}
 	team.Mentors = nil
 
 	// BRIApproved needs to be pulled and fed across any updates.
@@ -158,6 +193,9 @@ func (mg *MechanicalGreg) ModTeam(team models.Team) error {
 // modTeam is like ModTeam, but doesn't null certain fields, making it
 // suitable for internal use.
 func (mg *MechanicalGreg) modTeam(t models.Team) error {
+	// Some fields need to be pulled for indexing.
+	t.HomeHubID = t.HomeHub.ID
+
 	err := mg.s.Update(&t)
 	switch err {
 	case nil:

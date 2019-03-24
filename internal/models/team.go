@@ -27,8 +27,9 @@ type Team struct {
 
 	// Every team has a "Home" Hub where they normally are
 	// present, and that hub director is the point of contact for
-	// the team.
-	HomeHub Hub
+	// the team.  The ID is stored seperately to make it indexed.
+	HomeHubID int `storm:"index"`
+	HomeHub   Hub
 
 	// A team has exactly one coach.  This is the person who the
 	// school has designated as responsible for the team's
@@ -41,10 +42,6 @@ type Team struct {
 	// and keep things moving along.  Mentors have similar powers
 	// in the system to the Coach.
 	Mentors []User
-
-	// As stated above, the team must be associated with a school,
-	// so that is stored here.
-	School School
 
 	// Teams can also be inactive, which means they won't appear
 	// in lookups or otherwise be available.  This is different

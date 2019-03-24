@@ -63,6 +63,21 @@ func (s *Server) getTeams(c echo.Context) error {
 	return c.JSON(http.StatusOK, set)
 }
 
+func (s *Server) getTeamsForHub(c echo.Context) error {
+	idStr := c.Param("id")
+	id, err := strconv.ParseInt(idStr, 10, 32)
+	if err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
+	}
+
+	set, err := s.mg.GetTeamsForHub(int(id))
+	if err != nil {
+		return s.handleError(c, err)
+	}
+
+	return c.JSON(http.StatusOK, set)
+}
+
 func (s *Server) modTeam(c echo.Context) error {
 	idStr := c.Param("id")
 	id, err := strconv.ParseInt(idStr, 10, 32)
