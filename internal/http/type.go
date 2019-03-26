@@ -50,6 +50,7 @@ type MechGreg interface {
 
 	RegisterBRCHub(int, int) (int, error)
 	GetBRCHub(int, int) (models.BRCHub, error)
+	GetBRCHubs(int) ([]models.BRCHub, error)
 	UpdateBRCHub(int, int, models.BRCHub) error
 	ApproveBRCHub(int, int, bool) error
 

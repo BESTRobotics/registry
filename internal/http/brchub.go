@@ -63,6 +63,21 @@ func (s *Server) getBRCHub(c echo.Context) error {
 	return c.JSON(http.StatusOK, brchub)
 }
 
+func (s *Server) getBRCHubs(c echo.Context) error {
+	idStr := c.Param("id")
+	id, err := strconv.ParseInt(idStr, 10, 32)
+	if err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
+	}
+
+	set, err := s.mg.GetBRCHubs(int(id))
+	if err != nil {
+		return s.handleError(c, err)
+	}
+
+	return c.JSON(http.StatusOK, set)
+}
+
 func (s *Server) updateBRCHub(c echo.Context) error {
 	idStr := c.Param("id")
 	id, err := strconv.ParseInt(idStr, 10, 32)

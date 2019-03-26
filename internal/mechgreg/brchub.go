@@ -62,23 +62,53 @@ func (mg *MechanicalGreg) GetBRCHub(hubID, seasonID int) (models.BRCHub, error) 
 		return models.BRCHub{}, NewInternalError("An unspecified error has occured", err, http.StatusInternalServerError)
 	}
 
-	// Get the underlying hub
-	hub, err := mg.GetHub(hubID)
-	if err != nil {
+	if err := mg.populateBRCHub(&brchub); err != nil {
 		return models.BRCHub{}, err
+	}
+
+	return brchub, nil
+}
+
+// GetBRCHubs returns all BRCHubs for a particular hub.  This data is
+// not paginated.
+func (mg *MechanicalGreg) GetBRCHubs(hubID int) ([]models.BRCHub, error) {
+	var out []models.BRCHub
+
+	err := mg.s.Find("HubID", hubID, &out)
+	switch err {
+	case nil:
+		break
+	case storm.ErrNotFound:
+		return []models.BRCHub{}, nil
+	default:
+		return nil, NewInternalError("An unspecified internal error has occured", err, http.StatusInternalServerError)
+	}
+
+	// Fill in the nested structures.
+	for i := range out {
+		mg.populateBRCHub(&out[i])
+	}
+
+	return out, nil
+}
+
+func (mg *MechanicalGreg) populateBRCHub(h *models.BRCHub) error {
+	// Get the underlying hub
+	hub, err := mg.GetHub(h.HubID)
+	if err != nil {
+		return err
 	}
 
 	// Get the underlying season
-	season, err := mg.GetSeason(seasonID)
+	season, err := mg.GetSeason(h.SeasonID)
 	if err != nil {
-		return models.BRCHub{}, err
+		return err
 	}
 
 	// Insert the underlying components to the BRCHub.
-	brchub.Hub = hub
-	brchub.Season = season
-
-	return brchub, nil
+	h.Hub = hub
+	h.Season = season
+	return nil
 }
 
 // This is just like the public one, but can set all fields.

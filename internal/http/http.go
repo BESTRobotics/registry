@@ -71,6 +71,7 @@ func New(mg MechGreg, tkn *token.RSATokenService, po mail.Mailer) (*Server, erro
 	s.ws.DELETE("v1/hubs/:id/admins/delete/:uid", s.delHubAdmin)
 	s.ws.GET("v1/hubs/:id/teams", s.getTeamsForHub)
 
+	s.ws.GET("v1/hubs/:id/brc", s.getBRCHubs)
 	s.ws.POST("v1/hubs/:id/brc/:season", s.registerBRCHub)
 	s.ws.GET("/v1/hubs/:id/brc/:season", s.getBRCHub)
 	s.ws.PUT("/v1/hubs/:id/brc/:season/update", s.updateBRCHub)
