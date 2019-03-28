@@ -83,7 +83,7 @@ const Hubs = ({
                         getBrcHub={getBrcHub}
                         registerBrc={registerBrc}
                         expanded={
-                          (match.params && match.params.id === "8") ||
+                          (match && match.params && match.params.id === "8") ||
                           hubs.length === 1
                         }
                       />
