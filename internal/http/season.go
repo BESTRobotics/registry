@@ -11,7 +11,7 @@ import (
 )
 
 func (s *Server) newSeason(c echo.Context) error {
-	if err := canManageSeasons(extractclaims(c)); err != nil {
+	if err := canManageSeasons(extractClaims(c)); err != nil {
 		return s.handleError(c, err)
 	}
 
@@ -63,7 +63,7 @@ func (s *Server) getSeasons(c echo.Context) error {
 }
 
 func (s *Server) modSeason(c echo.Context) error {
-	if err := canManageSeasons(extractclaims(c)); err != nil {
+	if err := canManageSeasons(extractClaims(c)); err != nil {
 		return s.handleError(c, err)
 	}
 
@@ -89,7 +89,7 @@ func (s *Server) modSeason(c echo.Context) error {
 }
 
 func (s *Server) archiveSeason(c echo.Context) error {
-	if err := canManageSeasons(extractclaims(c)); err != nil {
+	if err := canManageSeasons(extractClaims(c)); err != nil {
 		return s.handleError(c, err)
 	}
 
