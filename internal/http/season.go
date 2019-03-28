@@ -11,6 +11,10 @@ import (
 )
 
 func (s *Server) newSeason(c echo.Context) error {
+	if err := canManageSeasons(extractclaims(c)); err != nil {
+		return s.handleError(c, err)
+	}
+
 	var season models.Season
 	if err := c.Bind(&season); err != nil {
 		return c.String(http.StatusBadRequest, err.Error())
@@ -59,6 +63,10 @@ func (s *Server) getSeasons(c echo.Context) error {
 }
 
 func (s *Server) modSeason(c echo.Context) error {
+	if err := canManageSeasons(extractclaims(c)); err != nil {
+		return s.handleError(c, err)
+	}
+
 	idStr := c.Param("id")
 	id, err := strconv.ParseInt(idStr, 10, 32)
 	if err != nil {
@@ -81,6 +89,10 @@ func (s *Server) modSeason(c echo.Context) error {
 }
 
 func (s *Server) archiveSeason(c echo.Context) error {
+	if err := canManageSeasons(extractclaims(c)); err != nil {
+		return s.handleError(c, err)
+	}
+
 	idStr := c.Param("id")
 	id, err := strconv.ParseInt(idStr, 10, 32)
 	if err != nil {
