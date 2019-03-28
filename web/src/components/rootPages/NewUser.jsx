@@ -37,54 +37,6 @@ const NewUser = () => {
           </Card>
         </Grid.Column>
       </Grid.Row>
-      <Grid.Row>
-        <Grid.Column>
-          <Card fluid color="orange">
-            <Card.Content>
-              <Card.Header as={Header} size="huge">
-                I am a Teacher, Coach, or Administrator of a School
-              </Card.Header>
-              <Card.Description>
-                <Header>Find your school or add a new one</Header>
-                <Dropdown
-                  placeholder="Select School"
-                  search
-                  selection
-                  options={[]}
-                />{" "}
-                <Button.Group>
-                  <Button>Join School</Button>
-                  <Button>Add New School</Button>
-                </Button.Group>
-              </Card.Description>
-            </Card.Content>
-          </Card>
-        </Grid.Column>
-      </Grid.Row>
-      <Grid.Row>
-        <Grid.Column>
-          <Card fluid color="yellow">
-            <Card.Content>
-              <Card.Header as={Header} size="huge">
-                I am a Staff Member or Volunteer of a Hub
-              </Card.Header>
-              <Card.Description>
-                <Header>Find your hub or add a new one</Header>
-                <Dropdown
-                  placeholder="Select hub"
-                  search
-                  selection
-                  options={[]}
-                />{" "}
-                <Button.Group>
-                  <Button>Join Hub</Button>
-                  <Button>Add New Hub</Button>
-                </Button.Group>
-              </Card.Description>
-            </Card.Content>
-          </Card>
-        </Grid.Column>
-      </Grid.Row>
     </Grid>
   );
 };

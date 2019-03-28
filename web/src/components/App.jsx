@@ -32,9 +32,8 @@ const App = ({ token, superAdmin }) => {
             BEST Registry
           </Header>
           <Switch>
-            <Redirect exact path="/" to="/hubs" />
-            <Redirect path="/login" to="/hubs" />
-            <Redirect path="/register" to="/hubs" />
+            <Redirect path="/login" to="/" />
+            <Redirect path="/register" to="/" />
             <Route exact path="/" component={Homepage} />
             <Route exact path={["/hubs", "/hubs/:id"]} component={Hubs} />
             <Route path="/teams" component={Teams} />

@@ -9,10 +9,12 @@ const BrcDescription = ({ brcHub, register }) => {
     <Button onClick={register}>Register for current season</Button>
   ) : (
     <div>
-      {brcHub.brcHub.Meta.BRIApproved || (
+      {brcHub.brcHub.Meta.BRIApproved ? (
         <div>
           <Icon name="warning" /> Registration not yet approved
         </div>
+      ) : (
+        "Registration Approved"
       )}
     </div>
   );
@@ -23,7 +25,7 @@ const BrcHub = ({
   getBrcHub,
   registerBrc,
   match: {
-    params: { id }
+    params: { id, season }
   }
 }) => {
   useEffect(() => {
@@ -34,7 +36,7 @@ const BrcHub = ({
     <div>
       {allBrcHubs && allBrcHubs[id] ? (
         <BrcDescription
-          brcHub={allBrcHubs[id]}
+          brcHub={allBrcHubs[id].find(s => (s.ID = season))}
           register={() => registerBrc(id)}
         />
       ) : (

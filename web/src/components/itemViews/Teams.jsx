@@ -9,37 +9,39 @@ const Teams = ({ teams, teamsLength, getMyTeams }) => {
     (teams && teams.length) || getMyTeams();
   }, []);
   return (
-    <Grid.Row>
-      <Grid.Column>
-        <Card fluid color="yellow">
-          <Card.Content>
-            <Card.Header as={Header} size="huge">
-              My Teams
-            </Card.Header>
-            <Card.Description>
-              {teams && teams.length ? (
-                <Item.Group divided>
-                  {teams.map(t => (
-                    <Item>
-                      <Item.Content>
-                        <Item.Header>{t.StaticName}</Item.Header>
-                        <Item.Meta>{t.School && t.School.Name}</Item.Meta>
-                        <Item.Description>
-                          <Icon color="green" name="check" />
-                          Ready to go
-                        </Item.Description>
-                      </Item.Content>
-                    </Item>
-                  ))}
-                </Item.Group>
-              ) : (
-                <FakeItemGroup rows={teamsLength} />
-              )}
-            </Card.Description>
-          </Card.Content>
-        </Card>
-      </Grid.Column>
-    </Grid.Row>
+    <Grid columns={2} centered>
+      <Grid.Row>
+        <Grid.Column>
+          <Card fluid color="yellow">
+            <Card.Content>
+              <Card.Header as={Header} size="huge">
+                My Teams
+              </Card.Header>
+              <Card.Description>
+                {teams && teams.length ? (
+                  <Item.Group divided>
+                    {teams.map(t => (
+                      <Item>
+                        <Item.Content>
+                          <Item.Header>{t.StaticName}</Item.Header>
+                          <Item.Meta>{t.School && t.School.Name}</Item.Meta>
+                          <Item.Description>
+                            <Icon color="green" name="check" />
+                            Ready to go
+                          </Item.Description>
+                        </Item.Content>
+                      </Item>
+                    ))}
+                  </Item.Group>
+                ) : (
+                  <FakeItemGroup rows={teamsLength} />
+                )}
+              </Card.Description>
+            </Card.Content>
+          </Card>
+        </Grid.Column>
+      </Grid.Row>
+    </Grid>
   );
 };
 
