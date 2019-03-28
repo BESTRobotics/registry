@@ -11,28 +11,31 @@ const Topbar = ({ logout, superAdmin, hubs, teams }) => {
       <Menu.Item as={NavLink} to="/" header fitted>
         <Image size="tiny" src={logo} />
       </Menu.Item>
-      {superAdmin || hubs ? (
+      {hubs ? (
         <Menu.Item as={NavLink} to="/hubs">
-          Hubs
+          My Hubs
         </Menu.Item>
       ) : null}
-      {superAdmin || teams ? (
+      {teams ? (
         <Menu.Item as={NavLink} to="/teams">
-          Teams
+          My Teams
         </Menu.Item>
       ) : null}
       {superAdmin ? (
         <>
-          <Menu.Item as={NavLink} to="/schools">
+          <Menu.Item as={NavLink} to="/admin/schools">
             Schools
           </Menu.Item>
-          <Menu.Item as={NavLink} to="/seasons">
+          <Menu.Item as={NavLink} to="/admin/schools">
+            Schools
+          </Menu.Item>
+          <Menu.Item as={NavLink} to="/admin/seasons">
             Seasons
           </Menu.Item>
-          <Menu.Item as={NavLink} to="/users">
+          <Menu.Item as={NavLink} to="/admin/users">
             Users
           </Menu.Item>
-          <Menu.Item as={NavLink} to="/events">
+          <Menu.Item as={NavLink} to="/admin/events">
             Events
           </Menu.Item>
         </>

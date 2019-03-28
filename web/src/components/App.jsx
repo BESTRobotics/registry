@@ -1,10 +1,4 @@
 import React from "react";
-import Login from "./rootPages/Login";
-import Homepage from "./rootPages/Homepage";
-import NewUser from "./rootPages/NewUser";
-import Register from "./rootPages/Register";
-import Super from "./rootPages/Super";
-import Topbar from "./Topbar";
 import {
   HashRouter as Router,
   Switch,
@@ -12,8 +6,21 @@ import {
   Redirect
 } from "react-router-dom";
 import { connect } from "react-redux";
+import { Header } from "semantic-ui-react";
+import Login from "./rootPages/Login";
+import Homepage from "./rootPages/Homepage";
+import Register from "./rootPages/Register";
+import Topbar from "./Topbar";
+import Hubs from "./itemViews/Hubs";
+import Teams from "./itemViews/Teams";
+import HubsTables from "./itemTables/Hubs";
+import TeamsTables from "./itemTables/Teams";
+import SeasonsTables from "./itemTables/Seasons";
+import UsersTables from "./itemTables/Users";
+import EventsTables from "./itemTables/Events";
+import BrcHub from "./itemViews/BrcHub";
 
-const App = ({ token, superAdmin, hubs, teams }) => {
+const App = ({ token, superAdmin }) => {
   return (
     <Router
     // basename={process.env.PUBLIC_URL}
@@ -21,13 +28,28 @@ const App = ({ token, superAdmin, hubs, teams }) => {
       {token ? (
         <section className="root">
           <Topbar />
-          {superAdmin ? (
-            <Super />
-          ) : (hubs && hubs.length) || (teams && teams.length) ? (
-            <Homepage />
-          ) : (
-            <NewUser />
-          )}
+          <Header textAlign="center" as="h1">
+            BEST Registry
+          </Header>
+          <Switch>
+            <Redirect exact path="/" to="/hubs" />
+            <Redirect path="/login" to="/hubs" />
+            <Redirect path="/register" to="/hubs" />
+            <Route exact path="/" component={Homepage} />
+            <Route exact path={["/hubs", "/hubs/:id"]} component={Hubs} />
+            <Route path="/teams" component={Teams} />
+            <Route path="/hub/:id/brc" component={BrcHub} />
+            {superAdmin && (
+              <>
+                <Route path="/admin/hubs" component={HubsTables} />
+                <Route path="/admin/teams" component={TeamsTables} />
+                <Route path="/admin/seasons" component={SeasonsTables} />
+                <Route path="/admin/users" component={UsersTables} />
+                <Route path="/admin/events" component={EventsTables} />
+              </>
+            )}
+            <Route default render={() => <div>No route at path.</div>} />
+          </Switch>
         </section>
       ) : (
         <Switch>

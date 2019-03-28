@@ -19,7 +19,7 @@ export const { getMyHubs, getAllHubs, getBrcHub, registerBrc } = createActions({
   },
   GET_BRC_HUB: {
     REQUEST: id => ({ id }),
-    SUCCESS: (id, brcHub) => ({ id, brcHub }),
+    SUCCESS: (id, seasons, brcHubs) => ({ id, seasons, brcHubs }),
     FAILURE: error => ({ error })
   },
   REGISTER_BRC: {
@@ -49,11 +49,14 @@ const reducer = handleActions(
       ...state,
       allHubs: hubs
     }),
-    [getBrcHub.success]: (state, { payload: { id, brcHub } }) => ({
+    [getBrcHub.success]: (state, { payload: { id, seasons, brcHubs } }) => ({
       ...state,
       allBrcHubs: {
         ...state.allBrcHubs,
-        [id]: brcHub
+        [id]: seasons.map(s => ({
+          ...s,
+          brcHub: brcHubs.find(b => b.Season.ID === s.ID)
+        }))
       }
     })
   },

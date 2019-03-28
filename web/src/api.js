@@ -16,18 +16,12 @@ export function fetchSeasons(token) {
     .then(s => s.data);
 }
 
-export function fetchBrcHub(id, season, token) {
+export function fetchBrcHubs(id, token) {
   return axios
-    .get(`http://${url}/v1/hubs/${id}/brc/${season}`, {
+    .get(`http://${url}/v1/hubs/${id}/brc`, {
       headers: { Authorization: token }
     })
-    .then(h => ({ ...h.data }))
-    .catch(error => {
-      if (error.response && error.response.status === 404) {
-        return error.response.data;
-      }
-      throw error;
-    });
+    .then(h => h.data);
 }
 
 export function registerBrcHub(id, season, token) {
@@ -39,7 +33,7 @@ export function registerBrcHub(id, season, token) {
         headers: { Authorization: token }
       }
     )
-    .then(h => ({ ...h.data }));
+    .then(h => h.data);
 }
 
 export function fetchHubs(ids, token) {

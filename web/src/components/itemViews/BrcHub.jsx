@@ -9,7 +9,7 @@ const BrcDescription = ({ brcHub, register }) => {
     <Button onClick={register}>Register for current season</Button>
   ) : (
     <div>
-      {brcHub.Meta.BRIApproved || (
+      {brcHub.brcHub.Meta.BRIApproved || (
         <div>
           <Icon name="warning" /> Registration not yet approved
         </div>
@@ -18,7 +18,14 @@ const BrcDescription = ({ brcHub, register }) => {
   );
 };
 
-const BrcHub = ({ allBrcHubs, getBrcHub, id, registerBrc }) => {
+const BrcHub = ({
+  allBrcHubs,
+  getBrcHub,
+  registerBrc,
+  match: {
+    params: { id }
+  }
+}) => {
   useEffect(() => {
     (allBrcHubs && allBrcHubs[id]) || getBrcHub(id);
   }, []);

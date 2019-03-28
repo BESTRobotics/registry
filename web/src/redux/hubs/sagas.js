@@ -1,4 +1,4 @@
-import { takeEvery, select, call, put } from "redux-saga/effects";
+import { takeEvery, select, all, call, put } from "redux-saga/effects";
 import { getBrcHub, getAllHubs, getMyHubs, registerBrc } from "./reducer";
 import * as api from "../../api";
 
@@ -10,9 +10,11 @@ function* getAllHubsSaga(action) {
 function* getBrcHubSaga({ payload: { id } }) {
   const token = yield select(({ loginReducer }) => loginReducer.token);
   try {
-    const seasons = yield call(api.fetchSeasons, token);
-    const brcHub = yield call(api.fetchBrcHub, id, seasons[0].ID, token);
-    yield put({ type: getBrcHub.success, payload: { brcHub, id } });
+    const [seasons, brcHubs] = yield all([
+      call(api.fetchSeasons, token),
+      call(api.fetchBrcHubs, id, token)
+    ]);
+    yield put({ type: getBrcHub.success, payload: { brcHubs, seasons, id } });
   } catch (err) {
     console.error(err);
     yield put({ type: getBrcHub.failure, payload: { error: err } });

@@ -6,8 +6,8 @@ const FakeItemGroup = ({ rows }) => {
     <Item.Group divided>
       {Array(rows)
         .fill(0)
-        .map(() => (
-          <Item>
+        .map((_, i) => (
+          <Item key={i}>
             <Item.Content>
               <Placeholder>
                 <Placeholder.Header>
