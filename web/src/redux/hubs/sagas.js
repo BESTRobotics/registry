@@ -21,15 +21,14 @@ function* getBrcHubSaga({ payload: { id } }) {
   }
 }
 
-function* registerBrcHubSaga({ payload: { id } }) {
+function* registerBrcHubSaga({ payload: { id, season } }) {
   const token = yield select(({ loginReducer }) => loginReducer.token);
   try {
-    const seasons = yield call(api.fetchSeasons, token);
-    const brcHub = yield call(api.registerBrcHub, id, seasons[0].ID, token);
-    yield put({ type: getBrcHub.success, payload: { brcHub, id } });
+    const brcHub = yield call(api.registerBrcHub, id, season, token);
+    yield put({ type: registerBrc.success, payload: { id, season, brcHub } });
   } catch (err) {
     console.error(err);
-    yield put({ type: getBrcHub.failure, payload: { error: err } });
+    yield put({ type: registerBrc.failure, payload: { error: err } });
   }
 }
 

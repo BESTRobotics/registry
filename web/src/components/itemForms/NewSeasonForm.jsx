@@ -58,7 +58,7 @@ const NewSeasonForm = ({ addToList, existingItem, token }) => {
         />
         <Form.Checkbox
           label="Open"
-          value={open}
+          checked={open}
           onChange={() => setOpen(!open)}
         />
         <Form.Input

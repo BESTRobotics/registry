@@ -127,7 +127,7 @@ const mapStateToProps = ({ loginReducer, hubsReducer }) => ({
 const mapDispatchToProps = {
   getBrcHub: id => getBrcHub.request(id),
   getMyHubs: () => getMyHubs.request(),
-  registerBrc: (id, season) => registerBrc.request()
+  registerBrc: (id, season) => registerBrc.request(id, season)
 };
 
 export default connect(
