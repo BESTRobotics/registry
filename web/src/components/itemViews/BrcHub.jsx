@@ -1,22 +1,29 @@
 import React, { useEffect } from "react";
 import { connect } from "react-redux";
 import { getBrcHub, registerBrc } from "../../redux/hubs/reducer";
-import { Button, Icon } from "semantic-ui-react";
+import { Button, Icon, Header } from "semantic-ui-react";
 
 const BrcDescription = ({ brcHub, register }) => {
   console.log(brcHub);
-  return brcHub.Message ? (
-    <Button onClick={register}>Register for current season</Button>
-  ) : (
-    <div>
-      {brcHub.brcHub.Meta.BRIApproved ? (
-        <div>
-          <Icon name="warning" /> Registration not yet approved
-        </div>
+  return (
+    <>
+      <Header>{`${brcHub.brcHub.Hub.Name} | ${
+        brcHub.brcHub.Season.Name
+      }`}</Header>
+      {brcHub.Message ? (
+        <Button onClick={register}>Register for current season</Button>
       ) : (
-        "Registration Approved"
+        <div>
+          {brcHub.brcHub.Meta.BRIApproved ? (
+            "Registration Approved"
+          ) : (
+            <>
+              <Icon name="warning" /> Registration not yet approved
+            </>
+          )}
+        </div>
       )}
-    </div>
+    </>
   );
 };
 
@@ -32,11 +39,14 @@ const BrcHub = ({
     (allBrcHubs && allBrcHubs[id]) || getBrcHub(id);
   }, []);
 
+  console.log(allBrcHubs[id] && allBrcHubs[id].map(s => s.ID));
+  console.log(season);
+
   return (
     <div>
       {allBrcHubs && allBrcHubs[id] ? (
         <BrcDescription
-          brcHub={allBrcHubs[id].find(s => (s.ID = season))}
+          brcHub={allBrcHubs[id].find(s => String(s.ID) === season)}
           register={() => registerBrc(id)}
         />
       ) : (

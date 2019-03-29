@@ -1,6 +1,14 @@
 import React, { useEffect } from "react";
 import { connect } from "react-redux";
-import { Grid, Card, Header, Item, List, Button } from "semantic-ui-react";
+import {
+  Grid,
+  Card,
+  Header,
+  Item,
+  List,
+  Button,
+  Icon
+} from "semantic-ui-react";
 import { getMyHubs, getBrcHub, registerBrc } from "../../redux/hubs/reducer";
 import FakeItemGroup from "./FakeItemGroup";
 import { Link } from "react-router-dom";
@@ -9,10 +17,13 @@ const Hub = ({ hub, expanded, allBrcHubs, getBrcHub, registerBrc }) => {
   useEffect(() => {
     (allBrcHubs && allBrcHubs[hub.ID]) || getBrcHub(hub.ID);
   }, []);
+  console.log(allBrcHubs);
   return (
     <Item>
       <Item.Content>
-        <Item.Header>{hub.Name}</Item.Header>
+        <Item.Header as={Link} to={`/hubs/${hub.ID}`}>
+          {hub.Name}
+        </Item.Header>
         <Item.Meta>{hub.Description}</Item.Meta>
         {expanded ? (
           <Item.Description>
@@ -20,26 +31,30 @@ const Hub = ({ hub, expanded, allBrcHubs, getBrcHub, registerBrc }) => {
               {allBrcHubs &&
                 allBrcHubs[hub.ID] &&
                 allBrcHubs[hub.ID].map(season => (
-                  <List.Item>
-                    <List.Header
-                      as={season.brcHub ? Link : null}
-                      to={`/hub/${hub.ID}/brc`}
-                    >
-                      {season.Name}
-                    </List.Header>
-                    <List.Description>
-                      {season.brcHub ? (
-                        "Registered"
-                      ) : (
-                        <Button
-                          size="small"
-                          disabled={!season.open}
-                          onClick={() => registerBrc(hub.ID, season.ID)}
-                        >
-                          Register
-                        </Button>
-                      )}
-                    </List.Description>
+                  <List.Item key={season.ID}>
+                    <Icon name="right triangle" />
+                    <List.Content>
+                      <List.Header
+                        as={season.brcHub ? Link : null}
+                        to={`/hubs/${hub.ID}/brc/${season.ID}`}
+                      >
+                        {season.Name}
+                      </List.Header>
+                      <List.Description>
+                        {season.brcHub ? (
+                          "Registered"
+                        ) : season.Open ? (
+                          <Button
+                            as="a"
+                            onClick={() => registerBrc(hub.ID, season.ID)}
+                          >
+                            Register Now
+                          </Button>
+                        ) : (
+                          "Closed"
+                        )}
+                      </List.Description>
+                    </List.Content>
                   </List.Item>
                 ))}
             </List>
@@ -83,7 +98,9 @@ const Hubs = ({
                         getBrcHub={getBrcHub}
                         registerBrc={registerBrc}
                         expanded={
-                          (match && match.params && match.params.id === "8") ||
+                          (match &&
+                            match.params &&
+                            match.params.id === String(h.ID)) ||
                           hubs.length === 1
                         }
                       />

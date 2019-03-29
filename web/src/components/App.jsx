@@ -6,7 +6,7 @@ import {
   Redirect
 } from "react-router-dom";
 import { connect } from "react-redux";
-import { Header } from "semantic-ui-react";
+import { Header, Message, Container } from "semantic-ui-react";
 import Login from "./rootPages/Login";
 import Homepage from "./rootPages/Homepage";
 import Register from "./rootPages/Register";
@@ -20,7 +20,7 @@ import UsersTables from "./itemTables/Users";
 import EventsTables from "./itemTables/Events";
 import BrcHub from "./itemViews/BrcHub";
 
-const App = ({ token, superAdmin }) => {
+const App = ({ token, superAdmin, message }) => {
   return (
     <Router
     // basename={process.env.PUBLIC_URL}
@@ -31,20 +31,42 @@ const App = ({ token, superAdmin }) => {
           <Header textAlign="center" as="h1">
             BEST Registry
           </Header>
+          {message && (
+            <Container>
+              <Message {...message} />
+              <br />
+            </Container>
+          )}
           <Switch>
             <Redirect path="/login" to="/" />
             <Redirect path="/register" to="/" />
             <Route exact path="/" component={Homepage} />
             <Route exact path={["/hubs", "/hubs/:id"]} component={Hubs} />
             <Route path="/teams" component={Teams} />
-            <Route path="/hub/:id/brc" component={BrcHub} />
+            <Route path="/hubs/:id/brc/:season" component={BrcHub} />
+            {/* These below guys need to be more reduxy */}
             {superAdmin && (
               <>
-                <Route path="/admin/hubs" component={HubsTables} />
-                <Route path="/admin/teams" component={TeamsTables} />
-                <Route path="/admin/seasons" component={SeasonsTables} />
-                <Route path="/admin/users" component={UsersTables} />
-                <Route path="/admin/events" component={EventsTables} />
+                <Route
+                  path="/admin/hubs"
+                  render={p => <HubsTables {...p} token={token} />}
+                />
+                <Route
+                  path="/admin/teams"
+                  render={p => <TeamsTables {...p} token={token} />}
+                />
+                <Route
+                  path="/admin/seasons"
+                  render={p => <SeasonsTables {...p} token={token} />}
+                />
+                <Route
+                  path="/admin/users"
+                  render={p => <UsersTables {...p} token={token} />}
+                />
+                <Route
+                  path="/admin/events"
+                  render={p => <EventsTables {...p} token={token} />}
+                />
               </>
             )}
             <Route default render={() => <div>No route at path.</div>} />
@@ -66,7 +88,8 @@ const mapStateToProps = ({ loginReducer }) => ({
   token: loginReducer.token,
   superAdmin: loginReducer.superAdmin,
   hubs: loginReducer.hubs,
-  teams: loginReducer.teams
+  teams: loginReducer.teams,
+  message: loginReducer.message
 });
 
 const mapDispatchToProps = dispatch => ({});

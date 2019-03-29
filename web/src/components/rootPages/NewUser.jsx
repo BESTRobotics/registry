@@ -1,7 +1,18 @@
-import React from "react";
-import { Card, Dropdown, Grid, Header, Input, Button } from "semantic-ui-react";
+import React, { useState } from "react";
+import {
+  Card,
+  Dropdown,
+  Grid,
+  Header,
+  Input,
+  Button,
+  Modal
+} from "semantic-ui-react";
+import NewTeamForm from "../itemForms/NewTeamForm";
+import { connect } from "react-redux";
 
-const NewUser = () => {
+const NewUser = ({ token }) => {
+  const [schoolModalOpen, setSchoolModalOpen] = useState(false);
   return (
     <Grid centered columns={2}>
       <Grid.Row>
@@ -45,17 +56,25 @@ const NewUser = () => {
                 I am a Teacher, Coach, or Administrator of a School
               </Card.Header>
               <Card.Description>
-                <Header>Find your school or add a new one</Header>
-                <Dropdown
-                  placeholder="Select School"
-                  search
-                  selection
-                  options={[]}
-                />{" "}
-                <Button.Group>
-                  <Button>Join School</Button>
-                  <Button>Add New School</Button>
-                </Button.Group>
+                <Header>If your school doesn't exist, you can a new one</Header>
+                <Modal
+                  trigger={
+                    <Button onClick={() => setSchoolModalOpen(true)}>
+                      Add a new team
+                    </Button>
+                  }
+                  onOpen={() => setSchoolModalOpen(true)}
+                  onClose={() => setSchoolModalOpen(false)}
+                  open={!!schoolModalOpen}
+                >
+                  <Modal.Header>New Team</Modal.Header>
+                  <Modal.Content>
+                    <NewTeamForm
+                      addToList={() => setSchoolModalOpen(false)}
+                      token={token}
+                    />
+                  </Modal.Content>
+                </Modal>
               </Card.Description>
             </Card.Content>
           </Card>
@@ -65,4 +84,6 @@ const NewUser = () => {
   );
 };
 
-export default NewUser;
+const mapStateToProps = ({ loginReducer }) => ({ token: loginReducer.token });
+
+export default connect(mapStateToProps)(NewUser);

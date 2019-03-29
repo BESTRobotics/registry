@@ -3,21 +3,23 @@ import axios from "axios";
 import { Button, Form, Modal, Header, Message } from "semantic-ui-react";
 import NewUserForm from "./NewUserForm";
 import NewHubForm from "./NewHubForm";
-import NewSchoolForm from "./NewSchoolForm";
 import PropTypes from "prop-types";
 
 const NewTeamForm = ({ addToList, existingItem, token }) => {
   const headers = { authorization: token };
   const team = existingItem;
   const [users, setUsers] = useState([]);
-  const [schools, setSchools] = useState([]);
   const [hubs, setHubs] = useState([]);
 
   const [id, setId] = useState(team ? team.ID : "");
   const [name, setName] = useState(team ? team.StaticName : "");
+  const [schoolName, setSchoolName] = useState(team ? team.SchoolName : "");
+  const [schoolAddress, setSchoolAddress] = useState(
+    team ? team.SchoolAddress : ""
+  );
+  const [website, setWebsite] = useState(team ? team.Website : "");
   const [hub, setHub] = useState(team ? team.HomeHub.ID : null);
   const [coach, setCoach] = useState(team ? team.Coach.ID : null);
-  const [school, setSchool] = useState(team ? team.School.ID : null);
   const [founded, setFounded] = useState(
     team ? team.Founded.substring(0, 10) : ""
   );
@@ -26,7 +28,6 @@ const NewTeamForm = ({ addToList, existingItem, token }) => {
   );
 
   const [newUser, setNewUser] = useState("");
-  const [newSchool, setNewSchool] = useState("");
   const [newHub, setNewHub] = useState("");
   const [message, setMessage] = useState(null);
 
@@ -40,22 +41,6 @@ const NewTeamForm = ({ addToList, existingItem, token }) => {
         setMessage({
           error: true,
           header: `Problem getting users`,
-          content:
-            e.response && e.response.data ? e.response.data.Message : e.message
-        });
-      });
-  }, []);
-
-  useEffect(() => {
-    axios
-      .get(`http://${process.env.REACT_APP_API_URL}/v1/schools`)
-      .then(response => {
-        setSchools(response.data);
-      })
-      .catch(e => {
-        setMessage({
-          error: true,
-          header: `Problem getting schools`,
           content:
             e.response && e.response.data ? e.response.data.Message : e.message
         });
@@ -81,6 +66,9 @@ const NewTeamForm = ({ addToList, existingItem, token }) => {
   const submitForm = () => {
     const newTeam = {
       StaticName: name,
+      SchoolName: schoolName,
+      SchoolAddress: schoolAddress,
+      Website: website,
       Founded: founded ? new Date(founded).toISOString() : null
     };
     let call = axios.post;
@@ -98,7 +86,6 @@ const NewTeamForm = ({ addToList, existingItem, token }) => {
         }
         newTeam.HomeHub = hubs.filter(h => h.ID === hub)[0];
         newTeam.Coach = users.filter(u => u.ID === coach)[0];
-        newTeam.School = schools.filter(s => s.ID === school)[0];
         newTeam.Mentors = users.filter(u => mentors.includes(u.ID));
         const { addMentors, subtractMentors } = (() => {
           if (existingItem && existingItem.Mentors) {
@@ -156,13 +143,6 @@ const NewTeamForm = ({ addToList, existingItem, token }) => {
             { ID: coach },
             { headers: headers }
           ),
-          axios.put(
-            `http://${process.env.REACT_APP_API_URL}/v1/teams/${
-              newTeam.ID
-            }/school`,
-            { ID: school },
-            { headers: headers }
-          ),
           ...adjustmentRequests
         ]);
       })
@@ -184,9 +164,25 @@ const NewTeamForm = ({ addToList, existingItem, token }) => {
       {message ? <Message {...message} /> : null}
       <Form onSubmit={submitForm}>
         <Form.Input
-          label="Name"
+          label="Team Name"
           value={name}
           onChange={(_, { value }) => setName(value)}
+        />
+        <Form.Input
+          label="School Name"
+          value={schoolName}
+          onChange={(_, { value }) => setSchoolName(value)}
+        />
+        <Form.TextArea
+          label="School Address"
+          value={schoolAddress}
+          onChange={(_, { value }) => setSchoolAddress(value)}
+        />
+        <Form.Input
+          label="Website"
+          type="url"
+          value={website}
+          onChange={(_, { value }) => setWebsite(value)}
         />
         <Form.Dropdown
           label="Hub"
@@ -231,20 +227,6 @@ const NewTeamForm = ({ addToList, existingItem, token }) => {
           onChange={(_, { value }) => setMentors(value)}
           onAddItem={(_, { value }) => setNewUser(value)}
         />
-        <Form.Dropdown
-          label="School"
-          search
-          allowAdditions
-          loading={!schools}
-          options={schools.map(s => ({
-            text: s.Name,
-            value: s.ID
-          }))}
-          selection
-          value={school}
-          onChange={(_, { value }) => setSchool(value)}
-          onAddItem={(_, { value }) => setNewSchool(value)}
-        />
         <Form.Input
           type="date"
           label="Founded"
@@ -276,20 +258,6 @@ const NewTeamForm = ({ addToList, existingItem, token }) => {
               setHubs([...hubs, hub]);
               setHub(hub.ID);
               setNewHub("");
-            }}
-          />
-        </Modal.Content>
-      </Modal>
-
-      <Modal open={!!newSchool} onClose={() => setNewSchool("")}>
-        <Header icon="house" content="Add New School" />
-        <Modal.Content>
-          <NewSchoolForm
-            name={newSchool}
-            addToList={school => {
-              setSchools([...schools, school]);
-              setSchool(school.ID);
-              setNewSchool("");
             }}
           />
         </Modal.Content>

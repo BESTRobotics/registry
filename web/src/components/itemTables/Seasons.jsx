@@ -2,8 +2,12 @@ import React from "react";
 import Item from "./Item";
 import NewSeasonForm from "../itemForms/NewSeasonForm";
 
-const Hubs = ({ token }) => {
-  const fields = [{ header: "Name", name: "Name", filter: true }];
+const Seasons = ({ token }) => {
+  const fields = [
+    { header: "Name", name: "Name", filter: true },
+    { header: "Open", displayFn: s => (s.Open ? "Open" : "Closed") },
+    { header: "Program", name: "Program" }
+  ];
   return (
     <Item
       itemName="Season"
@@ -15,4 +19,4 @@ const Hubs = ({ token }) => {
   );
 };
 
-export default Hubs;
+export default Seasons;

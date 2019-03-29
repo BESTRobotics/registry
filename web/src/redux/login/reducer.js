@@ -1,5 +1,6 @@
 import { createActions, handleActions, combineActions } from "redux-actions";
 import jwt_decode from "jwt-decode";
+import { getAllHubs, getBrcHub, getMyHubs } from "../hubs/reducer";
 
 const initialToken = window.localStorage.getItem("token") || null;
 const initialDecodedToken = initialToken && jwt_decode(initialToken);
@@ -11,7 +12,8 @@ const defaultState = {
     initialDecodedToken.User.Capabilities &&
     initialDecodedToken.User.Capabilities.includes(0),
   hubs: initialDecodedToken ? initialDecodedToken.Hubs : [],
-  teams: initialDecodedToken ? initialDecodedToken.Teams : []
+  teams: initialDecodedToken ? initialDecodedToken.Teams : [],
+  message: null
 };
 
 export const { logout, setToken } = createActions({
@@ -33,6 +35,32 @@ const reducer = handleActions(
           decoded.User.Capabilities && decoded.User.Capabilities.includes(0),
         hubs: decoded.Hubs,
         teams: decoded.Teams
+      };
+    },
+    [combineActions(
+      getAllHubs.failure,
+      getBrcHub.failure,
+      getMyHubs.failure
+    )]: (state, { payload: { error } }) => {
+      if (error.response && error.response.message) {
+        return {
+          ...state,
+          message: {
+            header: "An error occured",
+            icon: "warning circle",
+            content: error.response.message,
+            error: true
+          }
+        };
+      }
+      return {
+        ...state,
+        message: {
+          header: "An error occured",
+          icon: "warning circle",
+          content: error.message || "Connection Error",
+          error: true
+        }
       };
     }
   },
