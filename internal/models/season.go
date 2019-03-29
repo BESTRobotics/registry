@@ -14,9 +14,9 @@ type Season struct {
 	// Archived seasons lock all resources within them.
 	Archived bool
 
-	// Open determines whether or not the season can be registered
-	// for
-	Open bool
+	// State allows the season to take on program specific states
+	// such as OPEN or REGISTRATION_CLOSED.
+	State string
 
 	// Program allows us to determine what program this season
 	// represents.  Not all seasons necessarily have programs, but
