@@ -1,4 +1,5 @@
 import { createActions, handleActions, combineActions } from "redux-actions";
+import { logout } from "../login/reducer";
 
 const defaultState = {
   myTeams: [],
@@ -20,6 +21,7 @@ export const { getMyTeams, getAllTeams } = createActions({
 
 const reducer = handleActions(
   {
+    [logout]: () => defaultState,
     [getMyTeams.success]: (state, { payload: { teams } }) => ({
       ...state,
       myTeams: teams
