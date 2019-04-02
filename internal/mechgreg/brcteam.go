@@ -43,6 +43,27 @@ func (mg *MechanicalGreg) RegisterBRCTeam(teamID, seasonID int) (int, error) {
 	}
 }
 
+// GetBRCTeams returns all BRCTeams that a team owns.  This is useful
+// to list all the teams on a landing page.
+func (mg *MechanicalGreg) GetBRCTeams(teamID int) ([]models.BRCTeam, error) {
+	var out []models.BRCTeam
+
+	err := mg.s.Find("TeamID", teamID, &out)
+	switch err {
+	case nil:
+		break
+	case storm.ErrNotFound:
+		return []models.BRCTeam{}, nil
+	default:
+		return nil, NewInternalError("An unspecified internal error has occured", err, http.StatusInternalServerError)
+	}
+
+	for i := range out {
+		mg.populateBRCTeam(&out[i])
+	}
+	return out, nil
+}
+
 // GetBRCTeam loads a BRCTeam by numeric ID.
 func (mg *MechanicalGreg) GetBRCTeam(teamID, seasonID int) (models.BRCTeam, error) {
 	var brcteam models.BRCTeam
@@ -107,17 +128,23 @@ func (mg *MechanicalGreg) handleBRCTeamGet(b models.BRCTeam, err error) (models.
 		return models.BRCTeam{}, NewInternalError("An unspecified error has occured", err, http.StatusInternalServerError)
 	}
 
-	team, err := mg.GetTeam(b.TeamID)
-	if err != nil {
-		return models.BRCTeam{}, err
-	}
-	b.Team = team
-
-	season, err := mg.GetSeason(b.SeasonID)
-	if err != nil {
-		return models.BRCTeam{}, err
-	}
-	b.Season = season
+	mg.populateBRCTeam(&b)
 
 	return b, nil
+}
+
+func (mg *MechanicalGreg) populateBRCTeam(t *models.BRCTeam) error {
+	team, err := mg.GetTeam(t.TeamID)
+	if err != nil {
+		return err
+	}
+	t.Team = team
+
+	season, err := mg.GetSeason(t.SeasonID)
+	if err != nil {
+		return err
+	}
+	t.Season = season
+
+	return nil
 }
