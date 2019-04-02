@@ -45,7 +45,11 @@ const Hub = ({
                 <Modal
                   trigger={
                     <span onClick={() => setHubModalOpen(true)}>
-                      <Icon name="pencil" style={{ cursor: "pointer" }} />
+                      <Icon
+                        name="pencil"
+                        size="small"
+                        style={{ cursor: "pointer" }}
+                      />
                     </span>
                   }
                   onOpen={() => setHubModalOpen(true)}

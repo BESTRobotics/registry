@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Button, Form, Modal, Header, Message } from "semantic-ui-react";
 import NewUserForm from "./NewUserForm";
-import NewHubForm from "./NewHubForm";
 import PropTypes from "prop-types";
 
 const NewTeamForm = ({ addToList, existingItem, token }) => {
@@ -28,7 +27,6 @@ const NewTeamForm = ({ addToList, existingItem, token }) => {
   );
 
   const [newUser, setNewUser] = useState("");
-  const [newHub, setNewHub] = useState("");
   const [message, setMessage] = useState(null);
 
   useEffect(() => {
@@ -187,7 +185,6 @@ const NewTeamForm = ({ addToList, existingItem, token }) => {
         <Form.Dropdown
           label="Hub"
           search
-          allowAdditions
           loading={!hubs}
           options={hubs.map(h => ({
             text: `${h.Name} — ${h.Location}`,
@@ -196,7 +193,6 @@ const NewTeamForm = ({ addToList, existingItem, token }) => {
           selection
           value={hub}
           onChange={(_, { value }) => setHub(value)}
-          onAddItem={(_, { value }) => setNewHub(value)}
         />
         <Form.Dropdown
           label="Coach"
@@ -244,20 +240,6 @@ const NewTeamForm = ({ addToList, existingItem, token }) => {
               setUsers([...users, user]);
               setCoach(user.ID);
               setNewUser("");
-            }}
-          />
-        </Modal.Content>
-      </Modal>
-
-      <Modal open={!!newHub} onClose={() => setNewHub("")}>
-        <Header icon="map marker" content="Add New Hub" />
-        <Modal.Content>
-          <NewHubForm
-            name={newHub}
-            addToList={hub => {
-              setHubs([...hubs, hub]);
-              setHub(hub.ID);
-              setNewHub("");
             }}
           />
         </Modal.Content>
