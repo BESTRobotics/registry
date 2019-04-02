@@ -1,82 +1,24 @@
 import React, { useEffect } from "react";
 import { connect } from "react-redux";
-import {
-  Grid,
-  Card,
-  Header,
-  Item,
-  List,
-  Button,
-  Icon
-} from "semantic-ui-react";
+import { Grid, Card, Header, Item } from "semantic-ui-react";
 import { getMyHubs, getBrcHub, registerBrc } from "../../redux/hubs/reducer";
 import FakeItemGroup from "./FakeItemGroup";
 import { Link } from "react-router-dom";
+import Hub from "./Hub.jsx";
 
-const Hub = ({ hub, expanded, allBrcHubs, getBrcHub, registerBrc }) => {
-  useEffect(() => {
-    (allBrcHubs && allBrcHubs[hub.ID]) || getBrcHub(hub.ID);
-  }, []);
-  console.log(allBrcHubs);
-  return (
-    <Item>
-      <Item.Content>
-        <Item.Header as={Link} to={`/hubs/${hub.ID}`}>
-          {hub.Name}
-        </Item.Header>
-        <Item.Meta>{hub.Description}</Item.Meta>
-        {expanded ? (
-          <Item.Description>
-            <List>
-              {allBrcHubs &&
-                allBrcHubs[hub.ID] &&
-                allBrcHubs[hub.ID].map(season => (
-                  <List.Item key={season.ID}>
-                    <Icon name="right triangle" />
-                    <List.Content>
-                      <List.Header
-                        as={season.brcHub ? Link : null}
-                        to={`/hubs/${hub.ID}/brc/${season.ID}`}
-                      >
-                        {season.Name}
-                      </List.Header>
-                      <List.Description>
-                        {season.brcHub ? (
-                          "Registered"
-                        ) : season.Open ? (
-                          <Button
-                            as="a"
-                            onClick={() => registerBrc(hub.ID, season.ID)}
-                          >
-                            Register Now
-                          </Button>
-                        ) : (
-                          "Closed"
-                        )}
-                      </List.Description>
-                    </List.Content>
-                  </List.Item>
-                ))}
-            </List>
-          </Item.Description>
-        ) : null}
-      </Item.Content>
-    </Item>
-  );
-};
-
-const Hubs = ({
-  hubs,
-  getMyHubs,
-  match,
-  hubsLength,
-  allBrcHubs,
-  getBrcHub,
-  registerBrc
-}) => {
+const Hubs = ({ hubs, getMyHubs, hubsLength, match }) => {
   useEffect(() => {
     (hubs && hubs.length) || getMyHubs();
   }, []);
+  if (hubs && hubs.length) {
+    if (match && match.params && match.params.id) {
+      const hub = hubs.find(h => String(h.ID) === match.params.id);
+      return <Hub hub={hub} />;
+    }
+    if (hubs.length === 1) {
+      return <Hub hub={hubs[0]} />;
+    }
+  }
   return (
     <Grid columns={2} centered>
       <Grid.Row>
@@ -89,21 +31,15 @@ const Hubs = ({
               <Card.Description>
                 <Item.Group divided>
                   {hubs && hubs.length ? (
-                    hubs.map(h => (
-                      <Hub
-                        key={h.ID}
-                        match={match}
-                        hub={h}
-                        allBrcHubs={allBrcHubs}
-                        getBrcHub={getBrcHub}
-                        registerBrc={registerBrc}
-                        expanded={
-                          (match &&
-                            match.params &&
-                            match.params.id === String(h.ID)) ||
-                          hubs.length === 1
-                        }
-                      />
+                    hubs.map(hub => (
+                      <Item>
+                        <Item.Content>
+                          <Item.Header as={Link} to={`/hubs/${hub.ID}`}>
+                            {hub.Name}
+                          </Item.Header>
+                          <Item.Meta>{hub.Description}</Item.Meta>
+                        </Item.Content>
+                      </Item>
                     ))
                   ) : (
                     <FakeItemGroup rows={hubsLength} />

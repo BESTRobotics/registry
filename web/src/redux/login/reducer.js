@@ -1,6 +1,7 @@
 import { createActions, handleActions, combineActions } from "redux-actions";
 import jwt_decode from "jwt-decode";
 import { getAllHubs, getBrcHub, getMyHubs } from "../hubs/reducer";
+import { getAllTeams, getMyTeams } from "../teams/reducer";
 
 const initialToken = window.localStorage.getItem("token") || null;
 const initialDecodedToken = initialToken && jwt_decode(initialToken);
@@ -40,7 +41,9 @@ const reducer = handleActions(
     [combineActions(
       getAllHubs.failure,
       getBrcHub.failure,
-      getMyHubs.failure
+      getMyHubs.failure,
+      getAllTeams.failure,
+      getMyTeams.failure
     )]: (state, { payload: { error } }) => {
       if (error.response && error.response.message) {
         return {

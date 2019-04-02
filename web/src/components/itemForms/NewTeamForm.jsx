@@ -190,7 +190,7 @@ const NewTeamForm = ({ addToList, existingItem, token }) => {
           allowAdditions
           loading={!hubs}
           options={hubs.map(h => ({
-            text: h.Name,
+            text: `${h.Name} — ${h.Location}`,
             value: h.ID
           }))}
           selection

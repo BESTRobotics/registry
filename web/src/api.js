@@ -55,3 +55,11 @@ export function fetchTeams(ids, token) {
     .all(requests)
     .then(axios.spread((...responses) => responses.map(res => res.data)));
 }
+
+export function fetchAllTeams(token) {
+  return axios
+    .get(`http://${url}/v1/teams`, {
+      headers: { Authorization: token }
+    })
+    .then(t => t.data);
+}

@@ -73,9 +73,6 @@ const BrcHub = ({
     (allBrcHubs && allBrcHubs[id]) || getBrcHub(id);
   }, []);
 
-  console.log(allBrcHubs[id] && allBrcHubs[id].map(s => s.ID));
-  console.log(season);
-
   return (
     <Grid columns={2} centered>
       <Grid.Row>
