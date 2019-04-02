@@ -1,5 +1,4 @@
-import { createActions, handleActions, combineActions } from "redux-actions";
-import { logout } from "../login/reducer";
+import { createActions, handleActions } from "redux-actions";
 
 const defaultState = {
   myHubs: [],
@@ -32,7 +31,7 @@ export const { getMyHubs, getAllHubs, getBrcHub, registerBrc } = createActions({
 
 const reducer = handleActions(
   {
-    [logout]: () => defaultState,
+    LOGOUT: () => defaultState,
     [getMyHubs.request]: state => state,
     [getMyHubs.success]: (state, { payload: { hubs } }) => ({
       ...state,

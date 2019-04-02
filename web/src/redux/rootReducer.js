@@ -6,9 +6,9 @@ import teamsReducer from "./teams/reducer";
 import rootSaga from "./rootSaga";
 
 export const rootReducer = combineReducers({
-  loginReducer,
   hubsReducer,
-  teamsReducer
+  teamsReducer,
+  loginReducer
 });
 
 const sagaMiddleware = createSagaMiddleware();

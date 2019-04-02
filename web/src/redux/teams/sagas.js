@@ -3,7 +3,6 @@ import { getAllTeams, getMyTeams } from "./reducer";
 import * as api from "../../api";
 
 function* getAllTeamsSaga(action) {
-  console.log("HELLO THERE");
   const token = yield select(({ loginReducer }) => loginReducer.token);
   try {
     const teams = yield call(api.fetchAllTeams, token);

@@ -74,9 +74,9 @@ const App = ({ token, superAdmin, message }) => {
         </section>
       ) : (
         <Switch>
-          <Redirect exact path="/" to="/login" />
           <Route path="/login" component={Login} />
           <Route path="/register" component={Register} />
+          <Redirect path="/" to="/login" />
           <Route default component={Login} />
         </Switch>
       )}

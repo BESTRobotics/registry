@@ -53,9 +53,9 @@ const mapStateToProps = ({ loginReducer }) => ({
   teams: loginReducer.teams && loginReducer.teams.length
 });
 
-const mapDispatchToProps = dispatch => ({
-  logout: () => dispatch(callLogout())
-});
+const mapDispatchToProps = {
+  logout: () => callLogout()
+};
 
 export default connect(
   mapStateToProps,
