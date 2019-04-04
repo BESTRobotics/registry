@@ -111,3 +111,67 @@ func (s *Server) updateBRCTeam(c echo.Context) error {
 
 	return c.NoContent(http.StatusNoContent)
 }
+
+func (s *Server) joinBRCTeam(c echo.Context) error {
+	// Perform Authorization Checks
+	claims := extractClaims(c)
+	if err := isAuthenticated(claims); err != nil {
+		return s.handleError(c, err)
+	}
+
+	var req struct {
+		JoinKey string
+		SeasonID int
+	}
+	if err := c.Bind(&req); err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
+	}
+
+	t, err := s.mg.GetBRCTeamByJoinKey(req.JoinKey, req.SeasonID)
+	if err != nil {
+		return s.handleError(c, err)
+	}
+	
+	if err := s.mg.JoinBRCTeam(t.ID, t.SeasonID, claims.User.ID); err != nil {
+		return s.handleError(c, err)
+	}
+	return c.NoContent(http.StatusNoContent)
+}
+
+func (s *Server) leaveBRCTeam(c echo.Context) error {
+	idStr := c.Param("id")
+	id, err := strconv.ParseInt(idStr, 10, 32)
+	if err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
+	}
+	seasonStr := c.Param("season")
+	season, err := strconv.ParseInt(seasonStr, 10, 32)
+	if err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
+	}
+	userStr := c.Param("user")
+	userID, err := strconv.ParseInt(userStr, 10, 32)
+	if err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
+	}
+
+	// Perform Authorization Checks
+	claims := extractClaims(c)
+	if err := isAuthenticated(claims); err != nil {
+		return s.handleError(c, err)
+	}
+
+	t, err := s.mg.GetBRCTeam(int(id), int(season))
+	if err != nil {
+		return s.handleError(c, err)
+	}
+
+	if err := permitCoachActions(extractClaims(c), t.Team); err != nil && int(userID) != claims.User.ID {
+		return c.String(http.StatusUnauthorized, "You are not authorized to remove that person")
+	}
+
+	if err := s.mg.LeaveBRCTeam(t.ID, t.SeasonID, claims.User.ID); err != nil {
+		return s.handleError(c, err)
+	}
+	return c.NoContent(http.StatusNoContent)
+}
