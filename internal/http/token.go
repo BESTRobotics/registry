@@ -117,3 +117,20 @@ func (s *Server) generateToken(id int, cfg token.Config) (string, error) {
 	}
 	return s.tkn.Generate(claims, cfg)
 }
+
+func (s *Server) renewToken(c echo.Context) error {
+	// TODO: This extends the lifetime of the token, but to do
+	// otherwise means we'll need to fix things in the underlying
+	// token system.
+	claims := extractClaims(c)
+	if err := isAuthenticated(claims); err != nil {
+		return s.handleError(c, err)
+	}
+
+	tkn, err := s.generateToken(claims.User.ID, token.GetConfig())
+	if err != nil {
+		return s.handleError(c, err)
+	}
+
+	return c.JSON(http.StatusOK, tkn)
+}
