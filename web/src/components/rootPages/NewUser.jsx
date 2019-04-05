@@ -8,16 +8,15 @@ import {
   Button,
   Modal
 } from "semantic-ui-react";
-import NewTeamForm from "../itemForms/NewTeamForm";
+import NewTeam from "../userForms/NewTeam";
+import { logout } from "../../redux/login/reducer";
 import { connect } from "react-redux";
 
-const NewUser = ({ token }) => {
+const NewUser = () => {
   const [schoolModalOpen, setSchoolModalOpen] = useState(false);
+  const [logoutModalOpen, setLogoutModalOpen] = useState(false);
   return (
     <Grid centered columns={2}>
-      <Grid.Row>
-        <Header as="h1">Welcome to the BEST Registry</Header>
-      </Grid.Row>
       <Grid.Row>Help us get you set up</Grid.Row>
       <Grid.Row>
         <Grid.Column>
@@ -69,11 +68,37 @@ const NewUser = ({ token }) => {
                 >
                   <Modal.Header>New Team</Modal.Header>
                   <Modal.Content>
-                    <NewTeamForm
-                      addToList={() => setSchoolModalOpen(false)}
-                      token={token}
+                    <NewTeam
+                      onDone={() => {
+                        setSchoolModalOpen(false);
+                        setLogoutModalOpen(true);
+                      }}
                     />
                   </Modal.Content>
+                </Modal>
+                <Modal
+                  size="tiny"
+                  onClose={() => {
+                    setLogoutModalOpen(false);
+                    logout();
+                  }}
+                  open={logoutModalOpen}
+                >
+                  <Modal.Header>Registration Successful</Modal.Header>
+                  <Modal.Content>
+                    <p>To update your team ownership, please log in again</p>
+                  </Modal.Content>
+
+                  <Modal.Actions>
+                    <Button
+                      content="Okay"
+                      positive
+                      onClick={() => {
+                        setLogoutModalOpen(false);
+                        logout();
+                      }}
+                    />
+                  </Modal.Actions>
                 </Modal>
               </Card.Description>
             </Card.Content>
@@ -84,6 +109,12 @@ const NewUser = ({ token }) => {
   );
 };
 
-const mapStateToProps = ({ loginReducer }) => ({ token: loginReducer.token });
+const mapStateToProps = () => ({});
+const mapDispatchToProps = {
+  logout: () => logout()
+};
 
-export default connect(mapStateToProps)(NewUser);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(NewUser);

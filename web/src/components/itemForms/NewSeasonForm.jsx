@@ -7,7 +7,7 @@ const NewSeasonForm = ({ addToList, existingItem, token }) => {
   const headers = { authorization: token };
   const season = existingItem;
   const [name, setName] = useState(season ? season.Name : "");
-  const [open, setOpen] = useState(season ? season.Open : false);
+  const [state, setState] = useState(season ? season.State : "Closed");
   const [program, setProgram] = useState(season ? season.Program : "0");
   const [message, setMessage] = useState(null);
   const [id, setId] = useState(season ? season.ID : "");
@@ -15,7 +15,7 @@ const NewSeasonForm = ({ addToList, existingItem, token }) => {
   const submitForm = () => {
     const newSeason = {
       Name: name,
-      Open: open,
+      State: state,
       Program: Number.parseInt(program)
     };
     let call = axios.post;
@@ -44,8 +44,6 @@ const NewSeasonForm = ({ addToList, existingItem, token }) => {
         });
       });
   };
-  console.log(existingItem);
-  console.log(open);
 
   return (
     <React.Fragment>
@@ -58,8 +56,8 @@ const NewSeasonForm = ({ addToList, existingItem, token }) => {
         />
         <Form.Checkbox
           label="Open"
-          checked={open}
-          onChange={() => setOpen(!open)}
+          checked={state === "Open"}
+          onChange={() => setState(state !== "Open" ? "Open" : "Closed")}
         />
         <Form.Input
           label="Program"

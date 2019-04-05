@@ -2,11 +2,16 @@ import { createActions, handleActions } from "redux-actions";
 
 const defaultState = {
   myHubs: [],
-  allHubs: {},
+  allHubs: [],
   allBrcHubs: {}
 };
 
-export const { getMyHubs, getAllHubs, getBrcHub, registerBrc } = createActions({
+export const {
+  getMyHubs,
+  getAllHubs,
+  getBrcHub,
+  registerBrcHub
+} = createActions({
   GET_MY_HUBS: {
     REQUEST: () => ({}),
     SUCCESS: hubs => ({ hubs }),
@@ -22,7 +27,7 @@ export const { getMyHubs, getAllHubs, getBrcHub, registerBrc } = createActions({
     SUCCESS: (id, seasons, brcHubs) => ({ id, seasons, brcHubs }),
     FAILURE: error => ({ error })
   },
-  REGISTER_BRC: {
+  REGISTER_BRC_HUB: {
     REQUEST: (id, season) => ({ id, season }),
     SUCCESS: (id, season, brcHub) => ({ id, season, brcHub }),
     FAILURE: error => ({ error })
@@ -35,14 +40,15 @@ const reducer = handleActions(
     [getMyHubs.request]: state => state,
     [getMyHubs.success]: (state, { payload: { hubs } }) => ({
       ...state,
-      myHubs: hubs,
-      allHubs: {
-        ...state.allHubs,
-        ...hubs.reduce((o, h) => {
-          o[h.id] = h;
-          return o;
-        }, {})
-      }
+      myHubs: hubs
+      // allHubs: state.allHubs &&
+      //   state.allHubs.length && {
+      //     ...state.allHubs,
+      //     ...hubs.reduce((o, h) => {
+      //       o[h.id] = h;
+      //       return o;
+      //     }, {})
+      //   }
     }),
     [getAllHubs.success]: (state, { payload: { hubs } }) => ({
       ...state,
@@ -58,7 +64,7 @@ const reducer = handleActions(
         }))
       }
     }),
-    [registerBrc.success]: (state, { payload: { id, season, brcHub } }) => ({
+    [registerBrcHub.success]: (state, { payload: { id, season, brcHub } }) => ({
       ...state,
       allBrcHubs: {
         ...state.allBrcHubs,

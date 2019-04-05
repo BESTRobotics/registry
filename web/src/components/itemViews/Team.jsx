@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { connect } from "react-redux";
 import { Link } from "react-router-dom";
-import { getBrcHub, registerBrcHub } from "../../redux/hubs/reducer";
-import { getAllTeams } from "../../redux/teams/reducer";
+import {
+  getBrcTeam,
+  registerBrcTeam,
+  getAllTeams
+} from "../../redux/teams/reducer";
 import {
   Button,
   Icon,
@@ -15,36 +18,33 @@ import {
   Message
 } from "semantic-ui-react";
 import FakeItemGroup from "./FakeItemGroup";
-import NewHubForm from "../itemForms/NewHubForm";
+import NewTeamForm from "../itemForms/NewTeamForm";
 
-const Hub = ({
-  hub,
-  allBrcHubs,
-  getBrcHub,
+const Team = ({
+  team,
+  allBrcTeams,
+  getBrcTeam,
   token,
   registerBrc,
   allTeams,
   getAllTeams
 }) => {
-  const [hubModalOpen, setHubModalOpen] = useState(false);
+  const [teamModalOpen, setTeamModalOpen] = useState(false);
   useEffect(() => {
-    (allBrcHubs && hub && allBrcHubs[hub.ID]) || getBrcHub(hub.ID);
-  }, []);
-  useEffect(() => {
-    (allTeams && allTeams.length) || getAllTeams();
+    (allBrcTeams && team && allBrcTeams[team.ID]) || getBrcTeam(team.ID);
   }, []);
 
-  return hub ? (
+  return team ? (
     <Grid columns={2} centered>
       <Grid.Row>
         <Grid.Column>
           <Card fluid>
             <Card.Content>
               <Card.Header as={Header} size="huge">
-                {hub.Name}
+                {team.StaticName}
                 <Modal
                   trigger={
-                    <span onClick={() => setHubModalOpen(true)}>
+                    <span onClick={() => setTeamModalOpen(true)}>
                       <Icon
                         name="pencil"
                         size="small"
@@ -52,41 +52,38 @@ const Hub = ({
                       />
                     </span>
                   }
-                  onOpen={() => setHubModalOpen(true)}
-                  onClose={() => setHubModalOpen(false)}
-                  open={!!hubModalOpen}
+                  onOpen={() => setTeamModalOpen(true)}
+                  onClose={() => setTeamModalOpen(false)}
+                  open={!!teamModalOpen}
                 >
-                  <Modal.Header>New Hub</Modal.Header>
+                  <Modal.Header>New Team</Modal.Header>
                   <Modal.Content>
-                    <NewHubForm
-                      addToList={() => setHubModalOpen(false)}
-                      existingItem={hub}
+                    <NewTeamForm
+                      addToList={() => setTeamModalOpen(false)}
+                      existingItem={team}
                       token={token}
                     />
                   </Modal.Content>
                 </Modal>
               </Card.Header>
-              <Card.Meta>{hub.Description}</Card.Meta>
+              <Card.Meta>{team.SchoolName}</Card.Meta>
               <Card.Description>
                 <Divider horizontal>
                   <Header as="h4">
                     <Icon name="info circle" />
-                    Hub Info
+                    Team Info
                   </Header>
                 </Divider>
-                <b>Director:</b> {hub.Director.FirstName}{" "}
-                {hub.Director.LastName}
+                <b>Director:</b> {team.Coach.FirstName} {team.Coach.LastName}
                 <br />
-                <b>Admins:</b>{" "}
-                {hub.Admins
-                  ? hub.Admins.map(a => `${a.FirstName} ${a.LastName}`).join(
+                <b>Mentors:</b>{" "}
+                {team.Mentors
+                  ? team.Mentors.map(a => `${a.FirstName} ${a.LastName}`).join(
                       ","
                     )
                   : "none"}
                 <br />
-                <b>Location:</b> {hub.Location}
-                <br />
-                <b>Founded:</b> {hub.Founded && hub.Founded.substring(0, 10)}
+                <b>Founded:</b> {team.Founded && team.Founded.substring(0, 10)}
                 <br />
                 <Divider horizontal>
                   <Header as="h4">
@@ -95,24 +92,24 @@ const Hub = ({
                   </Header>
                 </Divider>
                 <List divided verticalAlign="middle">
-                  {(allBrcHubs &&
-                    allBrcHubs[hub.ID] &&
-                    allBrcHubs[hub.ID].map(season => (
+                  {(allBrcTeams &&
+                    allBrcTeams[team.ID] &&
+                    allBrcTeams[team.ID].map(season => (
                       <List.Item key={season.ID}>
                         <List.Content>
                           <List.Header
-                            as={season.brcHub ? Link : null}
-                            to={`/hubs/${hub.ID}/brc/${season.ID}`}
+                            as={season.brcTeam ? Link : null}
+                            to={`/teams/${team.ID}/brc/${season.ID}`}
                           >
                             {season.Name}
                           </List.Header>
                           <List.Description>
-                            {season.brcHub ? (
+                            {season.brcTeam ? (
                               "Registered"
                             ) : season.State === "Open" ? (
                               <Button
                                 compact
-                                onClick={() => registerBrc(hub.ID, season.ID)}
+                                onClick={() => registerBrc(team.ID, season.ID)}
                               >
                                 Register Now
                               </Button>
@@ -127,23 +124,10 @@ const Hub = ({
                 <Divider horizontal>
                   <Header as="h4">
                     <Icon name="users" />
-                    Teams
+                    Students
                   </Header>
                 </Divider>
-                {(allTeams &&
-                  allTeams.length &&
-                  allTeams
-                    .filter(t => t.HomeHub.ID === hub.ID)
-                    .map(team => (
-                      <List.Item key={team.ID}>
-                        <List.Content>
-                          <List.Header as={Link} to={`/teams/${team.ID}`}>
-                            {team.StaticName}
-                          </List.Header>
-                          <List.Description>{team.SchoolName}</List.Description>
-                        </List.Content>
-                      </List.Item>
-                    ))) || <FakeItemGroup rows={3} />}
+                <FakeItemGroup rows={3} />
               </Card.Description>
             </Card.Content>
           </Card>
@@ -151,23 +135,23 @@ const Hub = ({
       </Grid.Row>
     </Grid>
   ) : (
-    <Message>Hub not found</Message>
+    <Message>Team not found</Message>
   );
 };
 
-const mapStateToProps = ({ hubsReducer, teamsReducer, loginReducer }) => ({
-  allBrcHubs: hubsReducer.allBrcHubs,
+const mapStateToProps = ({ teamsReducer, hubReducer, loginReducer }) => ({
+  allBrcTeams: teamsReducer.allBrcTeams,
   allTeams: teamsReducer.allTeams,
   token: loginReducer.token
 });
 
 const mapDispatchToProps = {
-  getBrcHub: id => getBrcHub.request(id),
+  getBrcTeam: id => getBrcTeam.request(id),
   getAllTeams: () => getAllTeams.request(),
-  registerBrc: (id, season) => registerBrcHub.request(id, season)
+  registerBrc: (id, season) => registerBrcTeam.request(id, season)
 };
 
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(Hub);
+)(Team);

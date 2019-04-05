@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { connect } from "react-redux";
-import { getBrcHub, registerBrcHub } from "../../redux/hubs/reducer";
+import { getBrcTeam, registerBrcTeam } from "../../redux/teams/reducer";
 import {
   Button,
   Icon,
@@ -12,15 +12,16 @@ import {
 } from "semantic-ui-react";
 import FakeItemGroup from "./FakeItemGroup";
 
-const BrcDescription = ({ brcHub, register, id, season }) => {
-  return brcHub.brcHub ? (
+const BrcDescription = ({ brcTeam, register, id, season }) => {
+  console.log(brcTeam.brcTeam);
+  return brcTeam.brcTeam ? (
     <Card fluid>
       <Card.Content>
-        <Card.Header>{`${brcHub.brcHub.Hub.Name}  |  ${
-          brcHub.brcHub.Season.Name
+        <Card.Header>{`${brcTeam.brcTeam.Team.StaticName}  |  ${
+          brcTeam.brcTeam.Season.Name
         }`}</Card.Header>
         <Card.Meta>
-          {brcHub.brcHub && brcHub.brcHub.Meta.BRIApproved ? (
+          {brcTeam.brcTeam && brcTeam.brcTeam.BRIApproved ? (
             "Registration Approved"
           ) : (
             <>
@@ -36,8 +37,8 @@ const BrcDescription = ({ brcHub, register, id, season }) => {
             </Header>
           </Divider>
           <List divided verticalAlign="middle">
-            {brcHub.brcHub.events
-              ? brcHub.brcHub.events.map(e => (
+            {brcTeam.brcTeam.events
+              ? brcTeam.brcTeam.events.map(e => (
                   <List.Item>
                     <List.Content>
                       <List.Header as="a">Event</List.Header>
@@ -49,7 +50,7 @@ const BrcDescription = ({ brcHub, register, id, season }) => {
           <Divider horizontal>
             <Header as="h4">
               <Icon name="users" />
-              Teams
+              Students
             </Header>
           </Divider>
           <FakeItemGroup rows={3} />
@@ -61,31 +62,31 @@ const BrcDescription = ({ brcHub, register, id, season }) => {
   );
 };
 
-const BrcHub = ({
-  allBrcHubs,
-  getBrcHub,
+const BrcTeam = ({
+  allBrcTeams,
+  getBrcTeam,
   registerBrc,
   match: {
     params: { id, season }
   }
 }) => {
   useEffect(() => {
-    (allBrcHubs && allBrcHubs[id]) || getBrcHub(id);
+    (allBrcTeams && allBrcTeams[id]) || getBrcTeam(id);
   }, []);
 
   return (
     <Grid columns={2} centered>
       <Grid.Row>
         <Grid.Column>
-          {allBrcHubs && allBrcHubs[id] ? (
+          {allBrcTeams && allBrcTeams[id] ? (
             <BrcDescription
-              brcHub={allBrcHubs[id].find(s => String(s.ID) === season)}
+              brcTeam={allBrcTeams[id].find(s => String(s.ID) === season)}
               id={id}
               season={season}
               register={() => registerBrc(id)}
             />
           ) : (
-            "Loading Hub Info ..."
+            "Loading Team Info ..."
           )}
         </Grid.Column>
       </Grid.Row>
@@ -93,16 +94,16 @@ const BrcHub = ({
   );
 };
 
-const mapStateToProps = ({ hubsReducer }) => ({
-  allBrcHubs: hubsReducer.allBrcHubs
+const mapStateToProps = ({ teamsReducer }) => ({
+  allBrcTeams: teamsReducer.allBrcTeams
 });
 
 const mapDispatchToProps = {
-  getBrcHub: id => getBrcHub.request(id),
-  registerBrc: (id, season) => registerBrcHub.request(id, season)
+  getBrcTeam: id => getBrcTeam.request(id),
+  registerBrc: (id, season) => registerBrcTeam.request(id, season)
 };
 
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(BrcHub);
+)(BrcTeam);

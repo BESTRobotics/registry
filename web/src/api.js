@@ -8,6 +8,14 @@ export function fetchHub(id, token) {
   });
 }
 
+export function fetchAllHubs(token) {
+  return axios
+    .get(`http://${url}/v1/hubs`, {
+      headers: { Authorization: token }
+    })
+    .then(h => h.data);
+}
+
 export function fetchSeasons(token) {
   return axios
     .get(`http://${url}/v1/seasons`, {
@@ -29,6 +37,26 @@ export function registerBrcHub(id, season, token) {
     .post(
       `http://${url}/v1/hubs/${id}/brc/${season}`,
       {},
+      {
+        headers: { Authorization: token }
+      }
+    )
+    .then(h => h.data);
+}
+
+export function registerNewTeam(team, token) {
+  return axios
+    .post(`http://${url}/v1/teams`, team, {
+      headers: { Authorization: token }
+    })
+    .then(h => h.data);
+}
+
+export function setTeamHub(id, hub, token) {
+  return axios
+    .put(
+      `http://${url}/v1/teams/${id}/home`,
+      { ID: hub },
       {
         headers: { Authorization: token }
       }
@@ -62,4 +90,24 @@ export function fetchAllTeams(token) {
       headers: { Authorization: token }
     })
     .then(t => t.data);
+}
+
+export function fetchBrcTeams(id, token) {
+  return axios
+    .get(`http://${url}/v1/teams/${id}/brc`, {
+      headers: { Authorization: token }
+    })
+    .then(t => t.data);
+}
+
+export function registerBrcTeam(id, season, token) {
+  return axios
+    .post(
+      `http://${url}/v1/teams/${id}/brc/${season}`,
+      {},
+      {
+        headers: { Authorization: token }
+      }
+    )
+    .then(h => h.data);
 }

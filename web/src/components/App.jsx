@@ -19,6 +19,7 @@ import SeasonsTables from "./itemTables/Seasons";
 import UsersTables from "./itemTables/Users";
 import EventsTables from "./itemTables/Events";
 import BrcHub from "./itemViews/BrcHub";
+import BrcTeam from "./itemViews/BrcTeam";
 
 const App = ({ token, superAdmin, message }) => {
   return (
@@ -41,9 +42,12 @@ const App = ({ token, superAdmin, message }) => {
             <Redirect path="/login" to="/" />
             <Redirect path="/register" to="/" />
             <Route exact path="/" component={Homepage} />
-            <Route exact path={["/hubs", "/hubs/:id"]} component={Hubs} />
-            <Route path="/teams" component={Teams} />
+            <Route exact path="/hubs" component={Hubs} />
+            <Route exact path="/hubs/:id" component={Hubs} />
+            <Route exact path="/teams" component={Teams} />
+            <Route exact path="/teams/:id" component={Teams} />
             <Route path="/hubs/:id/brc/:season" component={BrcHub} />
+            <Route path="/teams/:id/brc/:season" component={BrcTeam} />
             {/* These below guys need to be more reduxy */}
             {superAdmin && (
               <>

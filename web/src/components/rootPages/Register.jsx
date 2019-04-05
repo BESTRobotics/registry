@@ -6,7 +6,8 @@ import {
   Button,
   Form,
   Image,
-  Message
+  Message,
+  Modal
 } from "semantic-ui-react";
 import { Link } from "react-router-dom";
 import logo from "../../assets/logo.jpg";
@@ -16,16 +17,15 @@ const Register = ({ history }) => {
   const [username, setUserName] = useState("");
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
-  const [type, setType] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [birthdate, setBirthdate] = useState("");
   const [message, setMessage] = useState("");
+  const [portalOpen, setModalOpen] = useState(false);
   const register = () => {
     const newUser = {
       Username: username,
       EMail: email,
-      Type: type,
       FirstName: firstName,
       LastName: lastName,
       Birthdate: birthdate ? new Date(birthdate).toISOString() : null
@@ -35,8 +35,8 @@ const Register = ({ history }) => {
         `http://${process.env.REACT_APP_API_URL}/v1/account/register/local`,
         { U: newUser, Password: password }
       )
-      .then(response => {
-        history.push("/login");
+      .then(() => {
+        setModalOpen(true);
       })
       .catch(e => {
         setMessage({
@@ -118,16 +118,6 @@ const Register = ({ history }) => {
                 />
               </Form.Group>
 
-              <Form.Input
-                label="Type"
-                fluid
-                icon="settings"
-                iconPosition="left"
-                placeholder="Type"
-                value={type}
-                onChange={(_, { value }) => setType(value)}
-              />
-
               <Button color="teal" fluid size="large">
                 Create Account
               </Button>
@@ -137,6 +127,30 @@ const Register = ({ history }) => {
             Already have an account? <Link to="/login">Log in</Link>
           </Message>
           {message ? <Message {...message} /> : null}
+          <Modal
+            size="tiny"
+            onClose={() => {
+              setModalOpen(false);
+              history.push("/login");
+            }}
+            open={portalOpen}
+          >
+            <Modal.Header>Registration Successful</Modal.Header>
+            <Modal.Content>
+              <p>Please check your email to complete sign-up</p>
+            </Modal.Content>
+
+            <Modal.Actions>
+              <Button
+                content="Okay"
+                positive
+                onClick={() => {
+                  setModalOpen(false);
+                  history.push("/login");
+                }}
+              />
+            </Modal.Actions>
+          </Modal>
         </Grid.Column>
       </Grid.Row>
     </Grid>

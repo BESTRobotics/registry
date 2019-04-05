@@ -5,7 +5,7 @@ import NewSeasonForm from "../itemForms/NewSeasonForm";
 const Seasons = ({ token }) => {
   const fields = [
     { header: "Name", name: "Name", filter: true },
-    { header: "Open", displayFn: s => (s.Open ? "Open" : "Closed") },
+    { header: "State", name: "State" },
     { header: "Program", name: "Program" }
   ];
   return (

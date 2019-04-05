@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { connect } from "react-redux";
 import { Grid, Card, Header, Item } from "semantic-ui-react";
-import { getMyHubs, getBrcHub, registerBrc } from "../../redux/hubs/reducer";
+import { getMyHubs, getBrcHub, registerBrcHub } from "../../redux/hubs/reducer";
 import FakeItemGroup from "./FakeItemGroup";
 import { Link } from "react-router-dom";
 import Hub from "./Hub.jsx";
@@ -63,7 +63,7 @@ const mapStateToProps = ({ loginReducer, hubsReducer }) => ({
 const mapDispatchToProps = {
   getBrcHub: id => getBrcHub.request(id),
   getMyHubs: () => getMyHubs.request(),
-  registerBrc: (id, season) => registerBrc.request(id, season)
+  registerBrc: (id, season) => registerBrcHub.request(id, season)
 };
 
 export default connect(

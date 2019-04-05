@@ -1,10 +1,16 @@
 import { takeEvery, select, all, call, put } from "redux-saga/effects";
-import { getBrcHub, getAllHubs, getMyHubs, registerBrc } from "./reducer";
+import { getBrcHub, getAllHubs, getMyHubs, registerBrcHub } from "./reducer";
 import * as api from "../../api";
 
 function* getAllHubsSaga(action) {
-  console.log("unimplemented");
-  //do something
+  const token = yield select(({ loginReducer }) => loginReducer.token);
+  try {
+    const hubs = yield call(api.fetchAllHubs, token);
+    yield put({ type: getAllHubs.success, payload: { hubs } });
+  } catch (err) {
+    console.error(err);
+    yield put({ type: getAllHubs.failure, payload: { error: err } });
+  }
 }
 
 function* getBrcHubSaga({ payload: { id } }) {
@@ -25,10 +31,13 @@ function* registerBrcHubSaga({ payload: { id, season } }) {
   const token = yield select(({ loginReducer }) => loginReducer.token);
   try {
     const brcHub = yield call(api.registerBrcHub, id, season, token);
-    yield put({ type: registerBrc.success, payload: { id, season, brcHub } });
+    yield put({
+      type: registerBrcHub.success,
+      payload: { id, season, brcHub }
+    });
   } catch (err) {
     console.error(err);
-    yield put({ type: registerBrc.failure, payload: { error: err } });
+    yield put({ type: registerBrcHub.failure, payload: { error: err } });
   }
 }
 
@@ -49,5 +58,5 @@ export default [
   takeEvery(getAllHubs.request, getAllHubsSaga),
   takeEvery(getMyHubs.request, getMyHubsSaga),
   takeEvery(getBrcHub.request, getBrcHubSaga),
-  takeEvery(registerBrc.request, registerBrcHubSaga)
+  takeEvery(registerBrcHub.request, registerBrcHubSaga)
 ];
