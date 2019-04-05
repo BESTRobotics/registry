@@ -31,11 +31,10 @@ type Team struct {
 	HomeHubID int `storm:"index"`
 	HomeHub   Hub
 
-	// A team has exactly one coach.  This is the person who the
-	// school has designated as responsible for the team's
-	// actions, and is the point of contact for delivering
-	// paperwork for the team and other key functions.
-	Coach User
+	// Teams in general have only a single coach, but in some
+	// schools its desirable for the principal or other
+	// administrator to be a coach for continuity reasons.
+	Coach []User
 
 	// Like the hub director, its rare the coach does it on their
 	// own.  They have Mentors that help them out to run the team

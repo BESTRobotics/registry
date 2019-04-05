@@ -12,7 +12,8 @@ import (
 
 func (s *Server) newTeam(c echo.Context) error {
 	// Perform Authorization Checks
-	if err := isAuthenticated(extractClaims(c)); err != nil {
+	clms := extractClaims(c)
+	if err := isAuthenticated(clms); err != nil {
 		return s.handleError(c, err)
 	}
 
@@ -25,6 +26,12 @@ func (s *Server) newTeam(c echo.Context) error {
 	if err != nil {
 		return s.handleError(c, err)
 	}
+
+	// Add the user as the initial coach of the team.
+	if err := s.mg.AddTeamCoach(id, clms.User); err != nil {
+		return s.handleError(c, err)
+	}
+
 	team, err = s.mg.GetTeam(id)
 	if err != nil {
 		return s.handleError(c, err)
@@ -105,15 +112,19 @@ func (s *Server) modTeam(c echo.Context) error {
 	return c.NoContent(http.StatusNoContent)
 }
 
-func (s *Server) setTeamCoach(c echo.Context) error {
-	// Perform Authorization Checks
-	if err := canManageTeams(extractClaims(c)); err != nil {
-		return s.handleError(c, err)
-	}
-
+func (s *Server) addTeamCoach(c echo.Context) error {
 	idStr := c.Param("id")
 	id, err := strconv.ParseInt(idStr, 10, 32)
 	if err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
+	}
+
+	// Perform Authorization Checks
+	team, err := s.mg.GetTeam(int(id))
+	if err != nil {
+		return s.handleError(c, err)
+	}
+	if err := permitCoachActions(extractClaims(c), team); err != nil {
 		return s.handleError(c, err)
 	}
 
@@ -122,7 +133,7 @@ func (s *Server) setTeamCoach(c echo.Context) error {
 		return c.String(http.StatusBadRequest, err.Error())
 	}
 
-	err = s.mg.SetTeamCoach(int(id), user)
+	err = s.mg.AddTeamCoach(int(id), user)
 	if err != nil {
 		return s.handleError(c, err)
 	}
@@ -130,19 +141,34 @@ func (s *Server) setTeamCoach(c echo.Context) error {
 	return c.NoContent(http.StatusNoContent)
 }
 
-func (s *Server) getTeamCoach(c echo.Context) error {
+func (s *Server) delTeamCoach(c echo.Context) error {
 	idStr := c.Param("id")
 	id, err := strconv.ParseInt(idStr, 10, 32)
 	if err != nil {
 		return c.String(http.StatusBadRequest, err.Error())
 	}
 
-	user, err := s.mg.GetTeamCoach(int(id))
+	// Perform Authorization Checks
+	team, err := s.mg.GetTeam(int(id))
+	if err != nil {
+		return s.handleError(c, err)
+	}
+	if err := permitCoachActions(extractClaims(c), team); err != nil {
+		return s.handleError(c, err)
+	}
+
+	uidStr := c.Param("uid")
+	uid, err := strconv.ParseInt(uidStr, 10, 32)
+	if err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
+	}
+
+	err = s.mg.DelTeamCoach(int(id), models.User{ID: int(uid)})
 	if err != nil {
 		return s.handleError(c, err)
 	}
 
-	return c.JSON(http.StatusOK, user)
+	return c.NoContent(http.StatusNoContent)
 }
 
 func (s *Server) addTeamMentor(c echo.Context) error {
@@ -364,8 +390,10 @@ func permitCoachActions(claims token.Claims, team models.Team) error {
 		return nil
 	}
 	for i := range claims.Teams {
-		if claims.Teams[i] == team.Coach.ID {
-			return nil
+		for j := range team.Coach {
+			if claims.Teams[i] == team.Coach[j].ID {
+				return nil
+			}
 		}
 	}
 	return newAuthError("Unauthorized", "You must be a team coach to do that!")

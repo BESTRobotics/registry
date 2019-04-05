@@ -15,6 +15,7 @@ import (
 func (mg *MechanicalGreg) NewTeam(t models.Team) (int, error) {
 	// These fields need special handling and have to be set via
 	// dedicated interfaces.
+	t.Coach = nil
 	t.Mentors = nil
 	t.BRIApproved = false
 
@@ -120,10 +121,11 @@ func (mg *MechanicalGreg) GetTeamsForUser(userID int) ([]models.Team, error) {
 	// as a director or admin.  This isn't N^2 even though it
 	// looks like it!
 	for i := range teams {
-		if teams[i].Coach.ID == userID {
-			involvements[teams[i].ID] = teams[i]
+		for j := range teams[i].Coach {
+			if teams[i].Coach[j].ID == userID {
+				involvements[teams[i].ID] = teams[i]
+			}
 		}
-
 		for j := range teams[i].Mentors {
 			if teams[i].Mentors[j].ID == userID {
 				involvements[teams[i].ID] = teams[i]
@@ -177,7 +179,7 @@ func (mg *MechanicalGreg) GetTeamsForHub(hubID int) ([]models.Team, error) {
 // ModTeam modifies a team.  It protects certain specialized fields
 // that require different mechanisms to set.
 func (mg *MechanicalGreg) ModTeam(team models.Team) error {
-	team.Coach = models.User{}
+	team.Coach = nil
 	team.Mentors = nil
 
 	// BRIApproved needs to be pulled and fed across any updates.
@@ -207,17 +209,16 @@ func (mg *MechanicalGreg) modTeam(t models.Team) error {
 	}
 }
 
-// SetTeamCoach sets the coach of the team.  From an ACL perspective
-// this is effectively the owner of the team resource.
-func (mg *MechanicalGreg) SetTeamCoach(id int, u models.User) error {
-	user, err := mg.GetUser(u.ID)
+// AddTeamCoach adds a coach to the team which can perform most, but
+// not all, actions that the coach can perform.
+func (mg *MechanicalGreg) AddTeamCoach(id int, u models.User) error {
+	team, err := mg.GetTeam(id)
 	if err != nil {
 		return err
 	}
 
-	err = mg.modTeam(models.Team{ID: id, Coach: user})
-	if err != nil {
-		log.Println(err)
+	team.Coach = patchUserSlice(team.Coach, true, u)
+	if err := mg.modTeam(team); err != nil {
 		return err
 	}
 
@@ -229,13 +230,30 @@ func (mg *MechanicalGreg) SetTeamCoach(id int, u models.User) error {
 	return mg.po.SendMail(l)
 }
 
-// GetTeamCoach returns the coach for a given team.
-func (mg *MechanicalGreg) GetTeamCoach(id int) (models.User, error) {
-	t, err := mg.GetTeam(id)
+// DelTeamCoach removes a coach from the listed team.
+func (mg *MechanicalGreg) DelTeamCoach(id int, u models.User) error {
+	team, err := mg.GetTeam(id)
 	if err != nil {
-		return models.User{}, err
+		return err
 	}
-	return t.Coach, nil
+
+	coachs := patchUserSlice(team.Coach, false, u)
+	err = mg.s.UpdateField(&models.Team{ID: id}, "Coach", coachs)
+	switch err {
+	case nil:
+		break
+	case storm.ErrNotFound:
+		return NewConstraintError("No team exists with that ID", err, http.StatusNotFound)
+	default:
+		return NewInternalError("An unspecified internal error has occured", err, http.StatusInternalServerError)
+	}
+
+	l := mail.NewLetter()
+	l.AddTo(mail.UserToAddress(u))
+	l.Subject = "You've been removed from a team"
+	l.Body = "Thanks for your time, you're no longer listed as a coach on " + team.StaticName + "."
+
+	return mg.po.SendMail(l)
 }
 
 // AddTeamMentor adds a mentor to the team which can perform most, but
