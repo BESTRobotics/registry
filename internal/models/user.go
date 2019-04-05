@@ -19,6 +19,23 @@ type User struct {
 	// mail.
 	EMail string `storm:"unique,index"`
 
+	// Capabilities confer special powers within the system that a
+	// user might have in addition to those granted by owning a
+	// particular resource.
+	Capabilities []Capability
+}
+
+// The UserProfile contains information that is not public on a user,
+// but that may need to be made available to various systems
+// internally.
+type UserProfile struct {
+	// Not really useful for anything, but for consistency we give
+	// the UserProfile an int.
+	ID int `storm:"increment"`
+
+	// The profile knows which user it belongs to
+	UserID int
+
 	// Type is the type of user that this represents.  This can be
 	// things like "STUDENT" or "TEACHER" or "VOLUNTEER" etc.
 	Type string
@@ -34,11 +51,34 @@ type User struct {
 	// Birthdate contains the user's birthdate, this is used to
 	// calculate whether or not the user can sign things.
 	Birthdate DateTime
+}
 
-	// Capabilities confer special powers within the system that a
-	// user might have in addition to those granted by owning a
-	// particular resource.
-	Capabilities []Capability
+// A Student is a special type that handles an "owned" profile on a
+// primary account.
+type Student struct {
+	// Allows us to later keep track of what student this is.
+	ID int `storm:"increment"`
+
+	// The ID of the user account that owns this student record is
+	// kept seperate.
+	AccountID int
+
+	// Students have names that are likely distinct from that of
+	// the account holder.
+	FirstName string
+	LastName  string
+
+	// A student might have their own email account which should
+	// get stuff sent to it, but this is by default blank.
+	Email string
+
+	// Asking and storing this here makes it significantly more
+	// efficient than asking people later, and increases the
+	// likelyhood that people will actually fill out the surveys
+	// that happen during the season.  String typed to support
+	// future expansion to an arbitrarily large set of values.
+	Race   string
+	Gender string
 }
 
 // HasCapability can be used to check if a user has a particular
