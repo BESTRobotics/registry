@@ -167,3 +167,59 @@ func (mg *MechanicalGreg) CheckUserPassword(username, password string) error {
 	}
 	return nil
 }
+
+// GetStudent gets a single student by ID, in most cases it is likely
+// that you'd want to use GetStudents, which returns all students on
+// an account.
+func (mg *MechanicalGreg) GetStudent(sid int) (models.Student, error) {
+	var student models.Student
+
+	err := mg.s.One("ID", sid, &student)
+	switch err {
+	case nil:
+		return student, nil
+	case storm.ErrNotFound:
+		return models.Student{},
+			NewConstraintError("No such user exists with that ID", err, http.StatusNotFound)
+	default:
+		return models.Student{},
+			NewInternalError("An unspecified error has occured", err, http.StatusInternalServerError)
+	}
+}
+
+// GetStudents returns all students that are parented to a single
+// account holder.
+func (mg *MechanicalGreg) GetStudents(uid int) ([]models.Student, error) {
+	var out []models.Student
+
+	err := mg.s.Find("userID", uid, &out)
+	switch err {
+	case nil:
+		return out, nil
+	case storm.ErrNotFound:
+		return []models.Student{},
+			NewConstraintError("No such user exists with that ID", err, http.StatusNotFound)
+	default:
+		return []models.Student{},
+			NewInternalError("An unspecified error has occured", err, http.StatusInternalServerError)
+	}
+}
+
+// PutStudent creates or updates a student on the system.
+func (mg *MechanicalGreg) PutStudent(uid int, s models.Student) error {
+	s.UserID = uid
+	var err error
+	if s.ID == 0 {
+		err = mg.s.Save(&s)
+	} else {
+		err = mg.s.Update(&s)
+	}
+	switch err {
+	case nil:
+		return nil
+	case storm.ErrNotFound:
+		return NewConstraintError("No such student exists with that ID", err, http.StatusNotFound)
+	default:
+		return NewInternalError("An unspecified error has occured", err, http.StatusInternalServerError)
+	}
+}

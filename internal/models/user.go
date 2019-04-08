@@ -65,7 +65,7 @@ type Student struct {
 
 	// The ID of the user account that owns this student record is
 	// kept seperate.
-	AccountID int
+	UserID int
 
 	// Students have names that are likely distinct from that of
 	// the account holder.
