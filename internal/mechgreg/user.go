@@ -44,6 +44,43 @@ func (mg *MechanicalGreg) GetUser(uid int) (models.User, error) {
 	}
 }
 
+// FillUserProfile is used to load and embed the profile in places
+// where a fully populated user is needed.
+func (mg *MechanicalGreg) FillUserProfile(u *models.User) error {
+	p, err := mg.GetUserProfile(u.ID)
+	if err != nil {
+		return err
+	}
+	u.UserProfile = &p
+	return nil
+}
+
+// GetUserProfile fetches just the profile information for a particular user.
+func (mg *MechanicalGreg) GetUserProfile(uid int) (models.UserProfile, error) {
+	var p models.UserProfile
+	if err := mg.s.One("UserID", uid, &p); err != nil {
+		return models.UserProfile{},
+			NewInternalError("Profile could not be retrieved", err, http.StatusInternalServerError)
+	}
+	return p, nil
+}
+
+// SetUserProfile is used to update the profile information for a
+// particular user.
+func (mg *MechanicalGreg) SetUserProfile(uid int, p models.UserProfile) error {
+	p.ID = 0
+	p.UserID = uid
+	err := mg.s.Update(&p)
+	switch err {
+	case nil:
+		return nil
+	case storm.ErrNotFound:
+		return NewConstraintError("No such profile exists with that ID", err, http.StatusNotFound)
+	default:
+		return NewInternalError("An unspecified error has occured", err, http.StatusInternalServerError)
+	}
+}
+
 // UsernameExists can be used to check if a username exists before creating a new user.
 func (mg *MechanicalGreg) UsernameExists(username string) (models.User, error) {
 	var user models.User

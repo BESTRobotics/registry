@@ -26,6 +26,9 @@ type MechGreg interface {
 	GetUser(int) (models.User, error)
 	ModUser(models.User) error
 	GetUserPage(int, int) ([]models.User, error)
+	FillUserProfile(*models.User) error
+	GetUserProfile(int) (models.UserProfile, error)
+	SetUserProfile(int, models.UserProfile) error
 	UsernameExists(string) (models.User, error)
 	SetUserPassword(string, string) error
 	CheckUserPassword(string, string) error

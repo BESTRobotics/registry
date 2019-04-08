@@ -23,6 +23,10 @@ type User struct {
 	// user might have in addition to those granted by owning a
 	// particular resource.
 	Capabilities []Capability
+
+	// For convenience, the User has a profile embedded, but not
+	// loaded at all times.
+	*UserProfile
 }
 
 // The UserProfile contains information that is not public on a user,

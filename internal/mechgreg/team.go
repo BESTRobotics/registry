@@ -222,6 +222,11 @@ func (mg *MechanicalGreg) AddTeamCoach(id int, u models.User) error {
 		return err
 	}
 
+	// Load a full profile for email.
+	if err := mg.FillUserProfile(&u); err != nil {
+		log.Printf("User %d: Error loading profile: %s", u.ID, err)
+	}
+
 	l := mail.NewLetter()
 	l.AddTo(mail.UserToAddress(u))
 	l.Subject = "You're now a coach!"
@@ -248,6 +253,11 @@ func (mg *MechanicalGreg) DelTeamCoach(id int, u models.User) error {
 		return NewInternalError("An unspecified internal error has occured", err, http.StatusInternalServerError)
 	}
 
+	// Load a full profile for email.
+	if err := mg.FillUserProfile(&u); err != nil {
+		log.Printf("User %d: Error loading profile: %s", u.ID, err)
+	}
+
 	l := mail.NewLetter()
 	l.AddTo(mail.UserToAddress(u))
 	l.Subject = "You've been removed from a team"
@@ -267,6 +277,11 @@ func (mg *MechanicalGreg) AddTeamMentor(id int, u models.User) error {
 	team.Mentors = patchUserSlice(team.Mentors, true, u)
 	if err := mg.modTeam(team); err != nil {
 		return err
+	}
+
+	// Load a full profile for email.
+	if err := mg.FillUserProfile(&u); err != nil {
+		log.Printf("User %d: Error loading profile: %s", u.ID, err)
 	}
 
 	l := mail.NewLetter()
@@ -293,6 +308,11 @@ func (mg *MechanicalGreg) DelTeamMentor(id int, u models.User) error {
 		return NewConstraintError("No team exists with that ID", err, http.StatusNotFound)
 	default:
 		return NewInternalError("An unspecified internal error has occured", err, http.StatusInternalServerError)
+	}
+
+	// Load a full profile for email.
+	if err := mg.FillUserProfile(&u); err != nil {
+		log.Printf("User %d: Error loading profile: %s", u.ID, err)
 	}
 
 	l := mail.NewLetter()

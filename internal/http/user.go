@@ -50,6 +50,54 @@ func (s *Server) getUser(c echo.Context) error {
 	return c.JSON(http.StatusOK, user)
 }
 
+func (s *Server) setProfile(c echo.Context) error {
+	// Fetch the User from the request
+	uidStr := c.Param("uid")
+	uid, err := strconv.ParseInt(uidStr, 10, 32)
+	if err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
+
+	}
+
+	// Perform Authentication Checks
+	if err := canModUser(extractClaims(c), int(uid)); err != nil && extractClaims(c).User.ID != int(uid) {
+		return s.handleError(c, err)
+	}
+
+	var p models.UserProfile
+	if err := c.Bind(&p); err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
+	}
+
+	if err := s.mg.SetUserProfile(int(uid), p); err != nil {
+		return s.handleError(c, err)
+	}
+
+	return c.NoContent(http.StatusOK)
+}
+
+func (s *Server) getProfile(c echo.Context) error {
+	// Fetch the User from the request
+	uidStr := c.Param("uid")
+	uid, err := strconv.ParseInt(uidStr, 10, 32)
+	if err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
+
+	}
+
+	// Perform authorization checks
+	if err := isAuthenticated(extractClaims(c)); err != nil {
+		return c.String(http.StatusUnauthorized, "Insufficient authorization")
+	}
+
+	p, err := s.mg.GetUserProfile(int(uid))
+	if err != nil {
+		return s.handleError(c, err)
+	}
+
+	return c.JSON(http.StatusOK, p)
+}
+
 func (s *Server) getUsers(c echo.Context) error {
 	page := int64(0)
 	count := int64(25)

@@ -47,6 +47,8 @@ func New(mg MechGreg, tkn *token.RSATokenService, po mail.Mailer) (*Server, erro
 	s.ws.POST("v1/users", s.newUser)
 	s.ws.GET("v1/users/:uid", s.getUser)
 	s.ws.PUT("v1/users/:uid", s.modUser)
+	s.ws.GET("v1/users/:uid/profile", s.getProfile)
+	s.ws.POST("v1/users/:uid/profile", s.setProfile)
 	s.ws.GET("v1/users/:uid/capabilities", s.getUserCapabilities)
 	s.ws.PUT("v1/users/:uid/capabilities", s.addUserCapability)
 	s.ws.DELETE("v1/users/:uid/capabilities", s.delUserCapability)

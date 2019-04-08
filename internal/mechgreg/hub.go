@@ -196,6 +196,11 @@ func (mg *MechanicalGreg) SetHubDirector(hubID int, director models.User) error 
 		return err
 	}
 
+	// Load a full profile for email.
+	if err := mg.FillUserProfile(&user); err != nil {
+		log.Printf("User %d: Error loading profile: %s", user.ID, err)
+	}
+
 	l := mail.NewLetter()
 	l.AddTo(mail.UserToAddress(user))
 	l.Subject = "Welcome"
@@ -231,6 +236,11 @@ func (mg *MechanicalGreg) AddHubAdmin(hubID int, admin models.User) error {
 		return err
 	}
 
+	// Load a full profile for email.
+	if err := mg.FillUserProfile(&u); err != nil {
+		log.Printf("User %d: Error loading profile: %s", u.ID, err)
+	}
+
 	l := mail.NewLetter()
 	l.AddTo(mail.UserToAddress(u))
 	l.Subject = "Welcome"
@@ -263,6 +273,11 @@ func (mg *MechanicalGreg) DelHubAdmin(hubID int, admin models.User) error {
 		return NewConstraintError("No hub exists for that ID", err, http.StatusNotFound)
 	default:
 		return NewInternalError("An unspecified error has occured", err, http.StatusInternalServerError)
+	}
+
+	// Load a full profile for email.
+	if err := mg.FillUserProfile(&u); err != nil {
+		log.Printf("User %d: Error loading profile: %s", u.ID, err)
 	}
 
 	l := mail.NewLetter()
