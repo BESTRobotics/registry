@@ -58,9 +58,15 @@ func (mg *MechanicalGreg) FillUserProfile(u *models.User) error {
 // GetUserProfile fetches just the profile information for a particular user.
 func (mg *MechanicalGreg) GetUserProfile(uid int) (models.UserProfile, error) {
 	var p models.UserProfile
-	if err := mg.s.One("UserID", uid, &p); err != nil {
+	err := mg.s.One("UserID", uid, &p)
+	switch err {
+	case nil:
+		break
+	case storm.ErrNotFound:
+		return models.UserProfile{}, nil
+	default:
 		return models.UserProfile{},
-			NewInternalError("Profile could not be retrieved", err, http.StatusInternalServerError)
+		NewInternalError("Profile could not be retrieved", err, http.StatusInternalServerError)
 	}
 	return p, nil
 }
@@ -70,7 +76,14 @@ func (mg *MechanicalGreg) GetUserProfile(uid int) (models.UserProfile, error) {
 func (mg *MechanicalGreg) SetUserProfile(uid int, p models.UserProfile) error {
 	p.ID = 0
 	p.UserID = uid
-	err := mg.s.Update(&p)
+	var err error
+	// If there's an error getting it, save this on top of what
+	// should be an empty profile.
+	if _, err := mg.GetUserProfile(uid); err != nil {
+		err = mg.s.Save(&p)
+	} else {
+		err = mg.s.Update(&p)
+	}
 	switch err {
 	case nil:
 		return nil

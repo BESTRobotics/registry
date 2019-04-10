@@ -38,7 +38,7 @@ type UserProfile struct {
 	ID int `storm:"increment"`
 
 	// The profile knows which user it belongs to
-	UserID int
+	UserID int `storm:"unique,index"`
 
 	// Type is the type of user that this represents.  This can be
 	// things like "STUDENT" or "TEACHER" or "VOLUNTEER" etc.
