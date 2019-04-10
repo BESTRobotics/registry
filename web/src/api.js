@@ -111,3 +111,19 @@ export function registerBrcTeam(id, season, token) {
     )
     .then(h => h.data);
 }
+
+export function fetchProfile(id, token) {
+  return axios
+    .get(`http://${url}/v1/users/${id}/profile`, {
+      headers: { Authorization: token }
+    })
+    .then(t => t.data);
+}
+
+export function updateProfile(id, profile, token) {
+  return axios
+    .post(`http://${url}/v1/users/${id}/profile`, profile, {
+      headers: { Authorization: token }
+    })
+    .then(t => t.data);
+}

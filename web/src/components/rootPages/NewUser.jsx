@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Card,
   Dropdown,
@@ -9,14 +9,31 @@ import {
   Modal
 } from "semantic-ui-react";
 import NewTeam from "../userForms/NewTeam";
+import ProfileForm from "../userForms/ProfileForm";
 import { logout } from "../../redux/login/reducer";
 import { connect } from "react-redux";
+import { getMyProfile } from "../../redux/users/reducer";
 
-const NewUser = () => {
+const NewUser = ({ myProfile, getMyProfile }) => {
   const [schoolModalOpen, setSchoolModalOpen] = useState(false);
   const [logoutModalOpen, setLogoutModalOpen] = useState(false);
+
+  useEffect(() => {
+    myProfile || getMyProfile();
+  }, []);
+  console.log(myProfile);
   return (
     <Grid centered columns={2}>
+      <Modal
+        open={myProfile && (!myProfile.FirstName || myProfile.FirstName === "")}
+        closeOnEscape={false}
+        closeOnDimmerClick={false}
+      >
+        <Modal.Header>Complete your profile</Modal.Header>
+        <Modal.Content>
+          <ProfileForm />
+        </Modal.Content>
+      </Modal>
       <Grid.Row>Help us get you set up</Grid.Row>
       <Grid.Row>
         <Grid.Column>
@@ -109,9 +126,12 @@ const NewUser = () => {
   );
 };
 
-const mapStateToProps = () => ({});
+const mapStateToProps = ({ usersReducer }) => ({
+  myProfile: usersReducer.myProfile
+});
 const mapDispatchToProps = {
-  logout: () => logout()
+  logout: () => logout(),
+  getMyProfile: () => getMyProfile.request()
 };
 
 export default connect(

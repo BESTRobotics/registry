@@ -81,9 +81,9 @@ const Login = ({ setToken }) => {
 
 const mapStateToProps = () => ({});
 
-const mapDispatchToProps = dispatch => ({
-  setToken: token => dispatch(callSetToken(token))
-});
+const mapDispatchToProps = {
+  setToken: token => callSetToken(token)
+};
 export default connect(
   mapStateToProps,
   mapDispatchToProps

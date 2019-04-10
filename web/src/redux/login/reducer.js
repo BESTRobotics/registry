@@ -1,7 +1,18 @@
 import { createActions, handleActions, combineActions } from "redux-actions";
 import jwt_decode from "jwt-decode";
-import { getAllHubs, getBrcHub, getMyHubs } from "../hubs/reducer";
-import { getAllTeams, getMyTeams } from "../teams/reducer";
+import {
+  getAllHubs,
+  getBrcHub,
+  getMyHubs,
+  registerBrcHub
+} from "../hubs/reducer";
+import {
+  getAllTeams,
+  getMyTeams,
+  registerBrcTeam,
+  registerNewTeam
+} from "../teams/reducer";
+import { updateMyProfile, getMyProfile } from "../users/reducer";
 
 const initialToken = window.localStorage.getItem("token") || null;
 const initialDecodedToken = initialToken && jwt_decode(initialToken);
@@ -14,7 +25,11 @@ const defaultState = {
     initialDecodedToken.User.Capabilities.includes(0),
   hubs: initialDecodedToken ? initialDecodedToken.Hubs : [],
   teams: initialDecodedToken ? initialDecodedToken.Teams : [],
-  message: null
+  message: null,
+  id:
+    initialDecodedToken && initialDecodedToken.User
+      ? initialDecodedToken.User.ID
+      : null
 };
 
 export const { logout, setToken } = createActions({
@@ -32,6 +47,7 @@ const reducer = handleActions(
       return {
         ...state,
         token: token,
+        id: decoded.User.ID,
         superAdmin:
           decoded.User.Capabilities && decoded.User.Capabilities.includes(0),
         hubs: decoded.Hubs,
@@ -43,7 +59,12 @@ const reducer = handleActions(
       getBrcHub.failure,
       getMyHubs.failure,
       getAllTeams.failure,
-      getMyTeams.failure
+      getMyTeams.failure,
+      registerBrcHub.failure,
+      registerBrcTeam.failure,
+      registerNewTeam.failure,
+      updateMyProfile.failure,
+      getMyProfile.failure
     )]: (state, { payload: { error } }) => {
       if (error.response && error.response.message) {
         return {

@@ -17,18 +17,12 @@ const Register = ({ history }) => {
   const [username, setUserName] = useState("");
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [birthdate, setBirthdate] = useState("");
   const [message, setMessage] = useState("");
   const [portalOpen, setModalOpen] = useState(false);
   const register = () => {
     const newUser = {
       Username: username,
-      EMail: email,
-      FirstName: firstName,
-      LastName: lastName,
-      Birthdate: birthdate ? new Date(birthdate).toISOString() : null
+      EMail: email
     };
     axios
       .post(
@@ -57,66 +51,38 @@ const Register = ({ history }) => {
           </Header>
           <Form size="large" onSubmit={register}>
             <Segment stacked>
-              <Form.Group widths="equal">
-                <Form.Input
-                  label="Username"
-                  fluid
-                  icon="user"
-                  iconPosition="left"
-                  placeholder="Username"
-                  value={username}
-                  onChange={(_, { value }) => setUserName(value)}
-                />
-                <Form.Input
-                  label="Password"
-                  fluid
-                  icon="lock"
-                  iconPosition="left"
-                  placeholder="Password"
-                  type="password"
-                  value={password}
-                  onChange={(_, { value }) => setPassword(value)}
-                />
-              </Form.Group>
-              <Form.Group widths="equal">
-                <Form.Input
-                  label="First Name"
-                  fluid
-                  placeholder="First Name"
-                  value={firstName}
-                  onChange={(_, { value }) => setFirstName(value)}
-                />
-                <Form.Input
-                  label="Last Name"
-                  fluid
-                  placeholder="last Name"
-                  value={lastName}
-                  onChange={(_, { value }) => setLastName(value)}
-                />
-              </Form.Group>
-              <Form.Group widths="equal">
-                <Form.Input
-                  label="Email"
-                  fluid
-                  icon="mail"
-                  iconPosition="left"
-                  placeholder="Email"
-                  type="email"
-                  value={email}
-                  onChange={(_, { value }) => setEmail(value)}
-                />
-
-                <Form.Input
-                  label="Birthdate"
-                  fluid
-                  icon="calendar"
-                  iconPosition="left"
-                  placeholder="Birthdate"
-                  type="date"
-                  value={birthdate}
-                  onChange={(_, { value }) => setBirthdate(value)}
-                />
-              </Form.Group>
+              <Form.Input
+                label="Username"
+                fluid
+                required
+                icon="user"
+                iconPosition="left"
+                placeholder="Username"
+                value={username}
+                onChange={(_, { value }) => setUserName(value)}
+              />
+              <Form.Input
+                label="Password"
+                fluid
+                required
+                icon="lock"
+                iconPosition="left"
+                placeholder="Password"
+                type="password"
+                value={password}
+                onChange={(_, { value }) => setPassword(value)}
+              />
+              <Form.Input
+                label="Email"
+                fluid
+                required
+                icon="mail"
+                iconPosition="left"
+                placeholder="Email"
+                type="email"
+                value={email}
+                onChange={(_, { value }) => setEmail(value)}
+              />
 
               <Button color="teal" fluid size="large">
                 Create Account

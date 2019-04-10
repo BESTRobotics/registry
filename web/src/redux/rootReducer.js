@@ -3,11 +3,13 @@ import createSagaMiddleware from "redux-saga";
 import loginReducer from "./login/reducer";
 import hubsReducer from "./hubs/reducer";
 import teamsReducer from "./teams/reducer";
+import usersReducer from "./users/reducer";
 import rootSaga from "./rootSaga";
 
 export const rootReducer = combineReducers({
   hubsReducer,
   teamsReducer,
+  usersReducer,
   loginReducer
 });
 
