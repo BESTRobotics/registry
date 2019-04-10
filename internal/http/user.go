@@ -82,7 +82,6 @@ func (s *Server) getProfile(c echo.Context) error {
 	uid, err := strconv.ParseInt(uidStr, 10, 32)
 	if err != nil {
 		return c.String(http.StatusBadRequest, err.Error())
-
 	}
 
 	// Perform authorization checks

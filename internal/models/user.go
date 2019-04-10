@@ -35,10 +35,7 @@ type User struct {
 type UserProfile struct {
 	// Not really useful for anything, but for consistency we give
 	// the UserProfile an int.
-	ID int `storm:"increment"`
-
-	// The profile knows which user it belongs to
-	UserID int `storm:"unique,index"`
+	ID int `storm:"unique,index"`
 
 	// Type is the type of user that this represents.  This can be
 	// things like "STUDENT" or "TEACHER" or "VOLUNTEER" etc.

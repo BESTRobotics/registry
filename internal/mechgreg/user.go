@@ -58,7 +58,7 @@ func (mg *MechanicalGreg) FillUserProfile(u *models.User) error {
 // GetUserProfile fetches just the profile information for a particular user.
 func (mg *MechanicalGreg) GetUserProfile(uid int) (models.UserProfile, error) {
 	var p models.UserProfile
-	err := mg.s.One("UserID", uid, &p)
+	err := mg.s.One("ID", uid, &p)
 	switch err {
 	case nil:
 		break
@@ -74,12 +74,11 @@ func (mg *MechanicalGreg) GetUserProfile(uid int) (models.UserProfile, error) {
 // SetUserProfile is used to update the profile information for a
 // particular user.
 func (mg *MechanicalGreg) SetUserProfile(uid int, p models.UserProfile) error {
-	p.ID = 0
-	p.UserID = uid
+	p.ID = uid
 	var err error
 	// If there's an error getting it, save this on top of what
 	// should be an empty profile.
-	if _, err := mg.GetUserProfile(uid); err != nil {
+	if lp, _ := mg.GetUserProfile(uid); lp.ID == 0 {
 		err = mg.s.Save(&p)
 	} else {
 		err = mg.s.Update(&p)
