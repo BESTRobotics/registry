@@ -11,10 +11,6 @@ type User struct {
 	// for the user.
 	ID int `storm:"increment"`
 
-	// The user can have a username, these must be unique within
-	// the system, but can be changed at any time.
-	Username string `storm:"unique,index"`
-
 	// The user is required to have a valid address to receive
 	// mail.
 	EMail string `storm:"unique,index"`

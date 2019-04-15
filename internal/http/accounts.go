@@ -25,20 +25,14 @@ func (s *Server) registerLocalUser(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 
-	// If this returns nil then the user already exists and we
-	// abort.
-	if _, err := s.mg.UsernameExists(regRequest.U.Username); err == nil {
-		return c.NoContent(http.StatusConflict)
-	}
-
 	// User doesn't exist, time to create the user:
-	_, err := s.mg.NewUser(regRequest.U)
+	userID, err := s.mg.NewUser(regRequest.U)
 	if err != nil {
 		return s.handleError(c, err)
 	}
 
 	// And now we set the authdata (password in this case).
-	if err := s.mg.SetUserPassword(regRequest.U.Username, regRequest.Password); err != nil {
+	if err := s.mg.SetUserPassword(userID, regRequest.Password); err != nil {
 		return s.handleError(c, err)
 	}
 
@@ -63,7 +57,7 @@ func (s *Server) loginLocalUser(c echo.Context) error {
 	// target := "/app/login#t=%s"
 
 	var ld struct {
-		Username string
+		EMail    string
 		Password string
 	}
 	if err := c.Bind(&ld); err != nil {
@@ -71,15 +65,17 @@ func (s *Server) loginLocalUser(c echo.Context) error {
 		return c.String(http.StatusBadRequest, err.Error())
 	}
 
-	// Figure out who this user is.
-	user, err := s.mg.UsernameExists(ld.Username)
+	// Get user by email.  This should be reasonably fast, but is
+	// easily the slowest part of this since the user emails
+	// aren't indexed.
+	user, err := s.mg.GetUserByEMail(ld.EMail)
 	if err != nil {
 		return s.handleError(c, err)
 	}
 
 	// Check the user password, if its successful then generate a
 	// token and hand it off.
-	err = s.mg.CheckUserPassword(ld.Username, ld.Password)
+	err = s.mg.CheckUserPassword(user.ID, ld.Password)
 	if err != nil {
 		return s.handleError(c, err)
 	}

@@ -16,6 +16,6 @@ type Claims struct {
 func (c *Claims) IsEmpty() bool {
 	// This is an ugly hack that is used to check if the claims
 	// are empty because claims for a valid user will always have
-	// a username encoded.
-	return c.User.Username == ""
+	// a userID encoded.
+	return c.User.ID == 0
 }

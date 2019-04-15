@@ -24,14 +24,14 @@ type Server struct {
 type MechGreg interface {
 	NewUser(models.User) (int, error)
 	GetUser(int) (models.User, error)
+	GetUserByEMail(string) (models.User, error)
 	ModUser(models.User) error
 	GetUserPage(int, int) ([]models.User, error)
 	FillUserProfile(*models.User) error
 	GetUserProfile(int) (models.UserProfile, error)
 	SetUserProfile(int, models.UserProfile) error
-	UsernameExists(string) (models.User, error)
-	SetUserPassword(string, string) error
-	CheckUserPassword(string, string) error
+	SetUserPassword(int, string) error
+	CheckUserPassword(int, string) error
 	GetStudent(int) (models.Student, error)
 	GetStudents(int) ([]models.Student, error)
 	PutStudent(int, models.Student) error

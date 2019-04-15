@@ -44,6 +44,21 @@ func (mg *MechanicalGreg) GetUser(uid int) (models.User, error) {
 	}
 }
 
+// GetUserByEMail returns a user based on the email in the query.
+func (mg *MechanicalGreg) GetUserByEMail(email string) (models.User, error) {
+	var user models.User
+
+	err := mg.s.One("EMail", email, &user)
+	switch err {
+	case nil:
+		return user, nil
+	case storm.ErrNotFound:
+		return models.User{}, NewConstraintError("No such user exists with that email", err, http.StatusNotFound)
+	default:
+		return models.User{}, NewInternalError("An unspecified error has occured", err, http.StatusInternalServerError)
+	}
+}
+
 // FillUserProfile is used to load and embed the profile in places
 // where a fully populated user is needed.
 func (mg *MechanicalGreg) FillUserProfile(u *models.User) error {
@@ -66,7 +81,7 @@ func (mg *MechanicalGreg) GetUserProfile(uid int) (models.UserProfile, error) {
 		return models.UserProfile{}, nil
 	default:
 		return models.UserProfile{},
-		NewInternalError("Profile could not be retrieved", err, http.StatusInternalServerError)
+			NewInternalError("Profile could not be retrieved", err, http.StatusInternalServerError)
 	}
 	return p, nil
 }
@@ -90,21 +105,6 @@ func (mg *MechanicalGreg) SetUserProfile(uid int, p models.UserProfile) error {
 		return NewConstraintError("No such profile exists with that ID", err, http.StatusNotFound)
 	default:
 		return NewInternalError("An unspecified error has occured", err, http.StatusInternalServerError)
-	}
-}
-
-// UsernameExists can be used to check if a username exists before creating a new user.
-func (mg *MechanicalGreg) UsernameExists(username string) (models.User, error) {
-	var user models.User
-
-	err := mg.s.One("Username", username, &user)
-	switch err {
-	case nil:
-		return user, nil
-	case storm.ErrNotFound:
-		return models.User{}, NewConstraintError("No such user exists", err, http.StatusNotFound)
-	default:
-		return models.User{}, NewInternalError("An unspecified error has occured", err, http.StatusInternalServerError)
 	}
 }
 
@@ -136,7 +136,7 @@ func (mg *MechanicalGreg) ModUser(u models.User) error {
 // SetUserPassword is used to, unsurprisingly, set the user password.
 // This is meant to be used during user setup, and uses bcrypt as the
 // hashing engine.
-func (mg *MechanicalGreg) SetUserPassword(username, password string) error {
+func (mg *MechanicalGreg) SetUserPassword(ID int, password string) error {
 	// Compute the hash from the incomming password
 	cost := viper.GetInt("auth.hashcost")
 	hash, err := bcrypt.GenerateFromPassword([]byte(password), cost)
@@ -146,7 +146,7 @@ func (mg *MechanicalGreg) SetUserPassword(username, password string) error {
 
 	// Save the data
 	d := models.AuthData{
-		Username: username,
+		UserID:   ID,
 		Provider: "PASSWORD",
 		Password: string(hash[:]),
 	}
@@ -158,8 +158,8 @@ func (mg *MechanicalGreg) SetUserPassword(username, password string) error {
 }
 
 // CheckUserPassword checks a password for a specific user.
-func (mg *MechanicalGreg) CheckUserPassword(username, password string) error {
-	query := mg.s.Select(q.Eq("Username", username), q.Eq("Provider", "PASSWORD"))
+func (mg *MechanicalGreg) CheckUserPassword(ID int, password string) error {
+	query := mg.s.Select(q.Eq("UserID", ID), q.Eq("Provider", "PASSWORD"))
 
 	var ad models.AuthData
 	// Safe to use First here because there had better only ever

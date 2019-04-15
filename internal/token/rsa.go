@@ -58,7 +58,7 @@ func (s *RSATokenService) Generate(claims Claims, config Config) (string, error)
 			Subject:   "RegistryIdentityToken",
 			Audience:  "Unrestricted",
 			Issuer:    config.Issuer,
-			Id:        claims.User.Username,
+			Id:        claims.User.EMail,
 		},
 	}
 

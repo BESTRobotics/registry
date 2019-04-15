@@ -51,7 +51,7 @@ func extractClaims(c echo.Context) token.Claims {
 }
 
 func isAuthenticated(c token.Claims) error {
-	if c.User.Username == "" {
+	if c.IsEmpty() {
 		return newAuthError("You need to be signed in", "no user present in claims")
 	}
 	return nil

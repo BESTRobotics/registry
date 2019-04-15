@@ -149,7 +149,6 @@ func (s *Server) modUser(c echo.Context) error {
 	}
 
 	user.ID = int(uid)
-	user.Username = ""
 	user.Capabilities = nil
 
 	err = s.mg.ModUser(user)
