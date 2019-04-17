@@ -11,7 +11,12 @@ const Teams = ({ token }) => {
     {
       header: "Coach",
       displayFn: team =>
-        team.Coach ? `${team.Coach.FirstName} ${team.Coach.LastName}` : "",
+        team.Coach
+          ? trunc(
+              team.Coach.map(m => `${m.FirstName} ${m.LastName}`).join(", "),
+              25
+            )
+          : "",
       filter: false
     },
     {

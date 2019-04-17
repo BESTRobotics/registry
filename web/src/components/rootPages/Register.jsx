@@ -14,14 +14,12 @@ import logo from "../../assets/logo.jpg";
 import axios from "axios";
 
 const Register = ({ history }) => {
-  const [username, setUserName] = useState("");
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
   const [portalOpen, setModalOpen] = useState(false);
   const register = () => {
     const newUser = {
-      Username: username,
       EMail: email
     };
     axios
@@ -52,14 +50,15 @@ const Register = ({ history }) => {
           <Form size="large" onSubmit={register}>
             <Segment stacked>
               <Form.Input
-                label="Username"
+                label="Email"
                 fluid
                 required
-                icon="user"
+                icon="mail"
                 iconPosition="left"
-                placeholder="Username"
-                value={username}
-                onChange={(_, { value }) => setUserName(value)}
+                placeholder="Email"
+                type="email"
+                value={email}
+                onChange={(_, { value }) => setEmail(value)}
               />
               <Form.Input
                 label="Password"
@@ -71,17 +70,6 @@ const Register = ({ history }) => {
                 type="password"
                 value={password}
                 onChange={(_, { value }) => setPassword(value)}
-              />
-              <Form.Input
-                label="Email"
-                fluid
-                required
-                icon="mail"
-                iconPosition="left"
-                placeholder="Email"
-                type="email"
-                value={email}
-                onChange={(_, { value }) => setEmail(value)}
               />
 
               <Button color="teal" fluid size="large">

@@ -120,7 +120,7 @@ func (s *Server) joinBRCTeam(c echo.Context) error {
 	}
 
 	var req struct {
-		JoinKey string
+		JoinKey  string
 		SeasonID int
 	}
 	if err := c.Bind(&req); err != nil {
@@ -131,7 +131,7 @@ func (s *Server) joinBRCTeam(c echo.Context) error {
 	if err != nil {
 		return s.handleError(c, err)
 	}
-	
+
 	if err := s.mg.JoinBRCTeam(t.ID, t.SeasonID, claims.User.ID); err != nil {
 		return s.handleError(c, err)
 	}

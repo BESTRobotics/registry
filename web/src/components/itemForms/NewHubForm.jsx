@@ -113,7 +113,7 @@ const NewHubForm = ({ addToList, existingItem, token }) => {
           allowAdditions
           loading={!users}
           options={users.map(u => ({
-            text: u.Username,
+            text: `${u.FirstName} ${u.LastName}`,
             value: u.ID
           }))}
           selection

@@ -4,12 +4,11 @@ import NewUserForm from "../itemForms/NewUserForm";
 
 const Users = ({ token }) => {
   const fields = [
-    // {
-    //   header: "Name",
-    //   displayFn: user => `${user.FirstName} ${user.LastName}`,
-    //   filter: true
-    // },
-    { header: "Username", name: "Username", filter: true },
+    {
+      header: "Name",
+      displayFn: user => `${user.FirstName} ${user.LastName}`,
+      filter: true
+    },
     { header: "Email", name: "EMail", filter: true }
     // {
     //   header: "Type",

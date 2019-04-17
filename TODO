@@ -1,0 +1,10 @@
+Break up the backend.  We want to probably move authenticating logic
+down into mechgreg, and then move storage manipulation down a layer
+below that.  At the same time, the types need to be broken up, we
+should probably have a seperate storage and transport type, which need
+to be able to convert between each other.
+
+The storage type needs to just store IDs, the transport type is fully
+populated.
+
+Need to also add UIL stuff during the refactor.

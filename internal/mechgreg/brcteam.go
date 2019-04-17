@@ -126,7 +126,6 @@ func (mg *MechanicalGreg) LeaveBRCTeam(teamID, seasonID, userID int) error {
 	return mg.handleBRCTeamJoinLeave(teamID, seasonID, userID, false)
 }
 
-
 func (mg *MechanicalGreg) handleBRCTeamJoinLeave(teamID, seasonID, userID int, join bool) error {
 	t, err := mg.GetBRCTeam(teamID, seasonID)
 	if err != nil {

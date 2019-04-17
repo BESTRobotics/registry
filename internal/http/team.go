@@ -92,14 +92,14 @@ func (s *Server) modTeam(c echo.Context) error {
 		return c.String(http.StatusBadRequest, err.Error())
 	}
 
-	// Perform Authorization Checks
-	if err := canModTeam(extractClaims(c), int(id)); err != nil {
-		return s.handleError(c, err)
-	}
-
 	var team models.Team
 	if err := c.Bind(&team); err != nil {
 		return c.String(http.StatusBadRequest, err.Error())
+	}
+
+	// Perform Authorization Checks
+	if err := canModTeam(extractClaims(c), int(id)); err != nil {
+		return s.handleError(c, err)
 	}
 
 	team.ID = int(id)
@@ -170,66 +170,6 @@ func (s *Server) delTeamCoach(c echo.Context) error {
 
 	return c.NoContent(http.StatusNoContent)
 }
-
-func (s *Server) addTeamMentor(c echo.Context) error {
-	idStr := c.Param("id")
-	id, err := strconv.ParseInt(idStr, 10, 32)
-	if err != nil {
-		return c.String(http.StatusBadRequest, err.Error())
-	}
-
-	// Perform Authorization Checks
-	team, err := s.mg.GetTeam(int(id))
-	if err != nil {
-		return s.handleError(c, err)
-	}
-	if err := permitCoachActions(extractClaims(c), team); err != nil {
-		return s.handleError(c, err)
-	}
-
-	var user models.User
-	if err := c.Bind(&user); err != nil {
-		return c.String(http.StatusBadRequest, err.Error())
-	}
-
-	err = s.mg.AddTeamMentor(int(id), user)
-	if err != nil {
-		return s.handleError(c, err)
-	}
-
-	return c.NoContent(http.StatusNoContent)
-}
-
-func (s *Server) delTeamMentor(c echo.Context) error {
-	idStr := c.Param("id")
-	id, err := strconv.ParseInt(idStr, 10, 32)
-	if err != nil {
-		return c.String(http.StatusBadRequest, err.Error())
-	}
-
-	// Perform Authorization Checks
-	team, err := s.mg.GetTeam(int(id))
-	if err != nil {
-		return s.handleError(c, err)
-	}
-	if err := permitCoachActions(extractClaims(c), team); err != nil {
-		return s.handleError(c, err)
-	}
-
-	uidStr := c.Param("uid")
-	uid, err := strconv.ParseInt(uidStr, 10, 32)
-	if err != nil {
-		return c.String(http.StatusBadRequest, err.Error())
-	}
-
-	err = s.mg.DelTeamMentor(int(id), models.User{ID: int(uid)})
-	if err != nil {
-		return s.handleError(c, err)
-	}
-
-	return c.NoContent(http.StatusNoContent)
-}
-
 func (s *Server) setTeamHome(c echo.Context) error {
 	idStr := c.Param("id")
 	id, err := strconv.ParseInt(idStr, 10, 32)

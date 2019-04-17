@@ -36,12 +36,6 @@ type Team struct {
 	// administrator to be a coach for continuity reasons.
 	Coach []User
 
-	// Like the hub director, its rare the coach does it on their
-	// own.  They have Mentors that help them out to run the team
-	// and keep things moving along.  Mentors have similar powers
-	// in the system to the Coach.
-	Mentors []User
-
 	// Teams can also be inactive, which means they won't appear
 	// in lookups or otherwise be available.  This is different
 	// from being without a season to participate in.

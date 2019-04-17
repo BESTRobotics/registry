@@ -34,6 +34,8 @@ func (mg *MechanicalGreg) GetUser(uid int) (models.User, error) {
 	var user models.User
 
 	err := mg.s.One("ID", uid, &user)
+
+	mg.FillUserProfile(&user)
 	switch err {
 	case nil:
 		return user, nil
@@ -117,6 +119,11 @@ func (mg *MechanicalGreg) GetUserPage(page int, count int) ([]models.User, error
 	if err != nil {
 		return nil, err
 	}
+
+	for i := range out {
+		mg.FillUserProfile(&out[i])
+	}
+
 	return out, nil
 }
 

@@ -66,15 +66,6 @@ type MechGreg interface {
 	GetTeamsForUser(int) ([]models.Team, error)
 	GetTeamsForHub(int) ([]models.Team, error)
 	ModTeam(models.Team) error
-	AddTeamCoach(int, models.User) error
-	DelTeamCoach(int, models.User) error
-	AddTeamMentor(int, models.User) error
-	DelTeamMentor(int, models.User) error
-	SetTeamHome(int, models.Hub) error
-	GetTeamHome(int) (models.Hub, error)
-	DeactivateTeam(int) error
-	ActivateTeam(int) error
-	ApproveTeam(int) error
 
 	RegisterBRCTeam(int, int) (int, error)
 	GetBRCTeams(int) ([]models.BRCTeam, error)

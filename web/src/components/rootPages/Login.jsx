@@ -15,13 +15,13 @@ import { connect } from "react-redux";
 import { setToken as callSetToken } from "../../redux/login/reducer";
 
 const Login = ({ setToken }) => {
-  const [username, setUserName] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
   const login = () => {
     axios
       .post(`http://${process.env.REACT_APP_API_URL}/v1/account/login/local`, {
-        Username: username,
+        EMail: email,
         Password: password
       })
       .then(response => {
@@ -50,9 +50,10 @@ const Login = ({ setToken }) => {
                 fluid
                 icon="user"
                 iconPosition="left"
-                placeholder="Username"
-                value={username}
-                onChange={(_, { value }) => setUserName(value)}
+                placeholder="Email"
+                type="email"
+                value={email}
+                onChange={(_, { value }) => setEmail(value)}
               />
               <Form.Input
                 fluid
