@@ -22,13 +22,12 @@ func (s *Server) newTeam(c echo.Context) error {
 		return c.String(http.StatusBadRequest, err.Error())
 	}
 
+	// Make sure the requesting user is the first coach.
+	team.Coach = []models.User{models.User{ID: clms.User.ID}}
+
+	// Actually create the team.
 	id, err := s.mg.NewTeam(team)
 	if err != nil {
-		return s.handleError(c, err)
-	}
-
-	// Add the user as the initial coach of the team.
-	if err := s.mg.AddTeamCoach(id, clms.User); err != nil {
 		return s.handleError(c, err)
 	}
 
@@ -106,173 +105,6 @@ func (s *Server) modTeam(c echo.Context) error {
 
 	err = s.mg.ModTeam(team)
 	if err != nil {
-		return s.handleError(c, err)
-	}
-
-	return c.NoContent(http.StatusNoContent)
-}
-
-func (s *Server) addTeamCoach(c echo.Context) error {
-	idStr := c.Param("id")
-	id, err := strconv.ParseInt(idStr, 10, 32)
-	if err != nil {
-		return c.String(http.StatusBadRequest, err.Error())
-	}
-
-	// Perform Authorization Checks
-	team, err := s.mg.GetTeam(int(id))
-	if err != nil {
-		return s.handleError(c, err)
-	}
-	if err := permitCoachActions(extractClaims(c), team); err != nil {
-		return s.handleError(c, err)
-	}
-
-	var user models.User
-	if err := c.Bind(&user); err != nil {
-		return c.String(http.StatusBadRequest, err.Error())
-	}
-
-	err = s.mg.AddTeamCoach(int(id), user)
-	if err != nil {
-		return s.handleError(c, err)
-	}
-
-	return c.NoContent(http.StatusNoContent)
-}
-
-func (s *Server) delTeamCoach(c echo.Context) error {
-	idStr := c.Param("id")
-	id, err := strconv.ParseInt(idStr, 10, 32)
-	if err != nil {
-		return c.String(http.StatusBadRequest, err.Error())
-	}
-
-	// Perform Authorization Checks
-	team, err := s.mg.GetTeam(int(id))
-	if err != nil {
-		return s.handleError(c, err)
-	}
-	if err := permitCoachActions(extractClaims(c), team); err != nil {
-		return s.handleError(c, err)
-	}
-
-	uidStr := c.Param("uid")
-	uid, err := strconv.ParseInt(uidStr, 10, 32)
-	if err != nil {
-		return c.String(http.StatusBadRequest, err.Error())
-	}
-
-	err = s.mg.DelTeamCoach(int(id), models.User{ID: int(uid)})
-	if err != nil {
-		return s.handleError(c, err)
-	}
-
-	return c.NoContent(http.StatusNoContent)
-}
-func (s *Server) setTeamHome(c echo.Context) error {
-	idStr := c.Param("id")
-	id, err := strconv.ParseInt(idStr, 10, 32)
-	if err != nil {
-		return c.String(http.StatusBadRequest, err.Error())
-	}
-
-	// Perform Authorization Checks
-	team, err := s.mg.GetTeam(int(id))
-	if err != nil {
-		return s.handleError(c, err)
-	}
-	if err := permitHomeHubActions(extractClaims(c), team); err != nil {
-		return s.handleError(c, err)
-	}
-
-	var hub models.Hub
-	err = c.Bind(&hub)
-	if err != nil {
-		return c.String(http.StatusBadRequest, err.Error())
-	}
-
-	err = s.mg.SetTeamHome(int(id), hub)
-	if err != nil {
-		return s.handleError(c, err)
-	}
-
-	return c.NoContent(http.StatusNoContent)
-}
-
-func (s *Server) getTeamHome(c echo.Context) error {
-	idStr := c.Param("id")
-	id, err := strconv.ParseInt(idStr, 10, 32)
-	if err != nil {
-		return c.String(http.StatusBadRequest, err.Error())
-	}
-
-	hub, err := s.mg.GetTeamHome(int(id))
-	if err != nil {
-		return s.handleError(c, err)
-	}
-
-	return c.JSON(http.StatusOK, hub)
-}
-
-func (s *Server) approveTeam(c echo.Context) error {
-	idStr := c.Param("id")
-	id, err := strconv.ParseInt(idStr, 10, 32)
-	if err != nil {
-		return c.String(http.StatusBadRequest, err.Error())
-	}
-
-	if err := canManageTeams(extractClaims(c)); err != nil {
-		return s.handleError(c, err)
-	}
-
-	if err := s.mg.ApproveTeam(int(id)); err != nil {
-		return s.handleError(c, err)
-	}
-
-	return c.NoContent(http.StatusNoContent)
-}
-
-func (s *Server) deactivateTeam(c echo.Context) error {
-	idStr := c.Param("id")
-	id, err := strconv.ParseInt(idStr, 10, 32)
-	if err != nil {
-		return c.String(http.StatusBadRequest, err.Error())
-	}
-
-	// Perform Authorization Checks
-	team, err := s.mg.GetTeam(int(id))
-	if err != nil {
-		return s.handleError(c, err)
-	}
-	if err := permitHomeHubActions(extractClaims(c), team); err != nil {
-		return s.handleError(c, err)
-	}
-
-	if err := s.mg.DeactivateTeam(int(id)); err != nil {
-		return s.handleError(c, err)
-	}
-
-	return c.NoContent(http.StatusNoContent)
-}
-
-func (s *Server) activateTeam(c echo.Context) error {
-	idStr := c.Param("id")
-	id, err := strconv.ParseInt(idStr, 10, 32)
-	if err != nil {
-		return c.String(http.StatusBadRequest, err.Error())
-	}
-
-	// Perform Authorization Checks
-	team, err := s.mg.GetTeam(int(id))
-	if err != nil {
-		return s.handleError(c, err)
-	}
-	if err := permitHomeHubActions(extractClaims(c), team); err != nil {
-		return s.handleError(c, err)
-	}
-
-	if err = s.mg.ActivateTeam(int(id)); err != nil {
 		return s.handleError(c, err)
 	}
 
