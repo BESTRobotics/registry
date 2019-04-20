@@ -40,25 +40,17 @@ type MechGreg interface {
 	GetSeason(int) (models.Season, error)
 	GetSeasons(bool) ([]models.Season, error)
 	ModSeason(models.Season) error
-	ArchiveSeason(int) error
 
 	NewHub(models.Hub) (int, error)
 	GetHub(int) (models.Hub, error)
 	GetHubs(bool) ([]models.Hub, error)
 	GetHubsForUser(int) ([]models.Hub, error)
 	ModHub(models.Hub) error
-	DeactivateHub(int) error
-	ActivateHub(int) error
-	SetHubDirector(int, models.User) error
-	GetHubDirector(int) (models.User, error)
-	AddHubAdmin(int, models.User) error
-	DelHubAdmin(int, models.User) error
 
 	RegisterBRCHub(int, int) (int, error)
 	GetBRCHub(int, int) (models.BRCHub, error)
 	GetBRCHubs(int) ([]models.BRCHub, error)
 	UpdateBRCHub(int, int, models.BRCHub) error
-	ApproveBRCHub(int, int, bool) error
 
 	NewTeam(models.Team) (int, error)
 	GetTeam(int) (models.Team, error)

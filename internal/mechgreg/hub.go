@@ -3,11 +3,9 @@ package mechgreg
 import (
 	"log"
 	"net/http"
-	"time"
 
 	"github.com/asdine/storm"
 
-	"github.com/BESTRobotics/registry/internal/mail"
 	"github.com/BESTRobotics/registry/internal/models"
 )
 
@@ -135,19 +133,8 @@ func (mg *MechanicalGreg) GetHubsForUser(userID int) ([]models.Hub, error) {
 	return out, nil
 }
 
-// ModHub modifies an existing hub to match the state provided.
+// ModHub allows you to update an existing hub
 func (mg *MechanicalGreg) ModHub(h models.Hub) error {
-	// These fields require special handline to safely update.
-	h.Director = models.User{}
-	h.Admins = nil
-	h.InactiveSince = models.DateTime{}
-
-	// Run the update
-	return mg.modHub(h)
-}
-
-// modHub is just like ModHub but doesn't clear certain fields.
-func (mg *MechanicalGreg) modHub(h models.Hub) error {
 	err := mg.s.Update(&h)
 	switch err {
 	case nil:
@@ -157,133 +144,4 @@ func (mg *MechanicalGreg) modHub(h models.Hub) error {
 	default:
 		return NewInternalError("An unspecified error has occured", err, http.StatusInternalServerError)
 	}
-}
-
-// DeactivateHub sets the InactiveSince value on hubs that are no
-// longer in operation.  This allows us to keep the hubs in the system
-// rather than deleting them, which would both unnecessarily
-// complicate the DB structure and would imply that once gone a hub
-// won't ever come back.
-func (mg *MechanicalGreg) DeactivateHub(id int) error {
-	return mg.modHub(models.Hub{ID: id, InactiveSince: models.DateTime(time.Now())})
-}
-
-// ActivateHub brings a hub back from an inactive state.
-func (mg *MechanicalGreg) ActivateHub(id int) error {
-	// Needs to use UpdateField in order to explicitely zero the
-	// value.
-	err := mg.s.UpdateField(&models.Hub{ID: id}, "InactiveSince", models.DateTime{})
-	switch err {
-	case nil:
-		return nil
-	case storm.ErrNotFound:
-		return NewConstraintError("No hub exists for that ID", err, http.StatusNotFound)
-	default:
-		return NewInternalError("An unspecified error has occured", err, http.StatusInternalServerError)
-	}
-}
-
-// SetHubDirector sets the director for the hub in question.
-func (mg *MechanicalGreg) SetHubDirector(hubID int, director models.User) error {
-	uid := director.ID
-
-	user, err := mg.GetUser(uid)
-	if err != nil {
-		return err
-	}
-
-	if err := mg.modHub(models.Hub{ID: hubID, Director: models.User{ID: user.ID}}); err != nil {
-		return err
-	}
-
-	// Load a full profile for email.
-	if err := mg.FillUserProfile(&user); err != nil {
-		log.Printf("User %d: Error loading profile: %s", user.ID, err)
-	}
-
-	l := mail.NewLetter()
-	l.AddTo(mail.UserToAddress(user))
-	l.Subject = "Welcome"
-	l.Body = "Congradulations, you're now the director of a hub"
-
-	return mg.po.SendMail(l)
-}
-
-// GetHubDirector returns the director for a given hub.
-func (mg *MechanicalGreg) GetHubDirector(id int) (models.User, error) {
-	h, err := mg.GetHub(id)
-	if err != nil {
-		return models.User{}, err
-	}
-	return h.Director, nil
-}
-
-// AddHubAdmin adds an admin to the specified hub.
-func (mg *MechanicalGreg) AddHubAdmin(hubID int, admin models.User) error {
-	hub, err := mg.GetHub(hubID)
-	if err != nil {
-		return err
-	}
-
-	u, err := mg.GetUser(admin.ID)
-	if err != nil {
-		return err
-	}
-
-	hub.Admins = patchUserSlice(hub.Admins, true, admin)
-
-	if err := mg.modHub(hub); err != nil {
-		return err
-	}
-
-	// Load a full profile for email.
-	if err := mg.FillUserProfile(&u); err != nil {
-		log.Printf("User %d: Error loading profile: %s", u.ID, err)
-	}
-
-	l := mail.NewLetter()
-	l.AddTo(mail.UserToAddress(u))
-	l.Subject = "Welcome"
-	l.Body = "Thanks for helping out, you're now an admin for " + hub.Name + "."
-
-	return mg.po.SendMail(l)
-}
-
-// DelHubAdmin removes an administrator from the hub.
-func (mg *MechanicalGreg) DelHubAdmin(hubID int, admin models.User) error {
-	hub, err := mg.GetHub(hubID)
-	if err != nil {
-		return err
-	}
-
-	u, err := mg.GetUser(admin.ID)
-	if err != nil {
-		return err
-	}
-
-	admins := patchUserSlice(hub.Admins, false, admin)
-
-	// Needs to use UpdateField in order to explicitely zero the
-	// value
-	err = mg.s.UpdateField(&models.Hub{ID: hubID}, "Admins", admins)
-	switch err {
-	case nil:
-		break
-	case storm.ErrNotFound:
-		return NewConstraintError("No hub exists for that ID", err, http.StatusNotFound)
-	default:
-		return NewInternalError("An unspecified error has occured", err, http.StatusInternalServerError)
-	}
-
-	// Load a full profile for email.
-	if err := mg.FillUserProfile(&u); err != nil {
-		log.Printf("User %d: Error loading profile: %s", u.ID, err)
-	}
-
-	l := mail.NewLetter()
-	l.AddTo(mail.UserToAddress(u))
-	l.Subject = "Sorry to see you go"
-	l.Body = "Thanks for your time, you're no longer a hub admin."
-
-	return mg.po.SendMail(l)
 }

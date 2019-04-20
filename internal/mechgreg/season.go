@@ -71,10 +71,3 @@ func (mg *MechanicalGreg) ModSeason(s models.Season) error {
 		return NewInternalError("An unspecified failure has occured", err, http.StatusInternalServerError)
 	}
 }
-
-// ArchiveSeason freezes a season in time.  Seasons can't ever be
-// deleted, but archiving them removes them from the set that's shown
-// by default.
-func (mg *MechanicalGreg) ArchiveSeason(id int) error {
-	return mg.ModSeason(models.Season{ID: id, Archived: true})
-}

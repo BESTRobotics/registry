@@ -88,25 +88,6 @@ func (s *Server) modSeason(c echo.Context) error {
 	return c.NoContent(http.StatusNoContent)
 }
 
-func (s *Server) archiveSeason(c echo.Context) error {
-	if err := canManageSeasons(extractClaims(c)); err != nil {
-		return s.handleError(c, err)
-	}
-
-	idStr := c.Param("id")
-	id, err := strconv.ParseInt(idStr, 10, 32)
-	if err != nil {
-		return c.String(http.StatusBadRequest, err.Error())
-	}
-
-	err = s.mg.ArchiveSeason(int(id))
-	if err != nil {
-		return s.handleError(c, err)
-	}
-
-	return c.NoContent(http.StatusNoContent)
-}
-
 // canManageSeasons handles the actions around seasons.  These actions
 // are reserved to the superadmins because of how many other parts of
 // the system key off of whether or not a season is live.

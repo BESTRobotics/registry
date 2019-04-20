@@ -143,17 +143,5 @@ func (mg *MechanicalGreg) UpdateBRCHub(hubID, seasonID int, update models.BRCHub
 		return NewInternalError("An unspecified error has occured", err, http.StatusInternalServerError)
 	}
 
-	// Take no chances and carry over certain fields, lest people
-	// be creative.
-	update.Meta.BRIApproved = brchub.Meta.BRIApproved
-
-	return mg.updateBRCHub(hubID, seasonID, update)
-}
-
-// ApproveBRCHub approves a BRCHub that already exists.  It can also
-// dissapprove the hub if the right options are passed.
-func (mg *MechanicalGreg) ApproveBRCHub(hubID, seasonID int, approve bool) error {
-	update := models.BRCHub{}
-	update.Meta.BRIApproved = approve
 	return mg.updateBRCHub(hubID, seasonID, update)
 }

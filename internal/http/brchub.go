@@ -106,29 +106,3 @@ func (s *Server) updateBRCHub(c echo.Context) error {
 
 	return c.NoContent(http.StatusNoContent)
 }
-
-func (s *Server) approveBRCHub(c echo.Context) error {
-	idStr := c.Param("id")
-	id, err := strconv.ParseInt(idStr, 10, 32)
-	if err != nil {
-		return c.String(http.StatusBadRequest, err.Error())
-	}
-	seasonStr := c.Param("season")
-	season, err := strconv.ParseInt(seasonStr, 10, 32)
-	if err != nil {
-		return c.String(http.StatusBadRequest, err.Error())
-	}
-
-	// Perform Authorization Checks
-	if err := canManageHubs(extractClaims(c)); err != nil {
-		return s.handleError(c, err)
-	}
-
-	// If we need a way to de-approve hubs then this true needs to
-	// be pulled out of the URL as a param and fed in.
-	if err := s.mg.ApproveBRCHub(int(id), int(season), true); err != nil {
-		return s.handleError(c, err)
-	}
-
-	return c.NoContent(http.StatusNoContent)
-}
