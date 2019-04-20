@@ -11,9 +11,6 @@ import (
 
 // NewTeam creates a new team.
 func (mg *MechanicalGreg) NewTeam(t models.Team) (int, error) {
-	// These fields need special handling and have to be set via
-	// dedicated interfaces.
-	t.Coach = nil
 	t.BRIApproved = false
 
 	t.HomeHubID = t.HomeHub.ID
@@ -44,15 +41,15 @@ func (mg *MechanicalGreg) GetTeam(id int) (models.Team, error) {
 	}
 
 	var coaches []models.User
-	for i := range team.Coach {
-		coach, err := mg.GetUser(team.Coach[i].ID)
+	for i := range team.Coaches {
+		coach, err := mg.GetUser(team.Coaches[i].ID)
 		if err != nil {
 			log.Println("Error loading mentor", err)
 			continue
 		}
 		coaches = append(coaches, coach)
 	}
-	team.Coach = coaches
+	team.Coaches = coaches
 
 	hub, err := mg.GetHub(team.HomeHub.ID)
 	if err != nil {
@@ -118,8 +115,8 @@ func (mg *MechanicalGreg) GetTeamsForUser(userID int) ([]models.Team, error) {
 	// as a director or admin.  This isn't N^2 even though it
 	// looks like it!
 	for i := range teams {
-		for j := range teams[i].Coach {
-			if teams[i].Coach[j].ID == userID {
+		for j := range teams[i].Coaches {
+			if teams[i].Coaches[j].ID == userID {
 				involvements[teams[i].ID] = teams[i]
 			}
 		}

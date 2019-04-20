@@ -23,7 +23,7 @@ func (s *Server) newTeam(c echo.Context) error {
 	}
 
 	// Make sure the requesting user is the first coach.
-	team.Coach = []models.User{models.User{ID: clms.User.ID}}
+	team.Coaches = []models.User{models.User{ID: clms.User.ID}}
 
 	// Actually create the team.
 	id, err := s.mg.NewTeam(team)
@@ -162,8 +162,8 @@ func permitCoachActions(claims token.Claims, team models.Team) error {
 		return nil
 	}
 	for i := range claims.Teams {
-		for j := range team.Coach {
-			if claims.Teams[i] == team.Coach[j].ID {
+		for j := range team.Coaches {
+			if claims.Teams[i] == team.Coaches[j].ID {
 				return nil
 			}
 		}

@@ -34,7 +34,7 @@ type Team struct {
 	// Teams in general have only a single coach, but in some
 	// schools its desirable for the principal or other
 	// administrator to be a coach for continuity reasons.
-	Coach []User
+	Coaches []User
 
 	// Teams can also be inactive, which means they won't appear
 	// in lookups or otherwise be available.  This is different
