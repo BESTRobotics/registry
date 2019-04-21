@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"strconv"
 
 	"github.com/labstack/echo"
 
@@ -32,21 +31,6 @@ func (s *Server) getInvolvements(userID int) (involvements, error) {
 	}
 
 	return invs, nil
-}
-
-func (s *Server) getToken(c echo.Context) error {
-	idStr := c.Param("id")
-	id, err := strconv.ParseInt(idStr, 10, 32)
-	if err != nil {
-		return c.String(http.StatusBadRequest, err.Error())
-	}
-
-	token, err := s.generateToken(int(id), token.GetConfig())
-	if err != nil {
-		return s.handleError(c, err)
-	}
-
-	return c.JSON(http.StatusOK, token)
 }
 
 func (s *Server) validateToken(next echo.HandlerFunc) echo.HandlerFunc {
@@ -77,11 +61,6 @@ func (s *Server) validateToken(next echo.HandlerFunc) echo.HandlerFunc {
 		c.Set("authinfo", claims)
 		return next(c)
 	}
-}
-
-func (s *Server) inspectToken(c echo.Context) error {
-	claims := extractClaims(c)
-	return c.JSON(http.StatusOK, claims)
 }
 
 // generateToken figures out the contents of a token with the given

@@ -57,9 +57,6 @@ func New(mg MechGreg, tkn *token.RSATokenService, po mail.Mailer) (*Server, erro
 	s.ws.POST("v1/users/:uid/students", s.newStudent)
 	s.ws.POST("v1/users/:uid/students/:sid", s.modStudent)
 
-	s.ws.GET("v1/token/:id", s.getToken)
-	s.ws.GET("v1/token-inspect", s.inspectToken)
-
 	s.ws.GET("v1/seasons", s.getSeasons)
 	s.ws.POST("v1/seasons", s.newSeason)
 	s.ws.GET("v1/seasons/:id", s.getSeason)
