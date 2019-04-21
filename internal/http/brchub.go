@@ -78,6 +78,21 @@ func (s *Server) getBRCHubs(c echo.Context) error {
 	return c.JSON(http.StatusOK, set)
 }
 
+func (s *Server) getBRCHubsForSeason(c echo.Context) error {
+	idStr := c.Param("season")
+	id, err := strconv.ParseInt(idStr, 10, 32)
+	if err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
+	}
+
+	set, err := s.mg.GetBRCHubsForSeason(int(id))
+	if err != nil {
+		return s.handleError(c, err)
+	}
+
+	return c.JSON(http.StatusOK, set)
+}
+
 func (s *Server) updateBRCHub(c echo.Context) error {
 	idStr := c.Param("id")
 	id, err := strconv.ParseInt(idStr, 10, 32)

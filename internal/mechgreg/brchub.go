@@ -92,6 +92,29 @@ func (mg *MechanicalGreg) GetBRCHubs(hubID int) ([]models.BRCHub, error) {
 	return out, nil
 }
 
+// GetBRCHubsForSeason returns all hubs for a particular season.  This
+// data is not paginated.
+func (mg *MechanicalGreg) GetBRCHubsForSeason(seasonID int) ([]models.BRCHub, error) {
+	var out []models.BRCHub
+
+	err := mg.s.Find("SeasonID", seasonID, &out)
+	switch err {
+	case nil:
+		break
+	case storm.ErrNotFound:
+		return []models.BRCHub{}, nil
+	default:
+		return nil, NewInternalError("An unspecified internal error has occured", err, http.StatusInternalServerError)
+	}
+
+	// Fill in the nested structures.
+	for i := range out {
+		mg.populateBRCHub(&out[i])
+	}
+
+	return out, nil
+}
+
 func (mg *MechanicalGreg) populateBRCHub(h *models.BRCHub) error {
 	// Get the underlying hub
 	hub, err := mg.GetHub(h.HubID)
