@@ -29,7 +29,7 @@ type BRCHub struct {
 	// kinds of fun information lives that tracks the hub's
 	// participation in a season.
 	Meta struct {
-		BRIApproved bool
+		BRIApproved *bool
 		Sponsors    []struct {
 			Name string
 			Logo url.URL
