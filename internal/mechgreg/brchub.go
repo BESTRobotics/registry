@@ -139,7 +139,7 @@ func (mg *MechanicalGreg) updateBRCHub(hubID, seasonID int, update models.BRCHub
 	update.HubID = hubID
 	update.SeasonID = seasonID
 
-	err := mg.s.Save(&update)
+	err := mg.s.Update(&update)
 	switch err {
 	case nil:
 		return nil
