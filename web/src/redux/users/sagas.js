@@ -1,7 +1,19 @@
 import { takeEvery, select, call, put } from "redux-saga/effects";
-import { updateMyProfile, getMyProfile } from "./reducer";
+import { updateMyProfile, getMyProfile, getMyStudents } from "./reducer";
 
 import * as api from "../../api";
+
+function* getMyStudentsSaga(action) {
+  const token = yield select(({ loginReducer }) => loginReducer.token);
+  const id = yield select(({ loginReducer }) => loginReducer.id);
+  try {
+    const students = yield call(api.fetchStudents, id, token);
+    yield put({ type: getMyStudents.success, payload: { students } });
+  } catch (err) {
+    console.error(err);
+    yield put({ type: getMyStudents.failure, payload: { error: err } });
+  }
+}
 
 function* getMyProfileSaga(action) {
   const token = yield select(({ loginReducer }) => loginReducer.token);
@@ -44,5 +56,6 @@ function* updateMyProfileSaga({ payload: { profile } }) {
 }
 export default [
   takeEvery(getMyProfile.request, getMyProfileSaga),
-  takeEvery(updateMyProfile.request, updateMyProfileSaga)
+  takeEvery(updateMyProfile.request, updateMyProfileSaga),
+  takeEvery(getMyStudents.request, getMyStudentsSaga)
 ];

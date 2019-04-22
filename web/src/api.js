@@ -16,6 +16,14 @@ export function fetchAllHubs(token) {
     .then(h => h.data);
 }
 
+export function fetchSeasonBrcHubs(season, token) {
+  return axios
+    .get(`http://${url}/v1/brc/${season}/hubs`, {
+      headers: { Authorization: token }
+    })
+    .then(h => h.data);
+}
+
 export function fetchSeasons(token) {
   return axios
     .get(`http://${url}/v1/seasons`, {
@@ -49,18 +57,6 @@ export function registerNewTeam(team, token) {
     .post(`http://${url}/v1/teams`, team, {
       headers: { Authorization: token }
     })
-    .then(h => h.data);
-}
-
-export function setTeamHub(id, hub, token) {
-  return axios
-    .put(
-      `http://${url}/v1/teams/${id}/home`,
-      { ID: hub },
-      {
-        headers: { Authorization: token }
-      }
-    )
     .then(h => h.data);
 }
 
@@ -112,6 +108,18 @@ export function registerBrcTeam(id, season, token) {
     .then(h => h.data);
 }
 
+export function approveBrcHub(id, season, token) {
+  return axios
+    .post(
+      `http://${url}/v1/hubs/${id}/brc/${season}/update`,
+      { Meta: { BRIApproved: true } },
+      {
+        headers: { Authorization: token }
+      }
+    )
+    .then(h => h.data);
+}
+
 export function fetchProfile(id, token) {
   return axios
     .get(`http://${url}/v1/users/${id}/profile`, {
@@ -123,6 +131,14 @@ export function fetchProfile(id, token) {
 export function updateProfile(id, profile, token) {
   return axios
     .post(`http://${url}/v1/users/${id}/profile`, profile, {
+      headers: { Authorization: token }
+    })
+    .then(t => t.data);
+}
+
+export function fetchStudents(id, token) {
+  return axios
+    .get(`http://${url}/v1/users/${id}/students`, {
       headers: { Authorization: token }
     })
     .then(t => t.data);

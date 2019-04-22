@@ -19,7 +19,7 @@ import NewHubForm from "../itemForms/NewHubForm";
 
 const Hub = ({
   hub,
-  allBrcHubs,
+  myBrcHubs,
   getBrcHub,
   token,
   registerBrc,
@@ -28,8 +28,10 @@ const Hub = ({
 }) => {
   const [hubModalOpen, setHubModalOpen] = useState(false);
   useEffect(() => {
-    (allBrcHubs && hub && allBrcHubs[hub.ID]) || getBrcHub(hub.ID);
-  }, []);
+    if (hub) {
+      (myBrcHubs && hub && myBrcHubs[hub.ID]) || getBrcHub(hub.ID);
+    }
+  }, [hub]);
   useEffect(() => {
     (allTeams && allTeams.length) || getAllTeams();
   }, []);
@@ -56,7 +58,7 @@ const Hub = ({
                   onClose={() => setHubModalOpen(false)}
                   open={!!hubModalOpen}
                 >
-                  <Modal.Header>New Hub</Modal.Header>
+                  <Modal.Header>Edit Hub</Modal.Header>
                   <Modal.Content>
                     <NewHubForm
                       addToList={() => setHubModalOpen(false)}
@@ -95,9 +97,9 @@ const Hub = ({
                   </Header>
                 </Divider>
                 <List divided verticalAlign="middle">
-                  {(allBrcHubs &&
-                    allBrcHubs[hub.ID] &&
-                    allBrcHubs[hub.ID].map(season => (
+                  {(myBrcHubs &&
+                    myBrcHubs[hub.ID] &&
+                    myBrcHubs[hub.ID].map(season => (
                       <List.Item key={season.ID}>
                         <List.Content>
                           <List.Header
@@ -156,7 +158,7 @@ const Hub = ({
 };
 
 const mapStateToProps = ({ hubsReducer, teamsReducer, loginReducer }) => ({
-  allBrcHubs: hubsReducer.allBrcHubs,
+  myBrcHubs: hubsReducer.myBrcHubs,
   allTeams: teamsReducer.allTeams,
   token: loginReducer.token
 });

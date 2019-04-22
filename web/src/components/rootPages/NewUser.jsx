@@ -6,22 +6,33 @@ import {
   Header,
   Input,
   Button,
-  Modal
+  Modal,
+  Form
 } from "semantic-ui-react";
 import NewTeam from "../userForms/NewTeam";
 import ProfileForm from "../userForms/ProfileForm";
 import { logout } from "../../redux/login/reducer";
 import { connect } from "react-redux";
-import { getMyProfile } from "../../redux/users/reducer";
+import { getMyProfile, getMyStudents } from "../../redux/users/reducer";
+import { getAllTeams } from "../../redux/teams/reducer";
+import StudentsForm from "../userForms/StudentsForm";
 
-const NewUser = ({ myProfile, getMyProfile }) => {
+const NewUser = ({
+  myProfile,
+  getMyProfile,
+  getAllTeams,
+  getMyStudents,
+  teams,
+  myStudents
+}) => {
   const [schoolModalOpen, setSchoolModalOpen] = useState(false);
   const [logoutModalOpen, setLogoutModalOpen] = useState(false);
 
   useEffect(() => {
     myProfile || getMyProfile();
+    (teams && teams.length) || getAllTeams();
+    (myStudents && myStudents.length) || getMyStudents();
   }, []);
-  console.log(myProfile);
   return (
     <Grid centered columns={2}>
       <Modal
@@ -47,18 +58,34 @@ const NewUser = ({ myProfile, getMyProfile }) => {
                   Find your team and enter the secret code your teacher or coach
                   provided:
                 </Header>
-                <Dropdown
-                  placeholder="Select Team"
-                  search
-                  selection
-                  options={[]}
-                />{" "}
-                <Input
-                  icon="lock"
-                  iconPosition="left"
-                  action="Join Team"
-                  placeholder="Secret"
-                />
+                {myStudents && myStudents.length ? (
+                  "GOOD JOB YOU HAVE STUDENTS"
+                ) : (
+                  <StudentsForm />
+                )}
+                <Form onSubmit={console.log}>
+                  <Form.Group inline>
+                    <Form.Dropdown
+                      placeholder="Select Team"
+                      search
+                      selection
+                      options={
+                        teams &&
+                        teams.map(t => ({
+                          text: `${t.SchoolName} — ${t.StaticName}`,
+                          value: t.ID
+                        }))
+                      }
+                    />{" "}
+                    <Form.Input
+                      icon="lock"
+                      iconPosition="left"
+                      action="Join Team"
+                      placeholder="Secret"
+                      disabled={!myStudents || !myStudents.length}
+                    />
+                  </Form.Group>
+                </Form>
               </Card.Description>
             </Card.Content>
           </Card>
@@ -126,12 +153,16 @@ const NewUser = ({ myProfile, getMyProfile }) => {
   );
 };
 
-const mapStateToProps = ({ usersReducer }) => ({
-  myProfile: usersReducer.myProfile
+const mapStateToProps = ({ usersReducer, teamsReducer }) => ({
+  myProfile: usersReducer.myProfile,
+  myStudents: usersReducer.myStudents,
+  teams: teamsReducer.allTeams
 });
 const mapDispatchToProps = {
   logout: () => logout(),
-  getMyProfile: () => getMyProfile.request()
+  getMyProfile: () => getMyProfile.request(),
+  getAllTeams: () => getAllTeams.request(),
+  getMyStudents: () => getMyStudents.request()
 };
 
 export default connect(

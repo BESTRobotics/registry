@@ -74,11 +74,9 @@ const Team = ({
                     Team Info
                   </Header>
                 </Divider>
-                <b>Director:</b> {team.Coach.FirstName} {team.Coach.LastName}
-                <br />
-                <b>Mentors:</b>{" "}
-                {team.Mentors
-                  ? team.Mentors.map(a => `${a.FirstName} ${a.LastName}`).join(
+                <b>Coaches:</b>{" "}
+                {team.Coach
+                  ? team.Coach.map(a => `${a.FirstName} ${a.LastName}`).join(
                       ","
                     )
                   : "none"}

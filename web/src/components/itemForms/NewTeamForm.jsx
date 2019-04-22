@@ -18,14 +18,12 @@ const NewTeamForm = ({ addToList, existingItem, token }) => {
   );
   const [website, setWebsite] = useState(team ? team.Website : "");
   const [hub, setHub] = useState(team ? team.HomeHub.ID : null);
-  const [coach, setCoach] = useState(team ? team.Coach.ID : null);
+  const [coaches, setCoaches] = useState(
+    team && team.Coaches ? team.Coaches.map(c => c.ID) : []
+  );
   const [founded, setFounded] = useState(
     team ? team.Founded.substring(0, 10) : ""
   );
-  const [mentors, setMentors] = useState(
-    team && team.Mentors ? team.Mentors.map(m => m.ID) : []
-  );
-
   const [newUser, setNewUser] = useState("");
   const [message, setMessage] = useState(null);
 
@@ -67,82 +65,22 @@ const NewTeamForm = ({ addToList, existingItem, token }) => {
       SchoolName: schoolName,
       SchoolAddress: schoolAddress,
       Website: website,
-      Founded: founded ? new Date(founded).toISOString() : null
+      Founded: founded ? new Date(founded).toISOString() : null,
+      HomeHub: { ID: hub },
+      Coach: coaches.map(id => ({ ID: id }))
     };
-    let call = axios.post;
     let url = `http://${process.env.REACT_APP_API_URL}/v1/teams`;
     if (id !== "") {
       newTeam.ID = id;
-      call = axios.put;
       url = `http://${process.env.REACT_APP_API_URL}/v1/teams/${id}`;
     }
-    call(url, newTeam, { headers: headers })
+    axios
+      .post(url, newTeam, { headers: headers })
       .then(response => {
         if (!newTeam.ID) {
           newTeam.ID = response.data.ID;
           setId(response.data.ID);
         }
-        newTeam.HomeHub = hubs.filter(h => h.ID === hub)[0];
-        newTeam.Coach = users.filter(u => u.ID === coach)[0];
-        newTeam.Mentors = users.filter(u => mentors.includes(u.ID));
-        const { addMentors, subtractMentors } = (() => {
-          if (existingItem && existingItem.Mentors) {
-            const existingMentors = existingItem.Mentors.map(m => m.ID);
-            const addMentors = mentors.filter(
-              m => !existingMentors.includes(m)
-            );
-            const subtractMentors = existingMentors.filter(
-              m => !mentors.includes(m)
-            );
-            return { addMentors, subtractMentors };
-          } else {
-            return { addMentors: mentors, subtractMentors: [] };
-          }
-        })();
-
-        let adjustmentRequests = [];
-        if (addMentors.length) {
-          adjustmentRequests.push(
-            ...addMentors.map(m =>
-              axios.put(
-                `http://${process.env.REACT_APP_API_URL}/v1/teams/${
-                  newTeam.ID
-                }/mentors`,
-                { ID: m },
-                { headers: headers }
-              )
-            )
-          );
-        }
-        if (subtractMentors.length) {
-          adjustmentRequests.push(
-            ...subtractMentors.map(m =>
-              axios.delete(
-                `http://${process.env.REACT_APP_API_URL}/v1/teams/${
-                  newTeam.ID
-                }/mentors/${m}`,
-                { headers: headers }
-              )
-            )
-          );
-        }
-        return axios.all([
-          axios.put(
-            `http://${process.env.REACT_APP_API_URL}/v1/teams/${
-              newTeam.ID
-            }/home`,
-            { ID: hub },
-            { headers: headers }
-          ),
-          axios.put(
-            `http://${process.env.REACT_APP_API_URL}/v1/teams/${
-              newTeam.ID
-            }/coach`,
-            { ID: coach },
-            { headers: headers }
-          ),
-          ...adjustmentRequests
-        ]);
       })
       .then(() => {
         addToList(newTeam);
@@ -195,33 +133,17 @@ const NewTeamForm = ({ addToList, existingItem, token }) => {
           onChange={(_, { value }) => setHub(value)}
         />
         <Form.Dropdown
-          label="Coach"
-          search
-          allowAdditions
-          loading={!users}
-          options={users.map(u => ({
-            text: `${u.FirstName} ${u.LastName}`,
-            value: u.ID
-          }))}
-          selection
-          value={coach}
-          onChange={(_, { value }) => setCoach(value)}
-          onAddItem={(_, { value }) => setNewUser(value)}
-        />
-        <Form.Dropdown
-          label="Mentors"
+          label="Coaches"
           search
           multiple
-          allowAdditions
           loading={!users}
           options={users.map(u => ({
             text: `${u.FirstName} ${u.LastName}`,
             value: u.ID
           }))}
           selection
-          value={mentors}
-          onChange={(_, { value }) => setMentors(value)}
-          onAddItem={(_, { value }) => setNewUser(value)}
+          value={coaches}
+          onChange={(_, { value }) => setCoaches(value)}
         />
         <Form.Input
           type="date"
@@ -231,19 +153,6 @@ const NewTeamForm = ({ addToList, existingItem, token }) => {
         />
         <Button color="green">{id ? "Update Team" : "Add Team"}</Button>
       </Form>
-      <Modal open={!!newUser} onClose={() => setNewUser("")}>
-        <Header icon="user" content="Add New User" />
-        <Modal.Content>
-          <NewUserForm
-            name={newUser}
-            addToList={user => {
-              setUsers([...users, user]);
-              setCoach(user.ID);
-              setNewUser("");
-            }}
-          />
-        </Modal.Content>
-      </Modal>
     </React.Fragment>
   );
 };

@@ -67,13 +67,10 @@ function* registerNewTeamSaga({ payload: { team } }) {
       SchoolName: team.schoolName,
       SchoolAddress: team.schoolAddress,
       Website: team.website,
-      Founded: team.founded ? new Date(team.founded).toISOString() : null
+      Founded: team.founded ? new Date(team.founded).toISOString() : null,
+      HomeHub: team.hub ? { ID: team.hub } : null
     };
     const newTeam = yield call(api.registerNewTeam, teamToRegister, token);
-    console.log(team.hub);
-    if (team.hub) {
-      yield call(api.setTeamHub, newTeam.id, team.hub, token);
-    }
     yield put({
       type: registerNewTeam.success,
       payload: { team: newTeam }

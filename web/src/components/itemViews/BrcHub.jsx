@@ -62,7 +62,7 @@ const BrcDescription = ({ brcHub, register, id, season }) => {
 };
 
 const BrcHub = ({
-  allBrcHubs,
+  myBrcHubs,
   getBrcHub,
   registerBrc,
   match: {
@@ -70,16 +70,16 @@ const BrcHub = ({
   }
 }) => {
   useEffect(() => {
-    (allBrcHubs && allBrcHubs[id]) || getBrcHub(id);
+    (myBrcHubs && myBrcHubs[id]) || getBrcHub(id);
   }, []);
 
   return (
     <Grid columns={2} centered>
       <Grid.Row>
         <Grid.Column>
-          {allBrcHubs && allBrcHubs[id] ? (
+          {myBrcHubs && myBrcHubs[id] ? (
             <BrcDescription
-              brcHub={allBrcHubs[id].find(s => String(s.ID) === season)}
+              brcHub={myBrcHubs[id].find(s => String(s.ID) === season)}
               id={id}
               season={season}
               register={() => registerBrc(id)}
@@ -94,7 +94,7 @@ const BrcHub = ({
 };
 
 const mapStateToProps = ({ hubsReducer }) => ({
-  allBrcHubs: hubsReducer.allBrcHubs
+  myBrcHubs: hubsReducer.myBrcHubs
 });
 
 const mapDispatchToProps = {

@@ -23,6 +23,9 @@ const Topbar = ({ logout, superAdmin, hubs, teams }) => {
       ) : null}
       {superAdmin ? (
         <>
+          <Menu.Item as={NavLink} to="/admin">
+            Admin Home
+          </Menu.Item>
           <Menu.Item as={NavLink} to="/admin/hubs">
             Hubs
           </Menu.Item>

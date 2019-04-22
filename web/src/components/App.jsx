@@ -20,6 +20,7 @@ import UsersTables from "./itemTables/Users";
 import EventsTables from "./itemTables/Events";
 import BrcHub from "./itemViews/BrcHub";
 import BrcTeam from "./itemViews/BrcTeam";
+import Adminpage from "./rootPages/Adminpage";
 
 const App = ({ token, superAdmin, message }) => {
   return (
@@ -51,6 +52,7 @@ const App = ({ token, superAdmin, message }) => {
             {/* These below guys need to be more reduxy */}
             {superAdmin && (
               <>
+                <Route exact path="/admin" component={Adminpage} />
                 <Route
                   path="/admin/hubs"
                   render={p => <HubsTables {...p} token={token} />}

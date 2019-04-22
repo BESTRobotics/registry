@@ -1,5 +1,13 @@
 import { takeEvery, select, all, call, put } from "redux-saga/effects";
-import { getBrcHub, getAllHubs, getMyHubs, registerBrcHub } from "./reducer";
+import {
+  getBrcHub,
+  getSeasons,
+  getSeasonBrcHubs,
+  getAllHubs,
+  getMyHubs,
+  registerBrcHub,
+  approveBrcHub
+} from "./reducer";
 import * as api from "../../api";
 
 function* getAllHubsSaga(action) {
@@ -27,6 +35,28 @@ function* getBrcHubSaga({ payload: { id } }) {
   }
 }
 
+function* getSeasonsSaga() {
+  const token = yield select(({ loginReducer }) => loginReducer.token);
+  try {
+    const seasons = yield call(api.fetchSeasons, token);
+    yield put({ type: getSeasons.success, payload: { seasons } });
+  } catch (err) {
+    console.error(err);
+    yield put({ type: getSeasons.failure, payload: { error: err } });
+  }
+}
+
+function* getSeasonBrcHubsSaga({ payload: { season } }) {
+  const token = yield select(({ loginReducer }) => loginReducer.token);
+  try {
+    const brcHubs = yield call(api.fetchSeasonBrcHubs, season, token);
+    yield put({ type: getSeasonBrcHubs.success, payload: { brcHubs, season } });
+  } catch (err) {
+    console.error(err);
+    yield put({ type: getSeasonBrcHubs.failure, payload: { error: err } });
+  }
+}
+
 function* registerBrcHubSaga({ payload: { id, season } }) {
   const token = yield select(({ loginReducer }) => loginReducer.token);
   try {
@@ -38,6 +68,20 @@ function* registerBrcHubSaga({ payload: { id, season } }) {
   } catch (err) {
     console.error(err);
     yield put({ type: registerBrcHub.failure, payload: { error: err } });
+  }
+}
+
+function* approveBrcHubSaga({ payload: { id, season } }) {
+  const token = yield select(({ loginReducer }) => loginReducer.token);
+  try {
+    yield call(api.approveBrcHub, id, season, token);
+    yield put({
+      type: approveBrcHub.success,
+      payload: { id, season }
+    });
+  } catch (err) {
+    console.error(err);
+    yield put({ type: approveBrcHub.failure, payload: { error: err } });
   }
 }
 
@@ -58,5 +102,8 @@ export default [
   takeEvery(getAllHubs.request, getAllHubsSaga),
   takeEvery(getMyHubs.request, getMyHubsSaga),
   takeEvery(getBrcHub.request, getBrcHubSaga),
-  takeEvery(registerBrcHub.request, registerBrcHubSaga)
+  takeEvery(getSeasonBrcHubs.request, getSeasonBrcHubsSaga),
+  takeEvery(approveBrcHub.request, approveBrcHubSaga),
+  takeEvery(registerBrcHub.request, registerBrcHubSaga),
+  takeEvery(getSeasons.request, getSeasonsSaga)
 ];
