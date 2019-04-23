@@ -211,13 +211,13 @@ func (mg *MechanicalGreg) GetStudent(sid int) (models.Student, error) {
 func (mg *MechanicalGreg) GetStudents(uid int) ([]models.Student, error) {
 	var out []models.Student
 
-	err := mg.s.Find("userID", uid, &out)
+	err := mg.s.Find("UserID", uid, &out)
 	switch err {
 	case nil:
 		return out, nil
 	case storm.ErrNotFound:
-		return []models.Student{},
-			NewConstraintError("No such user exists with that ID", err, http.StatusNotFound)
+		// Special cased to return an empty list of students.
+		return []models.Student{}, nil
 	default:
 		return []models.Student{},
 			NewInternalError("An unspecified error has occured", err, http.StatusInternalServerError)
