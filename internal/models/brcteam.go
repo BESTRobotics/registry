@@ -28,6 +28,10 @@ type BRCTeam struct {
 	// joining of a team, so its not that secure.
 	JoinKey string `storm:"increment"`
 
+	// UILDivision is the division the team competes as in UIL.
+	// If this field is unset, the team is not UIL.
+	UILDivision string
+
 	// TeamSurvey stores the information that needs to be
 	// collected with team granularity.  This is statistical
 	// information that is related to the school and the team that
