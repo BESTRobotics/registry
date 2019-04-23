@@ -166,5 +166,7 @@ func (mg *MechanicalGreg) UpdateBRCHub(hubID, seasonID int, update models.BRCHub
 		return NewInternalError("An unspecified error has occured", err, http.StatusInternalServerError)
 	}
 
+	// Update() needs to see an ID in the struct
+	update.ID = brchub.ID
 	return mg.updateBRCHub(hubID, seasonID, update)
 }
