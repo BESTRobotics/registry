@@ -48,6 +48,14 @@ type UserProfile struct {
 	// Birthdate contains the user's birthdate, this is used to
 	// calculate whether or not the user can sign things.
 	Birthdate DateTime
+
+	// PhonePri is the primary phone number we expect to be able
+	// to reach the user on.
+	PhonePri string
+
+	// PhoneAlt is the alternate number that we hope will ring if
+	// the primary number fails.
+	PhoneAlt string
 }
 
 // A Student is a special type that handles an "owned" profile on a
