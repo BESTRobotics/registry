@@ -115,6 +115,9 @@ func (s *Server) updateBRCHub(c echo.Context) error {
 		return c.String(http.StatusBadRequest, err.Error())
 	}
 
+	// Nil this out since we do the lookup on hubID and season.
+	update.ID = 0
+
 	if err := s.mg.UpdateBRCHub(int(id), int(season), update); err != nil {
 		return s.handleError(c, err)
 	}
