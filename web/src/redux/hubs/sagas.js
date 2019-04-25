@@ -6,7 +6,8 @@ import {
   getAllHubs,
   getMyHubs,
   registerBrcHub,
-  approveBrcHub
+  approveBrcHub,
+  saveSeason
 } from "./reducer";
 import * as api from "../../api";
 
@@ -71,13 +72,13 @@ function* registerBrcHubSaga({ payload: { id, season } }) {
   }
 }
 
-function* approveBrcHubSaga({ payload: { id, season } }) {
+function* approveBrcHubSaga({ payload: { hubid, brchubid, season } }) {
   const token = yield select(({ loginReducer }) => loginReducer.token);
   try {
-    yield call(api.approveBrcHub, id, season, token);
+    yield call(api.approveBrcHub, hubid, brchubid, season, token);
     yield put({
       type: approveBrcHub.success,
-      payload: { id, season }
+      payload: { id: brchubid, season }
     });
   } catch (err) {
     console.error(err);
@@ -97,6 +98,30 @@ function* getMyHubsSaga(action) {
   }
 }
 
+function* saveSeasonSaga({ payload: { season } }) {
+  const token = yield select(({ loginReducer }) => loginReducer.token);
+  let id;
+  let newSeason;
+  try {
+    if (season.ID && season.ID !== "") {
+      id = season.ID;
+      newSeason = season;
+      yield call(api.updateSeason, season.ID, season, token);
+    } else {
+      newSeason = yield call(api.newSeason, season, token);
+      console.log(newSeason);
+      id = newSeason.ID;
+    }
+    yield put({
+      type: saveSeason.success,
+      payload: { id, season: newSeason }
+    });
+  } catch (err) {
+    console.error(err);
+    yield put({ type: saveSeason.failure, payload: { error: err } });
+  }
+}
+
 // use them in parallel
 export default [
   takeEvery(getAllHubs.request, getAllHubsSaga),
@@ -105,5 +130,6 @@ export default [
   takeEvery(getSeasonBrcHubs.request, getSeasonBrcHubsSaga),
   takeEvery(approveBrcHub.request, approveBrcHubSaga),
   takeEvery(registerBrcHub.request, registerBrcHubSaga),
-  takeEvery(getSeasons.request, getSeasonsSaga)
+  takeEvery(getSeasons.request, getSeasonsSaga),
+  takeEvery(saveSeason.request, saveSeasonSaga)
 ];

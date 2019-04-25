@@ -15,7 +15,8 @@ export const {
   getSeasonBrcHubs,
   registerBrcHub,
   approveBrcHub,
-  getSeasons
+  getSeasons,
+  saveSeason
 } = createActions({
   GET_MY_HUBS: {
     REQUEST: () => ({}),
@@ -43,13 +44,18 @@ export const {
     FAILURE: error => ({ error })
   },
   APPROVE_BRC_HUB: {
-    REQUEST: (id, season) => ({ id, season }),
+    REQUEST: (hubid, brchubid, season) => ({ hubid, brchubid, season }),
     SUCCESS: (id, season) => ({ id, season }),
     FAILURE: error => ({ error })
   },
   GET_SEASONS: {
     REQUEST: () => ({}),
     SUCCESS: seasons => ({ seasons }),
+    FAILURE: error => ({ error })
+  },
+  SAVE_SEASON: {
+    REQUEST: season => ({ season }),
+    SUCCESS: season => ({ season }),
     FAILURE: error => ({ error })
   }
 });
@@ -101,26 +107,50 @@ const reducer = handleActions(
         )
       }
     }),
-    [approveBrcHub.success]: (state, { payload: { id, season } }) => ({
-      ...state,
-      allBrcHubs: {
-        ...state.allBrcHubs,
-        [season]: state.allBrcHubs[season].map(s =>
-          s.ID === season
-            ? {
-                ...s,
-                [id]: {
-                  ...state.AllBrcHubs[season][id],
-                  Meta: {
-                    ...state.AllBrcHubs[season][id].Meta,
-                    BRIApproved: true
+    [approveBrcHub.success]: (
+      state,
+      { payload: { hubid, brchubid, season } }
+    ) => {
+      return {
+        ...state,
+        allBrcHubs: {
+          ...state.allBrcHubs,
+          [season]: state.allBrcHubs[season].map(s =>
+            s.ID === hubid
+              ? {
+                  ...s,
+                  [brchubid]: {
+                    ...state.AllBrcHubs[season][hubid],
+                    Meta: {
+                      ...state.AllBrcHubs[season][hubid].Meta,
+                      BRIApproved: true
+                    }
                   }
                 }
-              }
-            : s
-        )
+              : s
+          )
+        }
+      };
+    },
+    [saveSeason.success]: (state, { payload: { id, season } }) => {
+      console.log(id);
+      console.log(season);
+      let seasons = state.seasons;
+      const seasonIndex = state.seasons.findIndex(s => s.ID === id);
+      if (seasonIndex === -1) {
+        seasons = [...seasons, season];
+      } else {
+        seasons = [
+          ...seasons.slice(0, seasonIndex - 1),
+          season,
+          ...season.slice(seasonIndex)
+        ];
       }
-    })
+      return {
+        ...state,
+        seasons
+      };
+    }
   },
   defaultState
 );

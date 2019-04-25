@@ -121,6 +121,7 @@ func (s *Server) statusPage(c echo.Context) error {
 }
 
 func (s *Server) handleError(c echo.Context, err error) error {
+	fmt.Println(err)
 	switch err.(type) {
 	case *mechgreg.ConstraintError:
 		cerr, ok := err.(*mechgreg.ConstraintError)

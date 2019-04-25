@@ -19,7 +19,6 @@ const NewHubForm = ({ addToList, existingItem, token }) => {
     hub && hub.Director ? hub.Director.ID : null
   );
 
-  const [newUser, setNewUser] = useState("");
   const [message, setMessage] = useState(null);
 
   useEffect(() => {
@@ -43,30 +42,20 @@ const NewHubForm = ({ addToList, existingItem, token }) => {
       Name: name,
       Location: location,
       Description: description,
-      Founded: founded !== "" ? new Date(founded).toISOString() : null
+      Founded: founded !== "" ? new Date(founded).toISOString() : null,
+      Director: { ID: director }
     };
-    let call = axios.post;
     let url = `http://${process.env.REACT_APP_API_URL}/v1/hubs`;
     if (id !== "") {
       newHub.ID = id;
-      call = axios.put;
-      url = `http://${process.env.REACT_APP_API_URL}/v1/hubs/${id}/update`;
+      url = `http://${process.env.REACT_APP_API_URL}/v1/hubs/${id}`;
     }
-    call(url, newHub, { headers: headers })
+    axios
+      .post(url, newHub, { headers: headers })
       .then(response => {
         if (!newHub.ID) {
           newHub.ID = response.data.ID;
           setId(response.data.ID);
-        }
-        if (director) {
-          newHub.Director = users.filter(u => u.ID === director)[0];
-          return axios.put(
-            `http://${process.env.REACT_APP_API_URL}/v1/hubs/${
-              newHub.ID
-            }/director`,
-            { ID: director },
-            { headers: headers }
-          );
         }
       })
       .then(() => {
@@ -110,7 +99,6 @@ const NewHubForm = ({ addToList, existingItem, token }) => {
         <Form.Dropdown
           label="Director"
           search
-          allowAdditions
           loading={!users}
           options={users.map(u => ({
             text: `${u.FirstName} ${u.LastName}`,
@@ -119,23 +107,9 @@ const NewHubForm = ({ addToList, existingItem, token }) => {
           selection
           value={director}
           onChange={(_, { value }) => setDirector(value)}
-          onAddItem={(_, { value }) => setNewUser(value)}
         />
         <Button color="green">{id ? "Update Hub" : "Add Hub"}</Button>
       </Form>
-      <Modal open={!!newUser} onClose={() => setNewUser("")}>
-        <Header icon="user" content="Add New User" />
-        <Modal.Content>
-          <NewUserForm
-            name={newUser}
-            addToList={user => {
-              setUsers([...users, user]);
-              setDirector(user.ID);
-              setNewUser("");
-            }}
-          />
-        </Modal.Content>
-      </Modal>
     </React.Fragment>
   );
 };

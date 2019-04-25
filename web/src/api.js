@@ -108,11 +108,11 @@ export function registerBrcTeam(id, season, token) {
     .then(h => h.data);
 }
 
-export function approveBrcHub(id, season, token) {
+export function approveBrcHub(hubid, brchubid, season, token) {
   return axios
     .post(
-      `http://${url}/v1/hubs/${id}/brc/${season}/update`,
-      { Meta: { BRIApproved: true } },
+      `http://${url}/v1/hubs/${hubid}/brc/${season}/update`,
+      { ID: brchubid, Meta: { BRIApproved: true } },
       {
         headers: { Authorization: token }
       }
@@ -139,6 +139,22 @@ export function updateProfile(id, profile, token) {
 export function fetchStudents(id, token) {
   return axios
     .get(`http://${url}/v1/users/${id}/students`, {
+      headers: { Authorization: token }
+    })
+    .then(t => t.data);
+}
+
+export function updateSeason(id, season, token) {
+  return axios
+    .post(`http://${url}/v1/season/${id}`, season, {
+      headers: { Authorization: token }
+    })
+    .then(t => t.data);
+}
+
+export function newSeason(season, token) {
+  return axios
+    .post(`http://${url}/v1/seasons`, season, {
       headers: { Authorization: token }
     })
     .then(t => t.data);
