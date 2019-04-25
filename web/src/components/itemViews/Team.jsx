@@ -119,13 +119,6 @@ const Team = ({
                       </List.Item>
                     ))) || <FakeItemGroup rows={3} />}
                 </List>
-                <Divider horizontal>
-                  <Header as="h4">
-                    <Icon name="users" />
-                    Students
-                  </Header>
-                </Divider>
-                <FakeItemGroup rows={3} />
               </Card.Description>
             </Card.Content>
           </Card>

@@ -110,7 +110,11 @@ const Hub = ({
                           </List.Header>
                           <List.Description>
                             {season.brcHub ? (
-                              "Registered"
+                              season.brcHub.Meta.BRIApproved ? (
+                                "Approved"
+                              ) : (
+                                "Pending Approval"
+                              )
                             ) : season.State === "Open" ? (
                               <Button
                                 compact

@@ -53,7 +53,21 @@ const BrcDescription = ({ brcTeam, register, id, season }) => {
               Students
             </Header>
           </Divider>
-          <FakeItemGroup rows={3} />
+          <List divided verticalAlign="middle">
+            {brcTeam.brcTeam.roster ? (
+              brcTeam.brcTeam.roster.map(s => (
+                <List.Item>
+                  <List.Content>
+                    <List.Header>
+                      {s.Firstname} {s.LastName}
+                    </List.Header>
+                  </List.Content>
+                </List.Item>
+              ))
+            ) : (
+              <FakeItemGroup rows={3} />
+            )}
+          </List>
         </Card.Description>
       </Card.Content>
     </Card>
