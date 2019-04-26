@@ -99,7 +99,9 @@ const NewUser = ({
                 I am a Teacher, Coach, or Administrator of a School
               </Card.Header>
               <Card.Description>
-                <Header>If your school doesn't exist, you can a new one</Header>
+                <Header>
+                  If your school is not in the registry, you can a add one
+                </Header>
                 <Modal
                   trigger={
                     <Button onClick={() => setSchoolModalOpen(true)}>

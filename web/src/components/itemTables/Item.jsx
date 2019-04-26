@@ -137,16 +137,16 @@ const Item = ({ trashcan, itemName, fields, NewItemForm, token }) => {
           {items && items.length ? (
             <Table.Body>
               {items
-                .filter(
-                  item =>
-                    fields
-                      .filter(f => f.filter)
-                      .filter(f =>
-                        (f.displayFn ? f.displayFn(item) : item[f.name])
-                          .toLowerCase()
-                          .includes(search)
-                      ).length
-                )
+                .filter(item => {
+                  return fields
+                    .filter(f => f.filter)
+                    .filter(f => {
+                      console.log(f);
+                      return (f.displayFn ? f.displayFn(item) : item[f.name])
+                        .toLowerCase()
+                        .includes(search);
+                    }).length;
+                })
                 .slice(page * pageSize, (page + 1) * pageSize)
                 .map(item => (
                   <Table.Row key={item.ID}>

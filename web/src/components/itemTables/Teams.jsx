@@ -7,13 +7,13 @@ const Teams = ({ token }) => {
     text.substr(0, max - 1) + (text.length > max ? "\u2026" : "");
   const fields = [
     { header: "Name", name: "StaticName", filter: true },
-    { header: "Hub", displayFn: team => team.HomeHub.Name, filter: true },
+    { header: "Hub", displayFn: team => team.HomeHub.Name, filter: false },
     {
-      header: "Coach",
+      header: "Coaches",
       displayFn: team =>
-        team.Coach
+        team.Coaches
           ? trunc(
-              team.Coach.map(m => `${m.FirstName} ${m.LastName}`).join(", "),
+              team.Coaches.map(m => `${m.FirstName} ${m.LastName}`).join(", "),
               25
             )
           : "",

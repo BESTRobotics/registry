@@ -67,7 +67,7 @@ const NewTeamForm = ({ addToList, existingItem, token }) => {
       Website: website,
       Founded: founded ? new Date(founded).toISOString() : null,
       HomeHub: { ID: hub },
-      Coach: coaches.map(id => ({ ID: id }))
+      Coaches: coaches.map(id => ({ ID: id }))
     };
     let url = `http://${process.env.REACT_APP_API_URL}/v1/teams`;
     if (id !== "") {
