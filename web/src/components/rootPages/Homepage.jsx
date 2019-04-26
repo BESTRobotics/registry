@@ -17,9 +17,9 @@ const InnerHomepage = connect(mapStateToProps)(
     return (
       <React.Fragment>
         {superAdmin && !hubsLength && !teamsLength ? <Adminpage /> : null}
-        {hubsLength === 1 && teamsLength && <Header>My Hub</Header>}
+        {hubsLength === 1 && teamsLength ? <Header>My Hub</Header> : null}
         {hubsLength ? <Hubs /> : null}
-        {teamsLength === 1 && hubsLength && <Header>My Team</Header>}
+        {teamsLength === 1 && hubsLength ? <Header>My Team</Header> : null}
         {teamsLength ? <Teams /> : null}
         {!hubsLength && !teamsLength && <NewUser />};
       </React.Fragment>
