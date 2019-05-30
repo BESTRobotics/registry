@@ -69,14 +69,11 @@ const reducer = handleActions(
         ...state,
         allBrcTeams: {
           ...state.allBrcTeams,
-          [id]: state.allBrcTeams[id].map(s =>
-            s.ID === season
-              ? {
-                  ...s,
-                  brcTeam
-                }
-              : s
-          )
+          [id]: [
+            ...state.allBrcTeams[id].map(s =>
+              s.ID === season ? { ...s, brcTeam } : s
+            )
+          ]
         }
       };
     }

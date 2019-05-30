@@ -40,7 +40,7 @@ func (s *Server) registerBRCTeam(c echo.Context) error {
 	if _, err := s.mg.GetTeam(int(id)); err != nil {
 		return s.handleError(c, err)
 	}
-	if _, err := s.mg.GetSeason(int(id)); err != nil {
+	if _, err := s.mg.GetSeason(int(season)); err != nil {
 		return s.handleError(c, err)
 	}
 
