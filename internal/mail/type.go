@@ -5,6 +5,8 @@ import (
 	"net/mail"
 
 	"github.com/spf13/viper"
+
+	"github.com/BESTRobotics/registry/internal/models"
 )
 
 func init() {
@@ -25,6 +27,15 @@ type Letter struct {
 	BCC     []*mail.Address
 	Subject string
 	Body    string
+}
+
+// A LetterContext is everything that's needed to pass into
+// RenderLetter in order to generate a letter ready to send.
+type LetterContext struct {
+	Team models.Team
+	Hub  models.Hub
+
+	LocalMessage string
 }
 
 // NewLetter creates a new letter with the from address filled in

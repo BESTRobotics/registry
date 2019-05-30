@@ -1,0 +1,4 @@
+Welcome to the BESTRobotics registry!  To complete registration,
+please use the link below to activate your account:
+
+{{ .LocalMessage }}

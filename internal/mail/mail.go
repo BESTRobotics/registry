@@ -2,12 +2,14 @@ package mail
 
 import (
 	"log"
+	"text/template"
 
 	"github.com/spf13/viper"
 )
 
 var (
 	factories map[string]Factory
+	templates *template.Template
 )
 
 func init() {
@@ -29,6 +31,11 @@ func Register(name string, f Factory) {
 // Initialize invokes the factory specified by the viper token
 // "mailer" and returns the result of this call.
 func Initialize() (Mailer, error) {
+	if err := loadTemplates(); err != nil {
+		log.Println("Error loading mailer templates:", err)
+		return nil, ErrInternal
+	}
+
 	if f, ok := factories[viper.GetString("mailer")]; ok {
 		return f()
 	}

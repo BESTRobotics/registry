@@ -36,11 +36,14 @@ func (s *Server) registerLocalUser(c echo.Context) error {
 		return s.handleError(c, err)
 	}
 
-	l := mail.NewLetter()
+	// Send the letter
+	l, err := mail.RenderLetter("new-local-user", &mail.LetterContext{LocalMessage: "Foo"})
+	if err != nil {
+		log.Println("Error trying to mail new user:", err)
+		return c.NoContent(http.StatusInternalServerError)
+	}
 	l.AddTo(mail.UserToAddress(regRequest.U))
 	l.Subject = "Activate Your BRI Registry Account"
-	l.Body = "Some magic link in here to activate this account..."
-
 	if err := s.po.SendMail(l); err != nil {
 		return c.JSON(http.StatusInternalServerError, err)
 	}
