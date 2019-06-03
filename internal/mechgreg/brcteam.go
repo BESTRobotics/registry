@@ -7,13 +7,15 @@ import (
 	"github.com/asdine/storm"
 	"github.com/asdine/storm/q"
 
+	"github.com/BESTRobotics/registry/internal/mail"
 	"github.com/BESTRobotics/registry/internal/models"
 )
 
 // RegisterBRCTeam creates a new BRCTeam resource and returns the created
 // resource to the caller.
 func (mg *MechanicalGreg) RegisterBRCTeam(teamID, seasonID int) (int, error) {
-	if _, err := mg.GetTeam(teamID); err != nil {
+	team, err := mg.GetTeam(teamID)
+	if err != nil {
 		return 0, err
 	}
 	if _, err := mg.GetSeason(seasonID); err != nil {
@@ -31,9 +33,14 @@ func (mg *MechanicalGreg) RegisterBRCTeam(teamID, seasonID int) (int, error) {
 		SeasonID: seasonID,
 	}
 
-	err := mg.s.Save(newBRCTeam)
+	err = mg.s.Save(newBRCTeam)
 	switch err {
 	case nil:
+		ctx := mail.LetterContext{
+			Team: team,
+			Hub:  team.HomeHub,
+		}
+		mg.mailTeamCoaches(teamID, "brcteam-register", "BEST Season Registration", ctx)
 		return newBRCTeam.ID, nil
 	case storm.ErrAlreadyExists:
 		return 0, NewConstraintError("A BRCTeam with that ID already exists?", err, http.StatusConflict)

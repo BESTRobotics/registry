@@ -1,0 +1,12 @@
+Hello,
+
+You are receiving this message because you are a coach on
+{{.Team.StaticName}}.  Your team has been registered with
+{{.Hub.Name}} for the BEST Robotics Competition.  Please follow up
+with {{.Hub.Director.FirstName}} {{.Hub.Director.LastName}}
+({{.Hub.Director.EMail}})) for any questions.
+
+{{if .LocalMessage}}
+Message from your hub:
+{{.LocalMessage}}
+{{end}}
