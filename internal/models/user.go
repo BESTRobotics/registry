@@ -20,6 +20,11 @@ type User struct {
 	// particular resource.
 	Capabilities []Capability
 
+	// Active can be used to tell if a user is able to log in or
+	// not.  Primarily this prevents new users from being able to
+	// log in without first verifying an email.
+	Active *bool
+
 	// For convenience, the User has a profile embedded, but not
 	// loaded at all times.
 	*UserProfile
