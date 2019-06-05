@@ -15,6 +15,10 @@ import (
 	"github.com/BESTRobotics/registry/web"
 )
 
+func init() {
+	viper.SetDefault("core.url", "http://localhost:8080/")
+}
+
 // New returns a new http.Server or dies trying.
 func New(mg MechGreg, tkn *token.RSATokenService, po mail.Mailer) (*Server, error) {
 	s := Server{
@@ -40,6 +44,7 @@ func New(mg MechGreg, tkn *token.RSATokenService, po mail.Mailer) (*Server, erro
 	s.ws.GET("/status", s.statusPage)
 
 	s.ws.POST("v1/account/register/local", s.registerLocalUser)
+	s.ws.GET("v1/account/activate/:token", s.activateUser)
 	s.ws.POST("v1/account/login/local", s.loginLocalUser)
 	s.ws.POST("v1/account/token/renew", s.renewToken)
 
