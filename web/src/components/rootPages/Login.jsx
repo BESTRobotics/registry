@@ -28,12 +28,20 @@ const Login = ({ setToken }) => {
         setToken(response.data);
       })
       .catch(e => {
-        setMessage({
-          error: true,
-          header: `Login failed`,
-          content:
-            e.response && e.response.data ? e.response.data.Message : e.message
-        });
+        if (e.response && e.response.status === 412) {
+          setMessage({
+            error: true,
+            header: 'Account not validated',
+            content: 'Please check your email for instructions on validating your account'
+          });
+        } else {
+          setMessage({
+            error: true,
+            header: 'Login failed',
+            content:
+              e.response && e.response.data ? e.response.data.Message : e.message
+          });
+        }
       });
   };
   return (
