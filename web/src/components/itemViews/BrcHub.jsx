@@ -8,7 +8,7 @@ import {
   Card,
   Grid,
   Divider,
-  List
+  List,
 } from "semantic-ui-react";
 import FakeItemGroup from "./FakeItemGroup";
 
@@ -19,32 +19,32 @@ const BrcDescription = ({ brcHub, register, id, season }) => {
         <Card.Header>{`${brcHub.brcHub.Hub.Name}  |  ${
           brcHub.brcHub.Season.Name
         }`}</Card.Header>
-        <Card.Meta>
-          {brcHub.brcHub && brcHub.brcHub.Meta.BRIApproved ? (
-            "Registration Approved"
-          ) : (
-            <>
-              <Icon name="warning" /> Registration not yet approved
-            </>
-          )}
-        </Card.Meta>
-        <Card.Description>
-          <Divider horizontal>
-            <Header as="h4">
-              <Icon name="calendar" />
-              Events
-            </Header>
-          </Divider>
-          <List divided verticalAlign="middle">
-            {brcHub.brcHub.events
-              ? brcHub.brcHub.events.map(e => (
-                  <List.Item>
-                    <List.Content>
-                      <List.Header as="a">Event</List.Header>
-                    </List.Content>
-                  </List.Item>
-                ))
-              : "No events defined"}
+      <Card.Meta>
+        {brcHub.brcHub && brcHub.brcHub.Meta.BRIApproved ? (
+          "Registration Approved"
+        ) : (
+          <>
+          <Icon name="warning" /> Registration not yet approved
+      </>
+      )}
+    </Card.Meta>
+    <Card.Description>
+      <Divider horizontal>
+        <Header as="h4">
+          <Icon name="calendar" />
+          Events
+        </Header>
+      </Divider>
+      <List divided verticalAlign="middle">
+        {brcHub.brcHub.events
+            ? brcHub.brcHub.events.map(e => (
+              <List.Item>
+                <List.Content>
+                  <List.Header as="a">Event</List.Header>
+                </List.Content>
+              </List.Item>
+            ))
+            : "No events defined"}
           </List>
           <Divider horizontal>
             <Header as="h4">
