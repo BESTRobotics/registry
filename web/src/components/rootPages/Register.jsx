@@ -24,7 +24,7 @@ const Register = ({ history }) => {
     };
     axios
       .post(
-        `http://${process.env.REACT_APP_API_URL}/v1/account/register/local`,
+        `${process.env.REACT_APP_API_URL}/v1/account/register/local`,
         { U: newUser, Password: password }
       )
       .then(() => {

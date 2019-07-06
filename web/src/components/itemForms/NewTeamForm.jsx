@@ -29,7 +29,7 @@ const NewTeamForm = ({ addToList, existingItem, token }) => {
 
   useEffect(() => {
     axios
-      .get(`http://${process.env.REACT_APP_API_URL}/v1/users`)
+      .get(`${process.env.REACT_APP_API_URL}/v1/users`)
       .then(response => {
         setUsers(response.data);
       })
@@ -45,7 +45,7 @@ const NewTeamForm = ({ addToList, existingItem, token }) => {
 
   useEffect(() => {
     axios
-      .get(`http://${process.env.REACT_APP_API_URL}/v1/hubs`)
+      .get(`${process.env.REACT_APP_API_URL}/v1/hubs`)
       .then(response => {
         setHubs(response.data);
       })
@@ -69,10 +69,10 @@ const NewTeamForm = ({ addToList, existingItem, token }) => {
       HomeHub: { ID: hub },
       Coaches: coaches.map(id => ({ ID: id }))
     };
-    let url = `http://${process.env.REACT_APP_API_URL}/v1/teams`;
+    let url = `${process.env.REACT_APP_API_URL}/v1/teams`;
     if (id !== "") {
       newTeam.ID = id;
-      url = `http://${process.env.REACT_APP_API_URL}/v1/teams/${id}`;
+      url = `${process.env.REACT_APP_API_URL}/v1/teams/${id}`;
     }
     axios
       .post(url, newTeam, { headers: headers })

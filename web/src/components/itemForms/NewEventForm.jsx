@@ -21,7 +21,7 @@ const NewEventForm = ({ addToList, existingItem, token }) => {
 
   useEffect(() => {
     axios
-      .get(`http://${process.env.REACT_APP_API_URL}/v1/hubs`)
+      .get(`${process.env.REACT_APP_API_URL}/v1/hubs`)
       .then(response => {
         setHubs(response.data);
       })
@@ -44,11 +44,11 @@ const NewEventForm = ({ addToList, existingItem, token }) => {
       End: end
     };
     let call = axios.post;
-    let url = `http://${process.env.REACT_APP_API_URL}/v1/events`;
+    let url = `${process.env.REACT_APP_API_URL}/v1/events`;
     if (id !== "") {
       newEvent.ID = id;
       call = axios.put;
-      url = `http://${process.env.REACT_APP_API_URL}/v1/events/${id}`;
+      url = `${process.env.REACT_APP_API_URL}/v1/events/${id}`;
     }
     call(url, newEvent, { headers: headers })
       .then(response => {

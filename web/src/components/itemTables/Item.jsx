@@ -25,7 +25,7 @@ const Item = ({ trashcan, itemName, fields, NewItemForm, token }) => {
   useEffect(() => {
     axios
       .get(
-        `http://${process.env.REACT_APP_API_URL}/v1/${itemName.toLowerCase()}s`
+        `${process.env.REACT_APP_API_URL}/v1/${itemName.toLowerCase()}s`
       )
       .then(response => {
         if (response.data) {
@@ -46,7 +46,7 @@ const Item = ({ trashcan, itemName, fields, NewItemForm, token }) => {
   const deactivateItem = id => {
     axios
       .put(
-        `http://${
+        `${
           process.env.REACT_APP_API_URL
         }/v1/${itemName.toLowerCase()}s/${id}/${trashcan}`,
         {},

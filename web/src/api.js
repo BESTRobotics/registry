@@ -3,14 +3,14 @@ import axios from "axios";
 const url = process.env.REACT_APP_API_URL;
 
 export function fetchHub(id, token) {
-  return axios.get(`http://${url}/v1/hubs/${id}`, {
+  return axios.get(`${url}/v1/hubs/${id}`, {
     headers: { Authorization: token }
   });
 }
 
 export function fetchAllHubs(token) {
   return axios
-    .get(`http://${url}/v1/hubs`, {
+    .get(`${url}/v1/hubs`, {
       headers: { Authorization: token }
     })
     .then(h => h.data);
@@ -18,7 +18,7 @@ export function fetchAllHubs(token) {
 
 export function fetchSeasonBrcHubs(season, token) {
   return axios
-    .get(`http://${url}/v1/brc/${season}/hubs`, {
+    .get(`${url}/v1/brc/${season}/hubs`, {
       headers: { Authorization: token }
     })
     .then(h => h.data);
@@ -26,7 +26,7 @@ export function fetchSeasonBrcHubs(season, token) {
 
 export function fetchSeasons(token) {
   return axios
-    .get(`http://${url}/v1/seasons`, {
+    .get(`${url}/v1/seasons`, {
       headers: { Authorization: token }
     })
     .then(s => s.data);
@@ -34,7 +34,7 @@ export function fetchSeasons(token) {
 
 export function fetchBrcHubs(id, token) {
   return axios
-    .get(`http://${url}/v1/hubs/${id}/brc`, {
+    .get(`${url}/v1/hubs/${id}/brc`, {
       headers: { Authorization: token }
     })
     .then(h => h.data);
@@ -43,7 +43,7 @@ export function fetchBrcHubs(id, token) {
 export function registerBrcHub(id, season, token) {
   return axios
     .post(
-      `http://${url}/v1/hubs/${id}/brc/${season}`,
+      `${url}/v1/hubs/${id}/brc/${season}`,
       {},
       {
         headers: { Authorization: token }
@@ -54,7 +54,7 @@ export function registerBrcHub(id, season, token) {
 
 export function registerNewTeam(team, token) {
   return axios
-    .post(`http://${url}/v1/teams`, team, {
+    .post(`${url}/v1/teams`, team, {
       headers: { Authorization: token }
     })
     .then(h => h.data);
@@ -68,7 +68,7 @@ export function fetchHubs(ids, token) {
 }
 
 export function fetchTeam(id, token) {
-  return axios.get(`http://${url}/v1/teams/${id}`, {
+  return axios.get(`${url}/v1/teams/${id}`, {
     headers: { Authorization: token }
   });
 }
@@ -82,7 +82,7 @@ export function fetchTeams(ids, token) {
 
 export function fetchAllTeams(token) {
   return axios
-    .get(`http://${url}/v1/teams`, {
+    .get(`${url}/v1/teams`, {
       headers: { Authorization: token }
     })
     .then(t => t.data);
@@ -90,7 +90,7 @@ export function fetchAllTeams(token) {
 
 export function fetchBrcTeams(id, token) {
   return axios
-    .get(`http://${url}/v1/teams/${id}/brc`, {
+    .get(`${url}/v1/teams/${id}/brc`, {
       headers: { Authorization: token }
     })
     .then(t => t.data);
@@ -99,7 +99,7 @@ export function fetchBrcTeams(id, token) {
 export function registerBrcTeam(id, season, token) {
   return axios
     .post(
-      `http://${url}/v1/teams/${id}/brc/${season}`,
+      `${url}/v1/teams/${id}/brc/${season}`,
       {},
       {
         headers: { Authorization: token }
@@ -111,7 +111,7 @@ export function registerBrcTeam(id, season, token) {
 export function approveBrcHub(hubid, brchubid, season, token) {
   return axios
     .post(
-      `http://${url}/v1/hubs/${hubid}/brc/${season}/update`,
+      `${url}/v1/hubs/${hubid}/brc/${season}/update`,
       { ID: brchubid, Meta: { BRIApproved: true } },
       {
         headers: { Authorization: token }
@@ -122,7 +122,7 @@ export function approveBrcHub(hubid, brchubid, season, token) {
 
 export function fetchProfile(id, token) {
   return axios
-    .get(`http://${url}/v1/users/${id}/profile`, {
+    .get(`${url}/v1/users/${id}/profile`, {
       headers: { Authorization: token }
     })
     .then(t => t.data);
@@ -130,7 +130,7 @@ export function fetchProfile(id, token) {
 
 export function updateProfile(id, profile, token) {
   return axios
-    .post(`http://${url}/v1/users/${id}/profile`, profile, {
+    .post(`${url}/v1/users/${id}/profile`, profile, {
       headers: { Authorization: token }
     })
     .then(t => t.data);
@@ -138,7 +138,7 @@ export function updateProfile(id, profile, token) {
 
 export function fetchStudents(id, token) {
   return axios
-    .get(`http://${url}/v1/users/${id}/students`, {
+    .get(`${url}/v1/users/${id}/students`, {
       headers: { Authorization: token }
     })
     .then(t => t.data);
@@ -146,7 +146,7 @@ export function fetchStudents(id, token) {
 
 export function updateSeason(id, season, token) {
   return axios
-    .post(`http://${url}/v1/season/${id}`, season, {
+    .post(`${url}/v1/season/${id}`, season, {
       headers: { Authorization: token }
     })
     .then(t => t.data);
@@ -154,7 +154,7 @@ export function updateSeason(id, season, token) {
 
 export function newSeason(season, token) {
   return axios
-    .post(`http://${url}/v1/seasons`, season, {
+    .post(`${url}/v1/seasons`, season, {
       headers: { Authorization: token }
     })
     .then(t => t.data);

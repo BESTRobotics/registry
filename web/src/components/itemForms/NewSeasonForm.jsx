@@ -19,11 +19,11 @@ const NewSeasonForm = ({ addToList, existingItem, token }) => {
       Program: Number.parseInt(program)
     };
     let call = axios.post;
-    let url = `http://${process.env.REACT_APP_API_URL}/v1/seasons`;
+    let url = `${process.env.REACT_APP_API_URL}/v1/seasons`;
     if (id !== "") {
       newSeason.ID = id;
       call = axios.put;
-      url = `http://${process.env.REACT_APP_API_URL}/v1/seasons/${id}/update`;
+      url = `${process.env.REACT_APP_API_URL}/v1/seasons/${id}/update`;
     }
     call(url, newSeason, { headers: headers })
       .then(response => {

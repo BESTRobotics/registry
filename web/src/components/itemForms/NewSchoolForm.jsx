@@ -18,11 +18,11 @@ const NewSchoolForm = ({ addToList, existingItem, token }) => {
       Website: website
     };
     let call = axios.post;
-    let url = `http://${process.env.REACT_APP_API_URL}/v1/schools`;
+    let url = `${process.env.REACT_APP_API_URL}/v1/schools`;
     if (id !== "") {
       newSchool.ID = id;
       call = axios.put;
-      url = `http://${process.env.REACT_APP_API_URL}/v1/schools/${id}/update`;
+      url = `${process.env.REACT_APP_API_URL}/v1/schools/${id}/update`;
     }
     call(url, newSchool, { headers: headers })
       .then(response => {

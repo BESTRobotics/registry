@@ -30,11 +30,11 @@ const NewUserForm = ({ addToList, existingItem, name, token }) => {
       Birthdate: birthdate ? new Date(birthdate).toISOString() : null
     };
     let call = axios.post;
-    let url = `http://${process.env.REACT_APP_API_URL}/v1/users`;
+    let url = `${process.env.REACT_APP_API_URL}/v1/users`;
     if (id !== "") {
       newUser.ID = id;
       call = axios.put;
-      url = `http://${process.env.REACT_APP_API_URL}/v1/users/${id}`;
+      url = `${process.env.REACT_APP_API_URL}/v1/users/${id}`;
     }
     call(url, newUser, { headers: headers })
       .then(response => {

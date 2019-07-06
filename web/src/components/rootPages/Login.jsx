@@ -20,7 +20,7 @@ const Login = ({ setToken }) => {
   const [message, setMessage] = useState("");
   const login = () => {
     axios
-      .post(`http://${process.env.REACT_APP_API_URL}/v1/account/login/local`, {
+      .post(`${process.env.REACT_APP_API_URL}/v1/account/login/local`, {
         EMail: email,
         Password: password
       })

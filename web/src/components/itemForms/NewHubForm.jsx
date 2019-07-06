@@ -23,7 +23,7 @@ const NewHubForm = ({ addToList, existingItem, token }) => {
 
   useEffect(() => {
     axios
-      .get(`http://${process.env.REACT_APP_API_URL}/v1/users`)
+      .get(`${process.env.REACT_APP_API_URL}/v1/users`)
       .then(response => {
         setUsers(response.data);
       })
@@ -45,10 +45,10 @@ const NewHubForm = ({ addToList, existingItem, token }) => {
       Founded: founded !== "" ? new Date(founded).toISOString() : null,
       Director: { ID: director }
     };
-    let url = `http://${process.env.REACT_APP_API_URL}/v1/hubs`;
+    let url = `${process.env.REACT_APP_API_URL}/v1/hubs`;
     if (id !== "") {
       newHub.ID = id;
-      url = `http://${process.env.REACT_APP_API_URL}/v1/hubs/${id}`;
+      url = `${process.env.REACT_APP_API_URL}/v1/hubs/${id}`;
     }
     axios
       .post(url, newHub, { headers: headers })
