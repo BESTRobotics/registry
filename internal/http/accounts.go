@@ -53,6 +53,14 @@ func (s *Server) registerLocalUser(c echo.Context) error {
 		return s.handleError(c, err)
 	}
 
+	// If in the debug mode then activate now.
+	if viper.GetBool("dev.activate") {
+		u.Active = func(b bool) *bool { return &b }(true)
+		if err := s.mg.ModUser(u); err != nil {
+			return s.handleError(c, err)
+		}
+	}
+
 	actURL := s.genActivationString(u)
 
 	msg := "Please visit the following URL to activate your account: " + viper.GetString("core.url") + "v1/account/activate/" + actURL

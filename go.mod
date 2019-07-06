@@ -28,5 +28,5 @@ require (
 	github.com/vmihailenco/msgpack v4.0.4+incompatible // indirect
 	go.etcd.io/bbolt v1.3.2 // indirect
 	golang.org/x/crypto v0.0.0-20190325154230-a5d413f7728c
-	golang.org/x/net v0.0.0-20190318221613-d196dffd7c2b // indirect
+	golang.org/x/net v0.0.0-20190318221613-d196dffd7c2b
 )

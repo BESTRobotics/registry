@@ -26,6 +26,7 @@ func init() {
 	pflag.String("dev.webroot", "web/build", "Webroot during development")
 	pflag.Bool("dev.extweb", false, "Use local webroot")
 	pflag.Bool("dev.cors", false, "Add CORS header for *")
+	pflag.Bool("dev.activate", false, "Auto-activate new users")
 	pflag.String("storage.path", ".", "Path to the data area")
 	pflag.Bool("token.generate", false, "Enable generation of token keys")
 	pflag.Int("token.bits", 2048, "How many bits to include in token keys")
