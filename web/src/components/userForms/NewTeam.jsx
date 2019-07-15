@@ -28,7 +28,7 @@ const NewTeam = ({ onDone, hubs, registerNewTeam, getAllHubs }) => {
             hub,
             founded
           });
-          onDone();
+          onDone(true);
         }}
       >
         <Form.Input
@@ -79,6 +79,7 @@ const NewTeam = ({ onDone, hubs, registerNewTeam, getAllHubs }) => {
           onChange={(_, { value }) => setFounded(value)}
         />
         <Button color="green">Register Team</Button>
+        <Button type="button" secondary onClick={() => onDone(false)}>Cancel</Button>
       </Form>
     </React.Fragment>
   );

@@ -115,9 +115,9 @@ const NewUser = ({
                   <Modal.Header>New Team</Modal.Header>
                   <Modal.Content>
                     <NewTeam
-                      onDone={() => {
+                      onDone={(success) => {
                         setSchoolModalOpen(false);
-                        setLogoutModalOpen(true);
+                        if (success) {setLogoutModalOpen(true);}
                       }}
                     />
                   </Modal.Content>
