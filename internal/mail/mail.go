@@ -14,7 +14,7 @@ var (
 
 func init() {
 	factories = make(map[string]Factory)
-	viper.SetDefault("mailer", "null")
+	viper.SetDefault("core.mailer", "null")
 }
 
 // Register is called by external implementations of the mailer
@@ -36,7 +36,7 @@ func Initialize() (Mailer, error) {
 		return nil, ErrInternal
 	}
 
-	if f, ok := factories[viper.GetString("mailer")]; ok {
+	if f, ok := factories[viper.GetString("core.mailer")]; ok {
 		return f()
 	}
 	return nil, ErrUnknownMailer

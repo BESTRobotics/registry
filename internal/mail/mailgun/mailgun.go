@@ -1,10 +1,10 @@
 package mg
 
 import (
-	"log"
-	"time"
 	"context"
 	"fmt"
+	"log"
+	"time"
 
 	"github.com/mailgun/mailgun-go/v3"
 	"github.com/spf13/viper"
@@ -12,7 +12,7 @@ import (
 	"github.com/BESTRobotics/registry/internal/mail"
 )
 
-type bestmailgun struct{
+type bestmailgun struct {
 	mailgun.Mailgun
 }
 
@@ -28,12 +28,14 @@ func new() (mail.Mailer, error) {
 }
 
 func (mg *bestmailgun) SendMail(l mail.Letter) error {
-	ml := mg.NewMessage(fmt.Sprintf("%s",l.From), l.Subject, l.Body, fmt.Sprintf("%s", l.To))
+	ml := mg.NewMessage(fmt.Sprintf("%s", l.From), l.Subject, l.Body, fmt.Sprintf("%s", l.To[0]))
+	log.Printf("%s", l.To[0])
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
 	defer cancel()
 	r, id, err := mg.Send(ctx, ml)
 	if err != nil {
+		log.Printf("Mailgun error: %s", err)
 		return err
 	}
 

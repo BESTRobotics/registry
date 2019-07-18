@@ -1,6 +1,7 @@
 package mechgreg
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/asdine/storm"
@@ -157,9 +158,28 @@ func (mg *MechanicalGreg) SetUserPassword(ID int, password string) error {
 		Provider: "PASSWORD",
 		Password: string(hash[:]),
 	}
-	err = mg.s.Save(&d)
-	if err != nil {
-		return NewInternalError("An unspecified error has occured", err, http.StatusInternalServerError)
+
+	query := mg.s.Select(q.Eq("UserID", ID), q.Eq("Provider", "PASSWORD"))
+
+	var ad models.AuthData
+	// Safe to use First here because there had better only ever
+	// be one of these.
+	err = query.First(&ad)
+	log.Println(err)
+	log.Println(ad)
+	d.ID = ad.ID
+	switch err {
+	case nil:
+		if err := mg.s.Update(&d); err != nil {
+			log.Println(err)
+			return NewInternalError("An error occured on update save", err, http.StatusInternalServerError)
+		}
+		return nil
+	case storm.ErrNotFound:
+		if err = mg.s.Save(&d); err != nil {
+			return NewInternalError("An unspecified error has occured", err, http.StatusInternalServerError)
+		}
+		return nil
 	}
 	return nil
 }

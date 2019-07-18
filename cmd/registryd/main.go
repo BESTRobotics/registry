@@ -15,6 +15,7 @@ import (
 	"github.com/BESTRobotics/registry/internal/models"
 	"github.com/BESTRobotics/registry/internal/token"
 
+	_ "github.com/BESTRobotics/registry/internal/mail/mailgun"
 	_ "github.com/BESTRobotics/registry/internal/mail/null"
 )
 
@@ -34,6 +35,14 @@ func init() {
 }
 
 func main() {
+	viper.SetConfigName("config")
+	viper.AddConfigPath("/etc/registry/")
+	viper.AddConfigPath("$HOME/.registry/")
+	viper.AddConfigPath(".")
+	if err := viper.ReadInConfig(); err != nil {
+		log.Fatalf("Fatal error while reading config file: %s \n", err)
+	}
+
 	pflag.Parse()
 	viper.BindPFlags(pflag.CommandLine)
 	log.Println(viper.GetBool("dev.cors"))

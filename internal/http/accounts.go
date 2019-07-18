@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"math/rand"
 	"net/http"
 	"strconv"
 	"strings"
@@ -77,8 +78,6 @@ func (s *Server) registerLocalUser(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, err)
 	}
 
-	// TODO Message the user via Email that they need to use the
-	// activation link.
 	return c.NoContent(http.StatusCreated)
 }
 
@@ -130,6 +129,7 @@ func (s Server) checkActivationString(st string) error {
 func (s *Server) activateUser(c echo.Context) error {
 	t := c.Param("token")
 
+	log.Println("Reading activation token")
 	if err := s.checkActivationString(t); err != nil {
 		return s.handleError(c, err)
 	}
@@ -143,6 +143,7 @@ func (s *Server) activateUser(c echo.Context) error {
 
 	}
 
+	log.Println("Attempting to activate")
 	user := models.User{
 		ID:     int(uid),
 		Active: func(b bool) *bool { return &b }(true),
@@ -196,4 +197,90 @@ func (s *Server) loginLocalUser(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, tkn)
+}
+
+// requestLocalPasswordReset can be used to request a local password
+// reset email.  This will allow a local user to get a password reset
+// link which they can then click to get a password emailed to them.
+func (s *Server) requestLocalPasswordReset(c echo.Context) error {
+	user, err := s.mg.GetUserByEMail(c.Param("email"))
+	if err != nil {
+		// Always return 204 to prevent user emails from being
+		// enumerated.
+		return c.NoContent(http.StatusOK)
+	}
+
+	tkn := s.genActivationString(user)
+
+	msg := "Please use the following link to reset your password\n" + viper.GetString("core.url") + "v1/account/local/rpass/" + tkn
+
+	l, err := mail.RenderLetter("reset-local-password", &mail.LetterContext{LocalMessage: msg})
+	if err != nil {
+		log.Println("Error trying to mail reset link:", err)
+		return c.NoContent(http.StatusOK)
+	}
+	l.AddTo(mail.UserToAddress(user))
+	l.Subject = "BRI Registry Password Reset"
+	if err := s.po.SendMail(l); err != nil {
+		log.Println("Error while sending mail:", err)
+	}
+	return c.NoContent(http.StatusOK)
+}
+
+func (s *Server) resetLocalPassword(c echo.Context) error {
+	t := c.Param("token")
+
+	if err := s.checkActivationString(t); err != nil {
+		return s.handleError(c, err)
+	}
+
+	// This is safe to do here unchecked because we validated the
+	// token structure above.
+	uidStr := strings.Split(t, ".")[0]
+	uid, err := strconv.ParseInt(uidStr, 10, 32)
+	if err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
+
+	}
+
+	tmpPass := randStringRunes(16)
+
+	if err := s.mg.SetUserPassword(int(uid), tmpPass); err != nil {
+		return s.handleError(c, err)
+	}
+
+	msg := "Your password has been set to:\n" + tmpPass
+
+	l, err := mail.RenderLetter("new-local-password", &mail.LetterContext{LocalMessage: msg})
+	if err != nil {
+		log.Println("Error trying to mail reset link:", err)
+		return c.NoContent(http.StatusOK)
+	}
+	user, err := s.mg.GetUser(int(uid))
+	if err != nil {
+		return s.handleError(c, err)
+	}
+	l.AddTo(mail.UserToAddress(user))
+	l.Subject = "BRI Registry Password Reset"
+	if err := s.po.SendMail(l); err != nil {
+		log.Println("Error while sending mail:", err)
+		return c.String(http.StatusInternalServerError, "An error has occured, please try again later")
+	}
+
+	return c.String(http.StatusOK, "Consult your email for furthur instructions")
+}
+
+func init() {
+	rand.Seed(time.Now().UnixNano())
+}
+
+var letterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
+
+// From StackOverflow
+func randStringRunes(n int) string {
+	b := make([]rune, n)
+	for i := range b {
+		b[i] = letterRunes[rand.Intn(len(letterRunes))]
+	}
+	return string(b)
 }

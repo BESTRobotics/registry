@@ -45,6 +45,8 @@ func New(mg MechGreg, tkn *token.RSATokenService, po mail.Mailer) (*Server, erro
 
 	s.ws.POST("v1/account/register/local", s.registerLocalUser)
 	s.ws.GET("v1/account/activate/:token", s.activateUser)
+	s.ws.GET("v1/account/local/reset/:email", s.requestLocalPasswordReset)
+	s.ws.GET("v1/account/local/rpass/:token", s.resetLocalPassword)
 	s.ws.POST("v1/account/login/local", s.loginLocalUser)
 	s.ws.POST("v1/account/token/renew", s.renewToken)
 
