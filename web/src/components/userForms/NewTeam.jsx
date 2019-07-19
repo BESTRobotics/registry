@@ -51,7 +51,6 @@ const NewTeam = ({ onDone, hubs, registerNewTeam, getAllHubs }) => {
         />
         <Form.Input
           label="Website"
-          required
           type="url"
           value={website}
           onChange={(_, { value }) => setWebsite(value)}
@@ -59,6 +58,7 @@ const NewTeam = ({ onDone, hubs, registerNewTeam, getAllHubs }) => {
         <Form.Dropdown
           label="Home Hub"
           search
+          required
           loading={!hubs.length}
           options={
             hubs &&
@@ -73,7 +73,6 @@ const NewTeam = ({ onDone, hubs, registerNewTeam, getAllHubs }) => {
         />
         <Form.Input
           type="date"
-          required
           label="Founded"
           value={founded}
           onChange={(_, { value }) => setFounded(value)}

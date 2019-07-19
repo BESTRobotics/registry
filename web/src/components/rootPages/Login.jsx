@@ -15,10 +15,12 @@ import { connect } from "react-redux";
 import { setToken as callSetToken } from "../../redux/login/reducer";
 
 const Login = ({ setToken }) => {
+  const [emailError, setEmailError] = useState(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
   const login = () => {
+    setEmailError(null);
     axios
       .post(`${process.env.REACT_APP_API_URL}/v1/account/login/local`, {
         EMail: email,
@@ -44,6 +46,33 @@ const Login = ({ setToken }) => {
         }
       });
   };
+  const reset = () => {
+    setEmailError(null);
+    if (!email || email === "") {
+        setEmailError("Please enter email to reset password");
+        setMessage({
+          error: true,
+          header: 'Enter email to reset password',
+        });
+      return
+    }
+    axios
+      .get(`${process.env.REACT_APP_API_URL}/v1/account/local/reset/${email}`)
+      .then(response => {
+          setMessage({
+            header: 'Password Reset Requested',
+            content: 'Please check your email for instructions on resetting your password'
+          });
+      })
+      .catch(e => {
+        setMessage({
+          error: true,
+          header: 'Password Reset Failed',
+          content:
+          e.response && e.response.data ? e.response.data.Message : e.message
+        });
+      });
+  };
   return (
     <Grid textAlign="center" verticalAlign="middle" style={{ height: "100%" }}>
       <Grid.Row>
@@ -56,7 +85,9 @@ const Login = ({ setToken }) => {
             <Segment stacked>
               <Form.Input
                 fluid
+                required
                 icon="user"
+                error={emailError}
                 iconPosition="left"
                 placeholder="Email"
                 type="email"
@@ -65,6 +96,7 @@ const Login = ({ setToken }) => {
               />
               <Form.Input
                 fluid
+                required
                 icon="lock"
                 iconPosition="left"
                 placeholder="Password"
@@ -76,11 +108,12 @@ const Login = ({ setToken }) => {
               <Button color="teal" fluid size="large">
                 Login
               </Button>
+              <Button type="button" fluid size="small" onClick={reset}>Reset Password</Button>
+
             </Segment>
           </Form>
           <Message>
-            New account? <Link to="/register">Sign Up</Link>
-          </Message>
+            New Account? <Link to="/register">Sign Up</Link>           </Message>
           {message ? <Message {...message} /> : null}
         </Grid.Column>
       </Grid.Row>
