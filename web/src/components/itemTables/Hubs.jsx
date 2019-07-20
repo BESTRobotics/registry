@@ -10,7 +10,7 @@ const Hubs = ({ token }) => {
     {
       header: "Director",
       displayFn: h =>
-        h.Director ? `${h.Director.FirstName} ${h.Director.LastName}` : "",
+      h.Director ? `${h.Director.FirstName} ${h.Director.LastName} <${h.Director.EMail}>` : "",
       filter: false
     },
     {

@@ -77,7 +77,8 @@ const Hub = ({
                   </Header>
                 </Divider>
                 <b>Director:</b> {hub.Director.FirstName}{" "}
-                {hub.Director.LastName}
+                {hub.Director.LastName}<br/>
+                <b>Director Email:</b> <a href={`mailto:${hub.Director.EMail}`}>{hub.Director.EMail}</a>
                 <br />
                 <b>Admins:</b>{" "}
                 {hub.Admins
