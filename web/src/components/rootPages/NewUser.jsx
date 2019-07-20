@@ -35,7 +35,7 @@ const NewUser = ({
   }, []);
   return (
     <Grid centered columns={2}>
-      <Modal
+      <Modal closeOnDimmerClick={false}
         open={myProfile && (!myProfile.FirstName || myProfile.FirstName === "")}
         closeOnEscape={false}
         closeOnDimmerClick={false}

@@ -45,6 +45,7 @@ const Hub = ({
               <Card.Header as={Header} size="huge">
                 {hub.Name}
                 <Modal
+                  closeOnDimmerClick={false}
                   trigger={
                     <span onClick={() => setHubModalOpen(true)}>
                       <Icon

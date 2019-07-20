@@ -100,6 +100,7 @@ const Item = ({ trashcan, itemName, fields, NewItemForm, token }) => {
         </Grid.Column>
         <Grid.Column width={2}>
           <Modal
+            closeOnDimmerClick={false}
             trigger={<Button icon="add" />}
             onOpen={() => setNewItemModalOpen(true)}
             onClose={() => setNewItemModalOpen(null)}
