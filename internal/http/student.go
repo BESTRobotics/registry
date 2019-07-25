@@ -72,11 +72,12 @@ func (s *Server) newStudent(c echo.Context) error {
 		return c.String(http.StatusBadRequest, err.Error())
 	}
 
-	if err := s.mg.PutStudent(int(uid), st); err != nil {
+	st, err = s.mg.PutStudent(int(uid), st)
+	if err != nil {
 		return s.handleError(c, err)
 	}
 
-	return c.NoContent(http.StatusCreated)
+	return c.JSON(http.StatusCreated, st)
 }
 
 func (s *Server) modStudent(c echo.Context) error {
@@ -123,7 +124,7 @@ func (s *Server) modStudent(c echo.Context) error {
 	}
 	st.ID = int(sid)
 
-	if err := s.mg.PutStudent(int(uid), st); err != nil {
+	if _, err := s.mg.PutStudent(int(uid), st); err != nil {
 		return s.handleError(c, err)
 	}
 

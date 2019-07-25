@@ -245,7 +245,7 @@ func (mg *MechanicalGreg) GetStudents(uid int) ([]models.Student, error) {
 }
 
 // PutStudent creates or updates a student on the system.
-func (mg *MechanicalGreg) PutStudent(uid int, s models.Student) error {
+func (mg *MechanicalGreg) PutStudent(uid int, s models.Student) (models.Student, error) {
 	s.UserID = uid
 	var err error
 	if s.ID == 0 {
@@ -255,10 +255,10 @@ func (mg *MechanicalGreg) PutStudent(uid int, s models.Student) error {
 	}
 	switch err {
 	case nil:
-		return nil
+		return s, nil
 	case storm.ErrNotFound:
-		return NewConstraintError("No such student exists with that ID", err, http.StatusNotFound)
+		return models.Student{}, NewConstraintError("No such student exists with that ID", err, http.StatusNotFound)
 	default:
-		return NewInternalError("An unspecified error has occured", err, http.StatusInternalServerError)
+		return models.Student{}, NewInternalError("An unspecified error has occured", err, http.StatusInternalServerError)
 	}
 }

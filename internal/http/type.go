@@ -34,7 +34,7 @@ type MechGreg interface {
 	CheckUserPassword(int, string) error
 	GetStudent(int) (models.Student, error)
 	GetStudents(int) ([]models.Student, error)
-	PutStudent(int, models.Student) error
+	PutStudent(int, models.Student) (models.Student, error)
 
 	NewSeason(models.Season) (int, error)
 	GetSeason(int) (models.Season, error)
