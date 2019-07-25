@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from "react";
 import {
   Card,
-  Dropdown,
   Grid,
   Header,
-  Input,
   Button,
   Modal,
   Form
@@ -13,7 +11,7 @@ import NewTeam from "../userForms/NewTeam";
 import ProfileForm from "../userForms/ProfileForm";
 import { logout } from "../../redux/login/reducer";
 import { connect } from "react-redux";
-import { getMyProfile, getMyStudents } from "../../redux/users/reducer";
+import { getMyProfile, getMyStudents, registerStudents } from "../../redux/users/reducer";
 import { getAllTeams } from "../../redux/teams/reducer";
 import StudentsForm from "../userForms/StudentsForm";
 
@@ -23,22 +21,31 @@ const NewUser = ({
   getAllTeams,
   getMyStudents,
   teams,
-  myStudents
+  myStudents,
+  registerStudents,
 }) => {
   const [schoolModalOpen, setSchoolModalOpen] = useState(false);
+  const [selectedStudents, setSelectedStudents] = useState([]);
   const [logoutModalOpen, setLogoutModalOpen] = useState(false);
+  const [editingStudents, setEditingStudents] = useState(false);
+  const [selectedTeam, setSelectedTeam] = useState(null);
+  const [secret, setSecret] = useState("");
 
   useEffect(() => {
     myProfile || getMyProfile();
     (teams && teams.length) || getAllTeams();
     (myStudents && myStudents.length) || getMyStudents();
   }, []);
+
+  useEffect(() => {
+    myStudents && setSelectedStudents(myStudents.map(s => s.ID))
+  }, [myStudents])
+
   return (
     <Grid centered columns={2}>
       <Modal closeOnDimmerClick={false}
         open={myProfile && (!myProfile.FirstName || myProfile.FirstName === "")}
         closeOnEscape={false}
-        closeOnDimmerClick={false}
       >
         <Modal.Header>Complete your profile</Modal.Header>
         <Modal.Content>
@@ -54,21 +61,26 @@ const NewUser = ({
                 I am a Student or Parent in a Team
               </Card.Header>
               <Card.Description>
+                {myStudents && myStudents.length && !editingStudents ? (
+                  <Form onSubmit={() => registerStudents(selectedStudents, selectedTeam, secret)}>
                 <Header>
                   Find your team and enter the secret code your teacher or coach
                   provided:
                 </Header>
-                {myStudents && myStudents.length ? (
-                  "GOOD JOB YOU HAVE STUDENTS"
-                ) : (
-                  <StudentsForm />
-                )}
-                <Form onSubmit={console.log}>
+                {myStudents.map(s =>
+                  <Form.Checkbox
+                    checked={selectedStudents.includes(s.ID)}
+                    label={`${s.FirstName} ${s.LastName}`}
+                    onChange={() => setSelectedStudents(selectedStudents.includes(s.ID) ? selectedStudents.filter(f => f !== s.ID) : [...selectedStudents, s.ID])}
+                  />)}
+                  <Button onClick={() => setEditingStudents(true)}>Edit</Button>
                   <Form.Group inline>
                     <Form.Dropdown
                       placeholder="Select Team"
                       search
                       selection
+                      value={selectedTeam}
+                      onChange={(_, { value }) => setSelectedTeam(value)}
                       options={
                         teams &&
                         teams.map(t => ({
@@ -80,12 +92,17 @@ const NewUser = ({
                     <Form.Input
                       icon="lock"
                       iconPosition="left"
+                      value={secret}
+                      onChange={(_, { value} ) => setSecret(value)}
                       action="Join Team"
                       placeholder="Secret"
                       disabled={!myStudents || !myStudents.length}
                     />
                   </Form.Group>
                 </Form>
+                ) : (
+                  <StudentsForm done={() => setEditingStudents(false)}/>
+                )}
               </Card.Description>
             </Card.Content>
           </Card>
@@ -164,7 +181,8 @@ const mapDispatchToProps = {
   logout: () => logout(),
   getMyProfile: () => getMyProfile.request(),
   getAllTeams: () => getAllTeams.request(),
-  getMyStudents: () => getMyStudents.request()
+  getMyStudents: () => getMyStudents.request(),
+  registerStudents: (selectedStudents, selectedTeam, secret) => registerStudents.request(selectedStudents, selectedTeam, secret)
 };
 
 export default connect(
