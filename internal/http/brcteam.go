@@ -167,11 +167,11 @@ func (s *Server) leaveBRCTeam(c echo.Context) error {
 		return s.handleError(c, err)
 	}
 
-	if err := permitCoachActions(extractClaims(c), t.Team); err != nil && int(userID) != claims.User.ID {
+	if err := permitCoachActions(extractClaims(c), t.Team); err != nil {
 		return c.String(http.StatusUnauthorized, "You are not authorized to remove that person")
 	}
 
-	if err := s.mg.LeaveBRCTeam(t.ID, t.SeasonID, studentID); err != nil {
+	if err := s.mg.LeaveBRCTeam(t.ID, t.SeasonID, int(studentID)); err != nil {
 		return s.handleError(c, err)
 	}
 	return c.NoContent(http.StatusNoContent)

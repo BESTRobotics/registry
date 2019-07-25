@@ -52,9 +52,9 @@ type BRCTeam struct {
 
 	// The BRCTeam contains a roster of students that are a part
 	// of the team.
-	Roster []User
+	Roster []Student
 
 	// While this could be stored within the roster, its easier to
 	// store it here as a seperate ordered list.
-	Drivers []User
+	Drivers []Student
 }
