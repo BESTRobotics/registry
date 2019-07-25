@@ -45,13 +45,13 @@ function* getMyTeamsSaga(action) {
   }
 }
 
-function* registerBrcTeamSaga({ payload: { id, season } }) {
+function* registerBrcTeamSaga({ payload: { id, season, brcTeam } }) {
   const token = yield select(({ loginReducer }) => loginReducer.token);
   try {
-    const brcHub = yield call(api.registerBrcTeam, id, season, token);
+    const returnedBrcTeam = yield call(api.registerBrcTeam, id, season, brcTeam, token);
     yield put({
       type: registerBrcTeam.success,
-      payload: { id, season, brcHub }
+      payload: { id, season, returnedBrcTeam }
     });
   } catch (err) {
     console.error(err);

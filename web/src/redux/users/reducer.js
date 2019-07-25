@@ -9,7 +9,9 @@ export const {
   getMyProfile,
   updateMyProfile,
   getMyStudents,
-  updateMyStudent
+  updateMyStudent,
+  addEmptyStudent,
+  registerStudents
 } = createActions({
   GET_MY_PROFILE: {
     REQUEST: () => ({}),
@@ -30,7 +32,12 @@ export const {
     REQUEST: student => ({ student }),
     SUCCESS: student => ({ student }),
     FAILURE: error => ({ error })
-  }
+  },
+  REGISTER_STUDENTS: {
+    REQUEST: (students, team, secret) => ({ students, team, secret }),
+    SUCCESS: student => ({ student }),
+    FAILURE: error => ({ error })
+  },
 });
 
 const reducer = handleActions(
@@ -47,7 +54,15 @@ const reducer = handleActions(
     [getMyStudents.success]: (state, { payload: { students } }) => ({
       ...state,
       myStudents: students
-    })
+    }),
+    [updateMyStudent.success]: (state, { payload: { student } }) => {
+      const studentIndex = state.myStudents.findIndex(s => s.ID === student.ID)
+      const myStudents = (studentIndex !== -1) ? [...state.myStudents.slice(0, studentIndex), student, ...state.myStudents.slice(studentIndex + 1)] : [...state.myStudents, student]
+      return ({
+        ...state,
+        myStudents
+      })
+    }
   },
   defaultState
 );

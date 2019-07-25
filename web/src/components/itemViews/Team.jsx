@@ -19,6 +19,7 @@ import {
 } from "semantic-ui-react";
 import FakeItemGroup from "./FakeItemGroup";
 import NewTeamForm from "../itemForms/NewTeamForm";
+import NewBRCTeamForm from "../userForms/NewBRCTeam";
 
 const Team = ({
   team,
@@ -30,6 +31,7 @@ const Team = ({
   getAllTeams
 }) => {
   const [teamModalOpen, setTeamModalOpen] = useState(false);
+  const [brcModalOpen, setBrcModalOpen] = useState({});
   useEffect(() => {
     (allBrcTeams && team && allBrcTeams[team.ID]) || getBrcTeam(team.ID);
   }, []);
@@ -105,12 +107,25 @@ const Team = ({
                             {season.brcTeam ? (
                               "Registered"
                             ) : season.State === "Open" ? (
-                              <Button
-                                compact
-                                onClick={() => registerBrc(team.ID, season.ID)}
+                              <Modal
+                                open={brcModalOpen[season.ID]}
+                                trigger={
+                                  <Button compact>
+                                    Register Now
+                                  </Button>
+                                }
+                                onOpen={() => setBrcModalOpen({...brcModalOpen, [season.ID]: true})}
+                                onClose={() => setBrcModalOpen({...brcModalOpen, [season.ID]: true})}
                               >
-                                Register Now
-                              </Button>
+                                <Modal.Header>New BRCTeam</Modal.Header>
+                                <Modal.Content>
+                                  <NewBRCTeamForm
+                                    onDone={() => setBrcModalOpen({...brcModalOpen, [season.ID]: false})}
+                                    team={team.ID}
+                                    season={season.ID}
+                                  />
+                                </Modal.Content>
+                              </Modal>
                             ) : (
                               "Closed"
                             )}
@@ -130,10 +145,9 @@ const Team = ({
   );
 };
 
-const mapStateToProps = ({ teamsReducer, hubReducer, loginReducer }) => ({
+const mapStateToProps = ({ teamsReducer, hubReducer }) => ({
   allBrcTeams: teamsReducer.allBrcTeams,
   allTeams: teamsReducer.allTeams,
-  token: loginReducer.token
 });
 
 const mapDispatchToProps = {
