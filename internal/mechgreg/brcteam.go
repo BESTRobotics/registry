@@ -124,22 +124,22 @@ func (mg *MechanicalGreg) UpdateBRCTeam(teamID, seasonID int, update models.BRCT
 }
 
 // JoinBRCTeam handles the adding of a user to a BRCTeam.Roster.
-func (mg *MechanicalGreg) JoinBRCTeam(teamID, seasonID, userID int) error {
-	return mg.handleBRCTeamJoinLeave(teamID, seasonID, userID, true)
+func (mg *MechanicalGreg) JoinBRCTeam(teamID, seasonID, studentID int) error {
+	return mg.handleBRCTeamJoinLeave(teamID, seasonID, studentID, true)
 }
 
 // LeaveBRCTeam handles the adding of a user to a BRCTeam.Roster.
-func (mg *MechanicalGreg) LeaveBRCTeam(teamID, seasonID, userID int) error {
-	return mg.handleBRCTeamJoinLeave(teamID, seasonID, userID, false)
+func (mg *MechanicalGreg) LeaveBRCTeam(teamID, seasonID, studentID int) error {
+	return mg.handleBRCTeamJoinLeave(teamID, seasonID, studentID, false)
 }
 
-func (mg *MechanicalGreg) handleBRCTeamJoinLeave(teamID, seasonID, userID int, join bool) error {
+func (mg *MechanicalGreg) handleBRCTeamJoinLeave(teamID, seasonID, studentID int, join bool) error {
 	t, err := mg.GetBRCTeam(teamID, seasonID)
 	if err != nil {
 		return err
 	}
 
-	t.Roster = patchUserSlice(t.Roster, join, models.User{ID: userID})
+	t.Roster = patchStudentSlice(t.Roster, join, models.Student{ID: studentID})
 
 	return mg.updateBRCTeam(t.ID, t.SeasonID, t)
 }

@@ -122,6 +122,7 @@ func (s *Server) joinBRCTeam(c echo.Context) error {
 	var req struct {
 		JoinKey  string
 		SeasonID int
+		StudentID int
 	}
 	if err := c.Bind(&req); err != nil {
 		return c.String(http.StatusBadRequest, err.Error())
@@ -132,7 +133,7 @@ func (s *Server) joinBRCTeam(c echo.Context) error {
 		return s.handleError(c, err)
 	}
 
-	if err := s.mg.JoinBRCTeam(t.ID, t.SeasonID, claims.User.ID); err != nil {
+	if err := s.mg.JoinBRCTeam(t.ID, t.SeasonID, req.StudentID); err != nil {
 		return s.handleError(c, err)
 	}
 	return c.NoContent(http.StatusNoContent)
@@ -149,8 +150,8 @@ func (s *Server) leaveBRCTeam(c echo.Context) error {
 	if err != nil {
 		return c.String(http.StatusBadRequest, err.Error())
 	}
-	userStr := c.Param("user")
-	userID, err := strconv.ParseInt(userStr, 10, 32)
+	studentStr := c.Param("student")
+	studentID, err := strconv.ParseInt(studentStr, 10, 32)
 	if err != nil {
 		return c.String(http.StatusBadRequest, err.Error())
 	}
@@ -170,7 +171,7 @@ func (s *Server) leaveBRCTeam(c echo.Context) error {
 		return c.String(http.StatusUnauthorized, "You are not authorized to remove that person")
 	}
 
-	if err := s.mg.LeaveBRCTeam(t.ID, t.SeasonID, claims.User.ID); err != nil {
+	if err := s.mg.LeaveBRCTeam(t.ID, t.SeasonID, studentID); err != nil {
 		return s.handleError(c, err)
 	}
 	return c.NoContent(http.StatusNoContent)
