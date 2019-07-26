@@ -133,7 +133,7 @@ func (s *Server) joinBRCTeam(c echo.Context) error {
 		return s.handleError(c, err)
 	}
 
-	if err := s.mg.JoinBRCTeam(t.ID, t.SeasonID, req.StudentID); err != nil {
+	if err := s.mg.JoinBRCTeam(t.TeamID, t.SeasonID, req.StudentID); err != nil {
 		return s.handleError(c, err)
 	}
 	return c.NoContent(http.StatusNoContent)
