@@ -49,6 +49,14 @@ function* registerBrcTeamSaga({ payload: { id, season, brcTeam } }) {
   const token = yield select(({ loginReducer }) => loginReducer.token);
   try {
     const returnedBrcTeam = yield call(api.registerBrcTeam, id, season, brcTeam, token);
+    const brcTeamToUpdate = {
+      State: brcTeam.state,
+      JoinKey: brcTeam.joinKey,
+      UILDivision: brcTeam.uil,
+      Symbol: brcTeam.symbol,
+    };
+    yield call(api.updateBrcTeam, id, season, brcTeamToUpdate, token);
+
     yield put({
       type: registerBrcTeam.success,
       payload: { id, season, returnedBrcTeam }

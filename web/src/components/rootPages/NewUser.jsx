@@ -12,15 +12,15 @@ import ProfileForm from "../userForms/ProfileForm";
 import { logout } from "../../redux/login/reducer";
 import { connect } from "react-redux";
 import { getMyProfile, getMyStudents, registerStudents } from "../../redux/users/reducer";
-import { getAllTeams } from "../../redux/teams/reducer";
+import { getSeasons } from "../../redux/hubs/reducer";
 import StudentsForm from "../userForms/StudentsForm";
 
 const NewUser = ({
   myProfile,
   getMyProfile,
-  getAllTeams,
+  getSeasons,
   getMyStudents,
-  teams,
+  seasons,
   myStudents,
   registerStudents,
 }) => {
@@ -28,12 +28,12 @@ const NewUser = ({
   const [selectedStudents, setSelectedStudents] = useState([]);
   const [logoutModalOpen, setLogoutModalOpen] = useState(false);
   const [editingStudents, setEditingStudents] = useState(false);
-  const [selectedTeam, setSelectedTeam] = useState(null);
+  const [selectedSeason, setSelectedSeason] = useState(null);
   const [secret, setSecret] = useState("");
 
   useEffect(() => {
     myProfile || getMyProfile();
-    (teams && teams.length) || getAllTeams();
+    (seasons && seasons.length) || getSeasons();
     (myStudents && myStudents.length) || getMyStudents();
   }, []);
 
@@ -62,7 +62,7 @@ const NewUser = ({
               </Card.Header>
               <Card.Description>
                 {myStudents && myStudents.length && !editingStudents ? (
-                  <Form onSubmit={() => registerStudents(selectedStudents, selectedTeam, secret)}>
+                  <Form onSubmit={() => registerStudents(selectedStudents, selectedSeason, secret)}>
                 <Header>
                   Find your team and enter the secret code your teacher or coach
                   provided:
@@ -76,16 +76,16 @@ const NewUser = ({
                   <Button onClick={() => setEditingStudents(true)}>Edit</Button>
                   <Form.Group inline>
                     <Form.Dropdown
-                      placeholder="Select Team"
+                      placeholder="Select Season"
                       search
                       selection
-                      value={selectedTeam}
-                      onChange={(_, { value }) => setSelectedTeam(value)}
+                      value={selectedSeason}
+                      onChange={(_, { value }) => setSelectedSeason(value)}
                       options={
-                        teams &&
-                        teams.map(t => ({
-                          text: `${t.SchoolName} — ${t.StaticName}`,
-                          value: t.ID
+                        seasons &&
+                        seasons.map(s => ({
+                          text: `${s.Name}`,
+                          value: s.ID
                         }))
                       }
                     />{" "}
@@ -172,17 +172,17 @@ const NewUser = ({
   );
 };
 
-const mapStateToProps = ({ usersReducer, teamsReducer }) => ({
+const mapStateToProps = ({ usersReducer, hubsReducer }) => ({
   myProfile: usersReducer.myProfile,
   myStudents: usersReducer.myStudents,
-  teams: teamsReducer.allTeams
+  seasons: hubsReducer.seasons
 });
 const mapDispatchToProps = {
   logout: () => logout(),
   getMyProfile: () => getMyProfile.request(),
-  getAllTeams: () => getAllTeams.request(),
+  getSeasons: () => getSeasons.request(),
   getMyStudents: () => getMyStudents.request(),
-  registerStudents: (selectedStudents, selectedTeam, secret) => registerStudents.request(selectedStudents, selectedTeam, secret)
+  registerStudents: (selectedStudents, selectedSeason, secret) => registerStudents.request(selectedStudents, selectedSeason, secret)
 };
 
 export default connect(
