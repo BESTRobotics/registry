@@ -112,6 +112,13 @@ func (mg *MechanicalGreg) GetBRCTeamsForStudent(sid int) ([]models.BRCTeam, erro
 			}
 		}
 	}
+
+	// Run a populate pass on the list
+	for i := range out {
+		if err := mg.populateBRCTeam(&out[i]); err != nil {
+			log.Println("Error populating brcteam:", err)
+		}
+	}
 	return out, nil
 }
 
