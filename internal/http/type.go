@@ -65,6 +65,7 @@ type MechGreg interface {
 	GetBRCTeam(int, int) (models.BRCTeam, error)
 	GetBRCTeamByJoinKey(string, int) (models.BRCTeam, error)
 	GetBRCTeamBySymbol(string, int) (models.BRCTeam, error)
+	GetBRCTeamsForStudent(int) ([]models.BRCTeam, error)
 	UpdateBRCTeam(int, int, models.BRCTeam) error
 	JoinBRCTeam(int, int, int) error
 	LeaveBRCTeam(int, int, int) error
