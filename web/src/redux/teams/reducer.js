@@ -34,7 +34,7 @@ export const {
     FAILURE: error => ({ error })
   },
   REGISTER_BRC_TEAM: {
-    REQUEST: (id, season) => ({ id, season }),
+    REQUEST: (id, season, brcTeam) => ({ id, season, brcTeam }),
     SUCCESS: (id, season, brcTeam) => ({ id, season, brcTeam }),
     FAILURE: error => ({ error })
   }

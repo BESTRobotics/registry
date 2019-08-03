@@ -96,11 +96,23 @@ export function fetchBrcTeams(id, token) {
     .then(t => t.data);
 }
 
-export function registerBrcTeam(id, season, token) {
+export function registerBrcTeam(id, season, brcTeam, token) {
   return axios
     .post(
       `${url}/v1/teams/${id}/brc/${season}`,
-      {},
+      brcTeam,
+      {
+        headers: { Authorization: token }
+      }
+    )
+    .then(h => h.data);
+}
+
+export function updateBrcTeam(id, season, brcTeam, token) {
+  return axios
+    .put(
+      `${url}/v1/teams/${id}/brc/${season}/update`,
+      brcTeam,
       {
         headers: { Authorization: token }
       }
@@ -136,6 +148,22 @@ export function updateProfile(id, profile, token) {
     .then(t => t.data);
 }
 
+export function addStudent(id, student, token) {
+  return axios
+    .post(`${url}/v1/users/${id}/students`, student, {
+      headers: { Authorization: token }
+    })
+    .then(t => t.data);
+}
+
+export function updateStudent(id, student, token) {
+  return axios
+    .post(`${url}/v1/users/${id}/students/${student.ID}`, student, {
+      headers: { Authorization: token }
+    })
+    .then(t => t.data);
+}
+
 export function fetchStudents(id, token) {
   return axios
     .get(`${url}/v1/users/${id}/students`, {
@@ -155,6 +183,18 @@ export function updateSeason(id, season, token) {
 export function newSeason(season, token) {
   return axios
     .post(`${url}/v1/seasons`, season, {
+      headers: { Authorization: token }
+    })
+    .then(t => t.data);
+}
+
+export function registerStudent(StudentID, SeasonID, JoinKey, token) {
+  return axios
+    .post(`${url}/v1/brc/join`, {
+      JoinKey,
+      SeasonID,
+      StudentID
+    }, {
       headers: { Authorization: token }
     })
     .then(t => t.data);

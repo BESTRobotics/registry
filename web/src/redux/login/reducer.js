@@ -12,7 +12,7 @@ import {
   registerBrcTeam,
   registerNewTeam
 } from "../teams/reducer";
-import { updateMyProfile, getMyProfile } from "../users/reducer";
+import { updateMyProfile, getMyProfile, updateMyStudent, registerStudents } from "../users/reducer";
 
 const initialToken = window.localStorage.getItem("token") || null;
 const initialDecodedToken = initialToken && jwt_decode(initialToken);
@@ -64,7 +64,9 @@ const reducer = handleActions(
       registerBrcTeam.failure,
       registerNewTeam.failure,
       updateMyProfile.failure,
-      getMyProfile.failure
+      getMyProfile.failure,
+      updateMyStudent.failure,
+      registerStudents.failure
     )]: (state, { payload: { error } }) => {
       if (error.response && error.response.message) {
         return {

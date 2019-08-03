@@ -1,5 +1,5 @@
-import { takeEvery, select, call, put } from "redux-saga/effects";
-import { updateMyProfile, getMyProfile, getMyStudents } from "./reducer";
+import { takeEvery, select, call, put, all } from "redux-saga/effects";
+import { updateMyProfile, getMyProfile, getMyStudents, updateMyStudent, registerStudents } from "./reducer";
 
 import * as api from "../../api";
 
@@ -24,6 +24,43 @@ function* getMyProfileSaga(action) {
   } catch (err) {
     console.error(err);
     yield put({ type: getMyProfile.failure, payload: { error: err } });
+  }
+}
+
+function* updateMyStudentSaga({ payload: { student } }) {
+  const token = yield select(({ loginReducer }) => loginReducer.token);
+  const id = yield select(({ loginReducer }) => loginReducer.id);
+  const studentToUpdate = {
+    ID: student.id,
+    FirstName: student.firstName,
+    LastName: student.lastName,
+    EMail: student.email,
+    Race: student.race,
+    Gender: student.gender,
+  };
+
+  try {
+    const returnStudent = student.id ?
+      yield call(
+        api.updateStudent,
+        id,
+        studentToUpdate,
+        token
+      )
+      :
+      yield call(
+        api.addStudent,
+        id,
+        studentToUpdate,
+        token
+      );
+    yield put({
+      type: updateMyStudent.success,
+      payload: { student: studentToUpdate }
+    });
+  } catch (err) {
+    console.error(err);
+    yield put({ type: updateMyStudent.failure, payload: { error: err } });
   }
 }
 
@@ -54,8 +91,34 @@ function* updateMyProfileSaga({ payload: { profile } }) {
     yield put({ type: getMyProfile.failure, payload: { error: err } });
   }
 }
+
+function* registerStudentsSaga({ payload: { students, team, secret } }) {
+  const token = yield select(({ loginReducer }) => loginReducer.token);
+  const id = yield select(({ loginReducer }) => loginReducer.id);
+  try {
+    yield all(students.map(s =>
+      call(
+        api.registerStudent,
+        s,
+        team,
+        secret,
+        token
+      )
+    ));
+    yield put({
+      type: registerStudents.success,
+      payload: {}
+    });
+    yield put({ type: registerStudents.failure, payload: { error: { message: "Success" } } });
+  } catch (err) {
+    yield put({ type: registerStudents.failure, payload: { error: err } });
+  }
+}
+
 export default [
   takeEvery(getMyProfile.request, getMyProfileSaga),
   takeEvery(updateMyProfile.request, updateMyProfileSaga),
-  takeEvery(getMyStudents.request, getMyStudentsSaga)
+  takeEvery(getMyStudents.request, getMyStudentsSaga),
+  takeEvery(updateMyStudent.request, updateMyStudentSaga),
+  takeEvery(registerStudents.request, registerStudentsSaga)
 ];
