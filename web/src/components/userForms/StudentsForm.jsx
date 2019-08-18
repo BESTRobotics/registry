@@ -9,9 +9,9 @@ const StudentsForm = ({ students, done }) => {
     <>
       {students &&
         students.map(student => <SingleStudentForm key={student.ID} student={student} done={done} />)}
-        {students.length ? null : Array(newStudents).fill(0).map(() => <SingleStudentForm done={done}/>)}
-        {/* <Button icon="add" onClick={() => setNewStudents(newStudents + 1)}/> */}
-        {/* <Button icon="check" onClick={done}>Done</Button>} */}
+        {students.length ? null : Array(newStudents).fill(0).map(() => <SingleStudentForm />)}
+        <Button icon="add" onClick={() => setNewStudents(newStudents + 1)}/>
+        <Button icon="check" onClick={done}>Done</Button>}
     </>
   );
 };
