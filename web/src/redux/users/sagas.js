@@ -56,7 +56,7 @@ function* updateMyStudentSaga({ payload: { student } }) {
       );
     yield put({
       type: updateMyStudent.success,
-      payload: { student: studentToUpdate }
+      payload: { student: returnStudent }
     });
   } catch (err) {
     console.error(err);

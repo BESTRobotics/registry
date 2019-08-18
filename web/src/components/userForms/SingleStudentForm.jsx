@@ -3,7 +3,7 @@ import { connect } from "react-redux";
 import { Form, Button } from "semantic-ui-react";
 import { updateMyStudent } from "../../redux/users/reducer";
 
-const SingleStudentForm = ({ updateStudent, student }) => {
+const SingleStudentForm = ({ updateStudent, student, done}) => {
   const [id, _] = useState(student ? student.ID : null);
   const [firstName, setFirstName] = useState(student ? student.FirstName : "");
   const [lastName, setLastName] = useState(student ? student.LastName : "");
@@ -20,6 +20,7 @@ const SingleStudentForm = ({ updateStudent, student }) => {
             lastName,
             email
           });
+          done();
         }}
       >
         <Form.Group inline>
