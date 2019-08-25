@@ -24,6 +24,21 @@ func (s *Server) getBRCTeams(c echo.Context) error {
 	return c.JSON(http.StatusOK, set)
 }
 
+func (s *Server) getBRCTeamsByStudent(c echo.Context) error {
+	sidStr := c.Param("sid")
+	sid, err := strconv.ParseInt(sidStr, 10, 32)
+	if err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
+	}
+
+	set, err := s.mg.GetBRCTeamsForStudent(int(sid))
+	if err != nil {
+		return s.handleError(c, err)
+	}
+
+	return c.JSON(http.StatusOK, set)
+}
+
 func (s *Server) registerBRCTeam(c echo.Context) error {
 	idStr := c.Param("id")
 	id, err := strconv.ParseInt(idStr, 10, 32)
@@ -133,7 +148,7 @@ func (s *Server) joinBRCTeam(c echo.Context) error {
 		return s.handleError(c, err)
 	}
 
-	if err := s.mg.JoinBRCTeam(t.ID, t.SeasonID, req.StudentID); err != nil {
+	if err := s.mg.JoinBRCTeam(t.TeamID, t.SeasonID, req.StudentID); err != nil {
 		return s.handleError(c, err)
 	}
 	return c.NoContent(http.StatusNoContent)

@@ -8,10 +8,10 @@ const StudentsForm = ({ students, done }) => {
   return (
     <>
       {students &&
-        students.map(student => <SingleStudentForm key={student.ID} student={student} done={done} />)}
-        {students.length ? null : Array(newStudents).fill(0).map(() => <SingleStudentForm />)}
+        students.map(student => <SingleStudentForm key={student.ID} student={student} />)}
+        {Array(newStudents).fill(0).map(() => <SingleStudentForm />)}
         <Button icon="add" onClick={() => setNewStudents(newStudents + 1)}/>
-        <Button icon="check" onClick={done}>Done</Button>}
+        <Button icon="check" onClick={done}>Done</Button>
     </>
   );
 };

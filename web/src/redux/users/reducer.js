@@ -56,8 +56,6 @@ const reducer = handleActions(
       myStudents: students
     }),
     [updateMyStudent.success]: (state, { payload: { student } }) => {
-      console.log(student)
-      console.log(state.myStudents)
       const studentIndex = state.myStudents.findIndex(s => s.ID === student.ID)
       const myStudents = (studentIndex !== -1) ? [...state.myStudents.slice(0, studentIndex), student, ...state.myStudents.slice(studentIndex + 1)] : [...state.myStudents, student]
       return ({

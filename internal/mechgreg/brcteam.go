@@ -95,6 +95,33 @@ func (mg *MechanicalGreg) GetBRCTeamBySymbol(symbol string, seasonID int) (model
 	return mg.handleBRCTeamGet(brcteam, err)
 }
 
+// GetBRCTeamsForStudent performs a linear search through all team
+// rosters and returns any teams that the student is a member of.
+func (mg *MechanicalGreg) GetBRCTeamsForStudent(sid int) ([]models.BRCTeam, error) {
+	var brcteams []models.BRCTeam
+	err := mg.s.All(&brcteams)
+	if err != nil {
+		return nil, NewInternalError("An unspecified internal error has occured", err, http.StatusInternalServerError)
+	}
+
+	var out []models.BRCTeam
+	for i := range brcteams {
+		for j := range brcteams[i].Roster {
+			if brcteams[i].Roster[j].ID == sid {
+				out = append(out, brcteams[i])
+			}
+		}
+	}
+
+	// Run a populate pass on the list
+	for i := range out {
+		if err := mg.populateBRCTeam(&out[i]); err != nil {
+			log.Println("Error populating brcteam:", err)
+		}
+	}
+	return out, nil
+}
+
 // updateBRCTeam can update all fields on a BRCTeam struct.
 func (mg *MechanicalGreg) updateBRCTeam(teamID, seasonID int, update models.BRCTeam) error {
 	update.TeamID = teamID

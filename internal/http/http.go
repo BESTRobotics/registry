@@ -93,6 +93,7 @@ func New(mg MechGreg, tkn *token.RSATokenService, po mail.Mailer) (*Server, erro
 
 	s.ws.POST("v1/brc/join", s.joinBRCTeam)
 	s.ws.GET("v1/brc/:season/hubs", s.getBRCHubsForSeason)
+	s.ws.GET("v1/brc/teams/bystudent/:sid", s.getBRCTeamsByStudent)
 
 	s.ws.GET("v1/events", s.getEvents)
 	s.ws.POST("v1/events", s.newEvent)
