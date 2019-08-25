@@ -1,5 +1,5 @@
 import { takeEvery, select, call, put, all } from "redux-saga/effects";
-import { updateMyProfile, getMyProfile, getMyStudents, updateMyStudent, registerStudents } from "./reducer";
+import { updateMyProfile, getMyProfile, getMyStudents, updateMyStudent, registerStudents, getStudentRegistrations } from "./reducer";
 
 import * as api from "../../api";
 
@@ -94,7 +94,6 @@ function* updateMyProfileSaga({ payload: { profile } }) {
 
 function* registerStudentsSaga({ payload: { students, team, secret } }) {
   const token = yield select(({ loginReducer }) => loginReducer.token);
-  const id = yield select(({ loginReducer }) => loginReducer.id);
   try {
     yield all(students.map(s =>
       call(
@@ -105,11 +104,23 @@ function* registerStudentsSaga({ payload: { students, team, secret } }) {
         token
       )
     ));
-    yield put({
-      type: registerStudents.success,
-      payload: {}
-    });
-    yield put({ type: registerStudents.failure, payload: { error: { message: "Success" } } });
+    yield put({ type: registerStudents.success, payload: {} });
+  } catch (err) {
+    yield put({ type: registerStudents.failure, payload: { error: err } });
+  }
+}
+
+function* getStudentRegistrationsSaga({ payload: { students } }) {
+  const token = yield select(({ loginReducer }) => loginReducer.token);
+  try {
+    let registrations = yield all(students.map(s =>
+      call(
+        api.teamsByStudent,
+        s,
+        token
+      )
+    ));
+    yield put({ type: getStudentRegistrations.success, payload: { registrations } });
   } catch (err) {
     yield put({ type: registerStudents.failure, payload: { error: err } });
   }
@@ -120,5 +131,6 @@ export default [
   takeEvery(updateMyProfile.request, updateMyProfileSaga),
   takeEvery(getMyStudents.request, getMyStudentsSaga),
   takeEvery(updateMyStudent.request, updateMyStudentSaga),
-  takeEvery(registerStudents.request, registerStudentsSaga)
+  takeEvery(registerStudents.request, registerStudentsSaga),
+  takeEvery(getStudentRegistrations.request, getStudentRegistrationsSaga)
 ];

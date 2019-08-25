@@ -199,3 +199,11 @@ export function registerStudent(StudentID, SeasonID, JoinKey, token) {
     })
     .then(t => t.data);
 }
+
+export function teamsByStudent(StudentID, token) {
+  return axios
+    .get(`${url}/v1/brc/teams/bystudent/${StudentID}`, {
+      headers: { Authorization: token }
+    })
+    .then(t => t.data);
+}

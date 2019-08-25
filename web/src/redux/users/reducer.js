@@ -2,7 +2,8 @@ import { createActions, handleActions } from "redux-actions";
 
 const defaultState = {
   myProfile: null,
-  myStudents: []
+  myStudents: [],
+  registeredTeams: []
 };
 
 export const {
@@ -11,7 +12,8 @@ export const {
   getMyStudents,
   updateMyStudent,
   addEmptyStudent,
-  registerStudents
+  registerStudents,
+  getStudentRegistrations
 } = createActions({
   GET_MY_PROFILE: {
     REQUEST: () => ({}),
@@ -38,6 +40,11 @@ export const {
     SUCCESS: student => ({ student }),
     FAILURE: error => ({ error })
   },
+  GET_STUDENT_REGISTRATIONS: {
+    REQUEST: (students) => ({ students }),
+    SUCCESS: registrations => ({ registrations }),
+    FAILURE: error => ({ error })
+  },
 });
 
 const reducer = handleActions(
@@ -55,6 +62,9 @@ const reducer = handleActions(
       ...state,
       myStudents: students
     }),
+    [registerStudents.success]: (state, { payload: { students } }) => ({
+      ...state,
+    }),
     [updateMyStudent.success]: (state, { payload: { student } }) => {
       const studentIndex = state.myStudents.findIndex(s => s.ID === student.ID)
       const myStudents = (studentIndex !== -1) ? [...state.myStudents.slice(0, studentIndex), student, ...state.myStudents.slice(studentIndex + 1)] : [...state.myStudents, student]
@@ -62,7 +72,11 @@ const reducer = handleActions(
         ...state,
         myStudents
       })
-    }
+    },
+    [getStudentRegistrations.success]: (state, { payload: { registrations } }) => ({
+      ...state,
+      registeredTeams: registrations,
+    })
   },
   defaultState
 );

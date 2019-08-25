@@ -11,7 +11,7 @@ import NewTeam from "../userForms/NewTeam";
 import ProfileForm from "../userForms/ProfileForm";
 import { logout } from "../../redux/login/reducer";
 import { connect } from "react-redux";
-import { getMyProfile, getMyStudents, registerStudents } from "../../redux/users/reducer";
+import { getMyProfile, getMyStudents, registerStudents, getStudentRegistrations } from "../../redux/users/reducer";
 import { getSeasons } from "../../redux/hubs/reducer";
 import StudentsForm from "../userForms/StudentsForm";
 
@@ -23,6 +23,8 @@ const NewUser = ({
   seasons,
   myStudents,
   registerStudents,
+  registeredTeams,
+  getStudentRegistrations
 }) => {
   const [schoolModalOpen, setSchoolModalOpen] = useState(false);
   const [selectedStudents, setSelectedStudents] = useState([]);
@@ -39,7 +41,11 @@ const NewUser = ({
 
   useEffect(() => {
     myStudents && setSelectedStudents(myStudents.map(s => s.ID))
+    if ((myStudents && myStudents.length) && !(registeredTeams && registeredTeams.length)) {
+      getStudentRegistrations(myStudents.map(x => x.ID));
+    }
   }, [myStudents])
+  console.log(registeredTeams)
 
   return (
     <Grid centered columns={2}>
@@ -56,6 +62,16 @@ const NewUser = ({
       <Grid.Row>
         <Grid.Column>
           <Card fluid color="red">
+            {registeredTeams && registeredTeams.length ? (
+            <Card.Content>
+              <Card.Header as={Header} size="huge">
+                Your student is registered!
+              </Card.Header>
+              <Card.Description>
+                You are registered for {registeredTeams[0][0].Team.StaticName}
+              </Card.Description>
+            </Card.Content>
+            ) : (
             <Card.Content>
               <Card.Header as={Header} size="huge">
                 I am a Student or Parent in a Team
@@ -105,6 +121,7 @@ const NewUser = ({
                 )}
               </Card.Description>
             </Card.Content>
+              )}
           </Card>
         </Grid.Column>
       </Grid.Row>
@@ -175,6 +192,7 @@ const NewUser = ({
 const mapStateToProps = ({ usersReducer, hubsReducer }) => ({
   myProfile: usersReducer.myProfile,
   myStudents: usersReducer.myStudents,
+  registeredTeams: usersReducer.registeredTeams,
   seasons: hubsReducer.seasons
 });
 const mapDispatchToProps = {
@@ -182,7 +200,8 @@ const mapDispatchToProps = {
   getMyProfile: () => getMyProfile.request(),
   getSeasons: () => getSeasons.request(),
   getMyStudents: () => getMyStudents.request(),
-  registerStudents: (selectedStudents, selectedSeason, secret) => registerStudents.request(selectedStudents, selectedSeason, secret)
+  registerStudents: (selectedStudents, selectedSeason, secret) => registerStudents.request(selectedStudents, selectedSeason, secret),
+  getStudentRegistrations: (students) => getStudentRegistrations.request(students)
 };
 
 export default connect(
